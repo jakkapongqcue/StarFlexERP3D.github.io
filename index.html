@@ -10,6 +10,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <style>
     :root {
+      --screen-pad: 20px;
       --bg-app: #f1f5f9;
       --bg-panel: rgba(255, 255, 255, 0.94);
       --bg-card: #ffffff;
@@ -105,6 +106,7 @@
       overflow: hidden;
       width: 100vw;
       height: 100vh;
+      padding: var(--screen-pad);
       user-select: none;
     }
 
@@ -248,7 +250,7 @@
     /* Floating Center-Top Focus Process I/O Banner */
     #focusProcessBanner {
       position: fixed;
-      top: 112px;
+      top: calc(var(--screen-pad) + 64px);
       left: 50%;
       transform: translateX(-50%);
       z-index: 12;
@@ -310,16 +312,16 @@
     .focus-io-label.in-lbl { color: #0284c7; }
     .focus-io-label.out-lbl { color: #16a34a; }
 
-    /* Top Bar + KPI Cards + Zone Chips */
+    /* Top Bar + KPI Cards + Zone Chips (Inset from screen edges by --screen-pad) */
     #topHeader {
       position: fixed;
-      top: env(safe-area-inset-top, 10px);
-      left: 12px;
-      right: 12px;
+      top: calc(env(safe-area-inset-top, 0px) + var(--screen-pad));
+      left: calc(env(safe-area-inset-left, 0px) + var(--screen-pad));
+      right: calc(env(safe-area-inset-right, 0px) + var(--screen-pad));
       z-index: 10;
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 10px;
       pointer-events: none;
     }
 
@@ -327,7 +329,7 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 10px;
+      gap: 12px;
       flex-wrap: wrap;
     }
 
@@ -393,6 +395,43 @@
       background: var(--accent);
       color: #ffffff;
       border-color: var(--accent);
+    }
+
+    /* Segmented 3-Mode Theme Switcher: Light / Dark / System */
+    .theme-mode-group {
+      display: inline-flex;
+      align-items: center;
+      background: var(--bg-muted);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 2px;
+      gap: 2px;
+    }
+
+    .theme-mode-btn {
+      border: none;
+      background: transparent;
+      color: var(--text-secondary);
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+
+    .theme-mode-btn:hover {
+      color: var(--text-main);
+    }
+
+    .theme-mode-btn.active {
+      background: var(--accent);
+      color: #ffffff;
+      box-shadow: var(--shadow-sm);
     }
 
     .kpi-grid {
@@ -470,12 +509,12 @@
       color: #ffffff;
     }
 
-    /* Left Panel: Production Order Input Panel */
+    /* Left Panel: Production Order Input Panel (Inset from screen edges by --screen-pad) */
     #orderPanel {
       position: fixed;
-      top: 108px;
-      left: 12px;
-      bottom: 66px;
+      top: calc(env(safe-area-inset-top, 0px) + var(--screen-pad) + 64px);
+      left: calc(env(safe-area-inset-left, 0px) + var(--screen-pad));
+      bottom: calc(env(safe-area-inset-bottom, 0px) + var(--screen-pad) + 58px);
       width: 348px;
       z-index: 10;
       background: var(--bg-panel);
@@ -488,12 +527,12 @@
       overflow: hidden;
     }
 
-    /* Right Panel: Detail & Stock & Event Log (Shown only in Detailed Mode per Requirement 4) */
+    /* Right Panel: Detail & Stock & Event Log (Shown only in Detailed Mode) */
     #detailPanel {
       position: fixed;
-      top: 108px;
-      right: 12px;
-      bottom: 66px;
+      top: calc(env(safe-area-inset-top, 0px) + var(--screen-pad) + 64px);
+      right: calc(env(safe-area-inset-right, 0px) + var(--screen-pad));
+      bottom: calc(env(safe-area-inset-bottom, 0px) + var(--screen-pad) + 58px);
       width: 338px;
       z-index: 10;
       background: var(--bg-panel);
@@ -918,24 +957,39 @@
       margin-right: 4px;
     }
 
-    /* Bottom Stepper */
+    /* Bottom Unified Zone & Process Stepper Bar (Inset from screen edges by --screen-pad) */
     #bottomStepperBar {
       position: fixed;
-      left: 12px;
-      right: 12px;
-      bottom: env(safe-area-inset-bottom, 10px);
+      left: calc(env(safe-area-inset-left, 0px) + var(--screen-pad));
+      right: calc(env(safe-area-inset-right, 0px) + var(--screen-pad));
+      bottom: calc(env(safe-area-inset-bottom, 0px) + var(--screen-pad));
       z-index: 10;
       background: var(--bg-panel);
       backdrop-filter: blur(12px);
       border: 1px solid var(--border-color);
       border-radius: 12px;
-      padding: 8px 14px;
+      padding: 7px 12px;
       box-shadow: var(--shadow-md);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 6px;
+      gap: 10px;
       overflow-x: auto;
+    }
+
+    .bottom-bar-group {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      flex-shrink: 0;
+    }
+
+    .bottom-bar-divider {
+      width: 1px;
+      height: 22px;
+      background: var(--border-color);
+      flex-shrink: 0;
+      margin: 0 2px;
     }
 
     .step-node {
@@ -954,11 +1008,23 @@
       transition: all 0.15s;
     }
 
+    .step-node:hover {
+      border-color: var(--accent);
+      color: var(--text-main);
+    }
+
     .step-node .step-dot {
       width: 8px;
       height: 8px;
       border-radius: 50%;
       background: var(--text-muted);
+    }
+
+    .step-node.selected-cam {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+      color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
     }
 
     .step-node.active {
@@ -1000,11 +1066,14 @@
 
     /* Responsive Mobile Bottom-Sheet Layout */
     @media (max-width: 960px) {
+      :root {
+        --screen-pad: 14px;
+      }
       #orderPanel {
         top: auto;
-        bottom: 62px;
-        left: 8px;
-        right: 8px;
+        bottom: calc(env(safe-area-inset-bottom, 0px) + var(--screen-pad) + 56px);
+        left: calc(env(safe-area-inset-left, 0px) + var(--screen-pad));
+        right: calc(env(safe-area-inset-right, 0px) + var(--screen-pad));
         width: auto;
         max-height: 44vh;
       }
@@ -1012,9 +1081,9 @@
         display: none;
       }
       #focusProcessBanner {
-        top: 98px;
+        top: calc(var(--screen-pad) + 96px);
         min-width: 280px;
-        max-width: 92vw;
+        max-width: calc(100vw - (var(--screen-pad) * 2));
       }
     }
   </style>
@@ -1063,7 +1132,12 @@
         <button type="button" id="topLoopBtn" class="action-pill-btn" title="Repeat production order continuously">
           <span>🔁</span><span id="topLoopLabel">Loop: OFF</span>
         </button>
-        <button type="button" id="themeToggleBtn" class="zone-chip" title="Switch Light/Dark Theme">Theme</button>
+        <!-- 3-Way Theme Mode Selector: Light / Dark / System -->
+        <div class="theme-mode-group" id="themeModeGroup" role="group" aria-label="Color Theme Mode">
+          <button type="button" class="theme-mode-btn" data-theme-mode="light" title="Light Mode">☀️ Light</button>
+          <button type="button" class="theme-mode-btn" data-theme-mode="dark" title="Dark Mode">🌙 Dark</button>
+          <button type="button" class="theme-mode-btn active" data-theme-mode="system" title="Follow System Theme">💻 System</button>
+        </div>
         <button type="button" id="resetCameraBtn" class="zone-chip" title="Reset Camera View">Reset View</button>
       </div>
 
@@ -1078,10 +1152,11 @@
           <div class="kpi-val" id="kpiFgStockVal">0 pallets</div>
           <div class="kpi-sub" id="kpiFgStockSub">Ready for dispatch</div>
         </div>
-        <div class="kpi-card">
-          <div class="kpi-label">Process Mode</div>
-          <div class="kpi-val" id="kpiWasteVal">Visual Flow</div>
-          <div class="kpi-sub" id="kpiWasteSub">Minimal Mode</div>
+        <!-- Process Mode / Visual Flow KPI Card (Hidden in Minimal Mode per user request) -->
+        <div class="kpi-card hidden" id="kpiProcessModeCard">
+          <div class="kpi-label">Process Waste</div>
+          <div class="kpi-val" id="kpiWasteVal">0.0%</div>
+          <div class="kpi-sub" id="kpiWasteSub">Cumulative route waste</div>
         </div>
         <div class="kpi-card">
           <div class="kpi-label">Order Progress</div>
@@ -1090,21 +1165,6 @@
         </div>
       </div>
     </div>
-
-    <!-- Zone & Station Selection Chips -->
-    <nav class="chip-bar" id="zoneChipBar" aria-label="Factory Zones and Stations">
-      <button class="zone-chip active" data-target="ALL">All Factory</button>
-      <button class="zone-chip" data-target="ZONE_RM">Zone 1: Warehouse RM</button>
-      <button class="zone-chip" data-target="ZONE_PRD">Zone 2: PRD Linear Line</button>
-      <button class="zone-chip" data-target="ST_BLOWN">1. Blown Film</button>
-      <button class="zone-chip" data-target="ST_INK">2. Ink Mix</button>
-      <button class="zone-chip" data-target="ST_PRINT">3. Printing</button>
-      <button class="zone-chip" data-target="ST_LAM">4. Laminate</button>
-      <button class="zone-chip" data-target="ST_SLIT">5. Slit</button>
-      <button class="zone-chip" data-target="ST_BAG">6. Bag</button>
-      <button class="zone-chip" data-target="ST_SPOUT">7. Spout</button>
-      <button class="zone-chip" data-target="ZONE_FG">Zone 3: Warehouse FG &amp; Dock</button>
-    </nav>
   </header>
 
   <!-- Left Panel: Production Order Configuration -->
@@ -1172,8 +1232,8 @@
         </div>
       </div>
 
-      <!-- Minimal Mode Visual Flow Summary Card -->
-      <div id="minimalAssumptionsBox" class="minimal-flow-card">
+      <!-- Minimal Mode Visual Flow Summary Card (Hidden per user request 1) -->
+      <div id="minimalAssumptionsBox" class="minimal-flow-card hidden">
         <div style="display:flex;align-items:center;justify-content:space-between;">
           <strong style="color:var(--text-main);font-size:11.5px;">Visual Flow Mode</strong>
           <button type="button" id="jumpDetailedBtn" class="link-btn">Open Detailed &amp; Logs</button>
@@ -1308,7 +1368,7 @@
   <!-- Right Panel: Factory Overview, RM Stock & Event Log (Hidden in Minimal Mode per Requirement 4) -->
   <aside id="detailPanel" class="hidden" aria-label="Zone and Station Inspector Panel">
     <div class="panel-header">
-      <div class="panel-title" id="inspectorTitle">Factory Overview</div>
+      <div class="panel-title" id="inspectorTitle">Starflex Factory Overview</div>
       <span id="inspectorBadge" class="status-badge status-idle">All Zones</span>
     </div>
     <div class="panel-body">
@@ -1396,7 +1456,7 @@
       }
     };
 
-    /* Requirement 1 & 5: All 7 PRD stations aligned in a straight horizontal line (z = -6.0)
+    /* All 7 PRD stations aligned in a straight horizontal line (z = -6.0)
        with 17 units center-to-center spacing and dedicated non-overlapping dock points */
     const STATIONS_CONFIG = [
       {
@@ -1521,6 +1581,7 @@
        2. APPLICATION STATE (In-memory, no localStorage)
        ========================================================================= */
     const appState = {
+      themeMode: 'system',       // 'light' | 'dark' | 'system'
       inputMode: 'MINIMAL',      // 'MINIMAL' | 'DETAILED'
       productType: 'FG_ROLL',    // 'FG_ROLL' | 'FG_BAG' | 'FG_SPOUT'
       quantity: 20,
@@ -1645,7 +1706,7 @@
         }
         finalBoxes = Math.max(1, Math.ceil(finalRolls));
         orderSummaryLabel = isMinimal
-          ? 'FG Roll (Visual Flow)'
+          ? 'FG Roll'
           : (formatNum(finalRolls, 1) + ' rolls (' + formatNum(finalOutputKg, 1) + ' kg / ' + formatNum(finalMeters, 0) + ' m)');
       } else {
         finalPieces = isMinimal ? 3000 : Math.round(qty);
@@ -1656,7 +1717,7 @@
         finalMeters = finalRolls * mPerRoll;
         const pName = (appState.productType === 'FG_BAG') ? 'FG Bag' : 'FG Spout';
         orderSummaryLabel = isMinimal
-          ? (pName + ' (Visual Flow)')
+          ? pName
           : (formatNum(finalPieces, 0) + ' pcs (' + finalBoxes + ' boxes · ' + formatNum(finalOutputKg, 1) + ' kg)');
       }
 
@@ -1849,6 +1910,7 @@
 
     const sceneObjects = {
       floorGround: null,
+      roadMesh: null,
       zoneFloors: {},
       zoneBorders: {},
       selectableMeshes: [],
@@ -1874,7 +1936,7 @@
       return grp;
     }
 
-    /* Requirement 3: Industrial Multi-Tier Storage Rack Builder for RM & FG Warehouses */
+    /* Industrial Multi-Tier Storage Rack Builder for RM & FG Warehouses */
     function createIndustrialRackUnit(width, depth, height, uprightColorHex, beamColorHex) {
       const rack = new THREE.Group();
       const uprightMat = new THREE.MeshLambertMaterial({ color: uprightColorHex || 0x1d4ed8 });
@@ -2055,7 +2117,7 @@
       return kiosk;
     }
 
-    /* Requirement 2 & 5: Bespoke Industrial Machine Models with ZERO overlapping workers/objects */
+    /* Bespoke Industrial Machine Models with ZERO overlapping workers/objects */
     function buildRealisticStationMachine(st, rollersOut, reciprocatorsOut, extraWorkersOut) {
       const mGroup = new THREE.Group();
       const whiteSteel = new THREE.MeshLambertMaterial({ color: 0xf1f5f9 });
@@ -2174,7 +2236,7 @@
         });
 
       } else if (st.id === 'ST_SLIT') {
-        /* Requirement 2 (Image 2): Slit Machine
+        /* Slit Machine
            - Left: Large wide white master roll on dark axle stands
            - Middle: Dark grey parallel side walls with black guide rollers + central grooved slitting roller
            - Right: 4 mint-green narrow slit rolls (2x2) + front pallet with 3 upright mint-green rolls
@@ -2260,7 +2322,7 @@
         mGroup.add(slitKiosk);
 
       } else if (st.id === 'ST_BAG') {
-        /* Requirement 2 (Image 1): Dual-Lane Bag Making Machine
+        /* Dual-Lane Bag Making Machine
            - Left: 2 White Unwind Film Rolls on black stands
            - Next: 2 Coral-Pink stepped forming chambers
            - Middle: 2 pairs of dark vertical sealing bars with orange top strips
@@ -2555,7 +2617,7 @@
         );
       });
 
-      /* Requirement 1 & 5: Straight Linear Lanes across Zone 2 (PRD)
+      /* Straight Linear Lanes across Zone 2 (PRD)
          - Hand Pallet Truck straight WIP lane at z = +3.2
          - Forklift main straight highway at z = +8.8
          - Green pedestrian safety walkway at z = +14.2 */
@@ -2573,14 +2635,7 @@
       flStraightHighway.position.set(-4, 0.12, 8.8);
       scene.add(flStraightHighway);
 
-      const pedStraightWalkway = new THREE.Mesh(
-        new THREE.BoxGeometry(114, 0.04, 1.3),
-        new THREE.MeshLambertMaterial({ color: 0x22c55e })
-      );
-      pedStraightWalkway.position.set(0, 0.12, 14.2);
-      scene.add(pedStraightWalkway);
-
-      // Requirement 3: Build Zone 1 (Warehouse RM) Multi-Tier Industrial Storage Racks
+      // Build Zone 1 (Warehouse RM) Multi-Tier Industrial Storage Racks
       Object.keys(MATERIAL_CATALOG).forEach(function (matKey) {
         const item = MATERIAL_CATALOG[matKey];
         if (!item.rmPos) return;
@@ -2705,7 +2760,7 @@
         };
       });
 
-      // Requirement 3: Build Zone 3 (Warehouse FG) Multi-Tier Industrial Storage Racks & Delivery Dock
+      // Build Zone 3 (Warehouse FG) Multi-Tier Industrial Storage Racks & Delivery Dock
       for (let row = 0; row < 3; row++) {
         const zPos = -13 + row * 9;
         const fgRackGroup = new THREE.Group();
@@ -2744,6 +2799,7 @@
       );
       roadMesh.position.set(98, 0.06, 2);
       scene.add(roadMesh);
+      sceneObjects.roadMesh = roadMesh;
 
       const truck = createContainerTruckMesh();
       truck.position.set(98, 0.12, -2);
@@ -2789,19 +2845,6 @@
         tag.visible = false;
         vItem.veh.userData.palletTag = tag;
       });
-
-      /* Patrol Inspectors walk strictly along the z = +14.2 green safety walkway */
-      const inspector1 = createWorkerMesh(0xa855f7, 0xffffff);
-      inspector1.position.set(-24, 0.15, 14.2);
-      scene.add(inspector1);
-
-      const inspector2 = createWorkerMesh(0x06b6d4, 0xffffff);
-      inspector2.position.set(20, 0.15, 14.2);
-      scene.add(inspector2);
-      sceneObjects.patrolWorkers.push(
-        { mesh: inspector1, baseX: -24, baseZ: 14.2, span: 14, phase: 0 },
-        { mesh: inspector2, baseX: 20, baseZ: 14.2, span: 14, phase: 2.2 }
-      );
     }
 
     function setupCameraAndPointerControls() {
@@ -3061,7 +3104,7 @@
       tag.visible = true;
     }
 
-    /* Requirement 1 & 5: Collision-Free Straight Linear Waypoint Builders */
+    /* Collision-Free Straight Linear Waypoint Builders */
     function buildRmToStationPath(rmKey, stationId, isReturnToRm) {
       const rmDock = MATERIAL_CATALOG[rmKey].rmDock || MATERIAL_CATALOG[rmKey].rmPos;
       const st = STATION_MAP[stationId];
@@ -3600,13 +3643,6 @@
 
     function stepSimulationFrame(dt) {
       const nowSec = performance.now() * 0.001;
-      if (!prefersReducedMotion) {
-        sceneObjects.patrolWorkers.forEach(function (pw) {
-          const offset = Math.sin(nowSec * 0.9 + pw.phase) * pw.span;
-          pw.mesh.position.x = pw.baseX + offset;
-          pw.mesh.rotation.y = Math.cos(nowSec * 0.9 + pw.phase) >= 0 ? Math.PI / 2 : -Math.PI / 2;
-        });
-      }
 
       if (appState.simStatus !== 'RUNNING') return;
       const task = appState.tasks[appState.currentTaskIndex];
@@ -3679,8 +3715,47 @@
     }
 
     /* =========================================================================
-       6. UI BINDINGS: MINIMAL / DETAILED MODES, FOLLOW/LOOP & INSPECTOR
+       6. UI BINDINGS: THEME MODES (LIGHT/DARK/SYSTEM), MINIMAL/DETAILED & INSPECTOR
        ========================================================================= */
+    function refresh3DSceneThemeColors() {
+      scene.background = new THREE.Color(getCssVar('--scene-sky', '#e8eff7'));
+      if (sceneObjects.floorGround) {
+        sceneObjects.floorGround.material.color.set(getCssVar('--scene-ground', '#dde5ef'));
+      }
+      if (sceneObjects.roadMesh) {
+        sceneObjects.roadMesh.material.color.set(getCssVar('--road-color', '#334155'));
+      }
+      const zoneColorVars = {
+        ZONE_RM:  { floor: '--zone-rm-floor',  border: '--zone-rm-border' },
+        ZONE_PRD: { floor: '--zone-prd-floor', border: '--zone-prd-border' },
+        ZONE_FG:  { floor: '--zone-fg-floor',  border: '--zone-fg-border' }
+      };
+      Object.keys(zoneColorVars).forEach(function (zKey) {
+        if (sceneObjects.zoneFloors[zKey]) {
+          sceneObjects.zoneFloors[zKey].material.color.set(getCssVar(zoneColorVars[zKey].floor, '#dbeafe'));
+        }
+        if (sceneObjects.zoneBorders[zKey]) {
+          sceneObjects.zoneBorders[zKey].material.color.set(getCssVar(zoneColorVars[zKey].border, '#3b82f6'));
+        }
+      });
+    }
+
+    function applyThemeMode(mode) {
+      appState.themeMode = mode; // 'light' | 'dark' | 'system'
+      const root = document.documentElement;
+      if (mode === 'system') {
+        root.removeAttribute('data-theme');
+      } else {
+        root.setAttribute('data-theme', mode);
+      }
+
+      document.querySelectorAll('#themeModeGroup .theme-mode-btn').forEach(function (btn) {
+        btn.classList.toggle('active', btn.getAttribute('data-theme-mode') === mode);
+      });
+
+      refresh3DSceneThemeColors();
+    }
+
     function getPresetsForCurrentUnit() {
       if (appState.productType === 'FG_ROLL') {
         if (appState.unit === 'roll') return [10, 20, 50, 100];
@@ -3753,7 +3828,8 @@
       });
     }
 
-    /* Requirement 4: Show Factory Overview & Event Log (#detailPanel) ONLY when in Detailed Mode */
+    /* Show Factory Overview & Event Log (#detailPanel) ONLY when in Detailed Mode,
+       and keep Visual Flow Mode card (#minimalAssumptionsBox) hidden per request 1 */
     function setInputMode(mode) {
       appState.inputMode = mode;
       const isMinimal = (mode === 'MINIMAL');
@@ -3765,7 +3841,7 @@
       detBtn.classList.toggle('active', !isMinimal);
       detBtn.setAttribute('aria-selected', String(!isMinimal));
 
-      document.getElementById('minimalAssumptionsBox').classList.toggle('hidden', !isMinimal);
+      document.getElementById('minimalAssumptionsBox').classList.add('hidden');
       document.getElementById('detailedFieldsContainer').classList.toggle('hidden', isMinimal);
       document.getElementById('detailedSummarySection').classList.toggle('hidden', isMinimal);
       document.getElementById('detailPanel').classList.toggle('hidden', isMinimal);
@@ -3801,15 +3877,6 @@
       document.getElementById('convertedHintText').textContent = plan.orderSummaryLabel;
       document.getElementById('boxCountCalcText').textContent =
         plan.finalBoxes + ' boxes (' + appState.piecesPerBox + ' pcs/box)';
-
-      const routePillsEl = document.getElementById('minimalRouteStepsPreview');
-      if (routePillsEl) {
-        const pills = plan.routeIds.map(function (id) {
-          return '<span class="mini-step-pill">' + STATION_MAP[id].stepNum + '. ' + STATION_MAP[id].name + '</span>';
-        });
-        pills.push('<span class="mini-step-pill">Warehouse FG → Truck</span>');
-        routePillsEl.innerHTML = pills.join('<span style="color:var(--text-muted);font-size:10px;">➔</span>');
-      }
 
       if (!isMinimal) {
         const tbody = document.getElementById('summaryTableBody');
@@ -3857,10 +3924,15 @@
         ? (appState.fgStockPallets > 0 ? 'In FG Racks' : '0 pallets')
         : (appState.fgStockPallets + ' pallets');
       document.getElementById('kpiFgStockSub').textContent = appState.fgProducedDisplay;
-      document.getElementById('kpiWasteVal').textContent = isMinimal ? 'Visual Flow' : (plan.overallWastePct.toFixed(1) + '%');
-      document.getElementById('kpiWasteSub').textContent = isMinimal
-        ? (appState.loopRun ? 'Minimal · Loop ON' : 'Minimal Mode')
-        : 'Cumulative route waste';
+
+      // Hide Process Mode / Visual Flow KPI card in Minimal Mode; show Cumulative Waste % only in Detailed Mode
+      const processModeCard = document.getElementById('kpiProcessModeCard');
+      if (processModeCard) {
+        processModeCard.classList.toggle('hidden', isMinimal);
+      }
+      document.getElementById('kpiWasteVal').textContent = plan.overallWastePct.toFixed(1) + '%';
+      document.getElementById('kpiWasteSub').textContent = 'Cumulative route waste';
+
       document.getElementById('kpiProgressVal').textContent = appState.orderProgressPct + '%';
       document.getElementById('kpiProgressSub').textContent = appState.activeStepId
         ? ('Active: ' + appState.activeStepId.replace('ST_', '').replace('STEP_', ''))
@@ -3876,21 +3948,48 @@
 
       const stepperEl = document.getElementById('bottomStepperBar');
       const routeIds = plan.routeIds;
-      stepperEl.innerHTML = ALL_STEPPER_STEPS.map(function (st, idx) {
-        const isProcessStep = st.id.indexOf('ST_') === 0;
-        const isSkipped = isProcessStep && routeIds.indexOf(st.id) === -1;
-        const isDone = Boolean(appState.completedSteps[st.id]);
-        const isActive = (appState.activeStepId === st.id);
+      const zoneButtons = [
+        { target: 'ALL', label: 'All Factory' },
+        { target: 'ZONE_RM', label: 'Zone 1: RM' },
+        { target: 'ZONE_PRD', label: 'Zone 2: PRD Line' },
+        { target: 'ZONE_FG', label: 'Zone 3: FG & Dock' }
+      ];
 
-        let cls = 'step-node';
-        if (isSkipped) cls += ' skipped';
-        else if (isActive) cls += ' active';
-        else if (isDone) cls += ' done';
+      const zoneChipsHtml = '<div class="bottom-bar-group">' +
+        zoneButtons.map(function (zb) {
+          const isSelected = (appState.selectedTarget === zb.target);
+          return '<button type="button" class="zone-chip' + (isSelected ? ' active' : '') +
+            '" data-zoneclick="' + zb.target + '">' + zb.label + '</button>';
+        }).join('') +
+        '</div>';
 
-        const arrow = (idx < ALL_STEPPER_STEPS.length - 1) ? '<span class="step-arrow">→</span>' : '';
-        return '<div class="' + cls + '" data-stepclick="' + st.id + '">' +
-          '<span class="step-dot"></span><span>' + st.label + '</span></div>' + arrow;
-      }).join('');
+      const stepsHtml = '<div class="bottom-bar-group">' +
+        ALL_STEPPER_STEPS.map(function (st, idx) {
+          const isProcessStep = st.id.indexOf('ST_') === 0;
+          const isSkipped = isProcessStep && routeIds.indexOf(st.id) === -1;
+          const isDone = Boolean(appState.completedSteps[st.id]);
+          const isActive = (appState.activeStepId === st.id);
+          const isCamSelected = (appState.selectedTarget === st.id);
+
+          let cls = 'step-node';
+          if (isSkipped) cls += ' skipped';
+          else if (isActive) cls += ' active';
+          else if (isDone) cls += ' done';
+          if (isCamSelected && !isActive) cls += ' selected-cam';
+
+          const arrow = (idx < ALL_STEPPER_STEPS.length - 1) ? '<span class="step-arrow">→</span>' : '';
+          return '<div class="' + cls + '" data-stepclick="' + st.id + '">' +
+            '<span class="step-dot"></span><span>' + st.label + '</span></div>' + arrow;
+        }).join('') +
+        '</div>';
+
+      stepperEl.innerHTML = zoneChipsHtml + '<div class="bottom-bar-divider"></div>' + stepsHtml;
+
+      stepperEl.querySelectorAll('[data-zoneclick]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          selectZoneOrStation(btn.getAttribute('data-zoneclick'));
+        });
+      });
 
       stepperEl.querySelectorAll('.step-node').forEach(function (node) {
         node.addEventListener('click', function () {
@@ -3968,9 +4067,6 @@
 
     function selectZoneOrStation(targetKey) {
       appState.selectedTarget = targetKey;
-      document.querySelectorAll('#zoneChipBar .zone-chip').forEach(function (chip) {
-        chip.classList.toggle('active', chip.getAttribute('data-target') === targetKey);
-      });
       focusCameraOnTarget(targetKey);
       updateDashboardUI();
       refreshAll3DTextLabels();
@@ -4052,7 +4148,8 @@
     function bindAllUIEvents() {
       document.getElementById('modeMinimalBtn').addEventListener('click', function () { setInputMode('MINIMAL'); });
       document.getElementById('modeDetailedBtn').addEventListener('click', function () { setInputMode('DETAILED'); });
-      document.getElementById('jumpDetailedBtn').addEventListener('click', function () { setInputMode('DETAILED'); });
+      const jumpBtn = document.getElementById('jumpDetailedBtn');
+      if (jumpBtn) jumpBtn.addEventListener('click', function () { setInputMode('DETAILED'); });
 
       document.getElementById('topFollowBtn').addEventListener('click', toggleFollowFlow);
       document.getElementById('panelFollowBtn').addEventListener('click', toggleFollowFlow);
@@ -4171,28 +4268,33 @@
         renderEventLogDOM();
       });
 
-      document.querySelectorAll('#zoneChipBar .zone-chip').forEach(function (chip) {
-        chip.addEventListener('click', function () {
-          selectZoneOrStation(chip.getAttribute('data-target'));
-        });
-      });
-
       document.getElementById('resetCameraBtn').addEventListener('click', function () {
         appState.followFlow = false;
         syncFollowAndLoopButtonsUI();
         selectZoneOrStation('ALL');
       });
 
-      document.getElementById('themeToggleBtn').addEventListener('click', function () {
-        const root = document.documentElement;
-        const curr = root.getAttribute('data-theme');
-        const next = (curr === 'dark') ? 'light' : 'dark';
-        root.setAttribute('data-theme', next);
-        scene.background = new THREE.Color(getCssVar('--scene-sky', '#e8eff7'));
-        if (sceneObjects.floorGround) {
-          sceneObjects.floorGround.material.color.set(getCssVar('--scene-ground', '#dde5ef'));
-        }
+      /* 3-Mode Theme Switcher: Light / Dark / System */
+      document.querySelectorAll('#themeModeGroup .theme-mode-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          const mode = btn.getAttribute('data-theme-mode');
+          applyThemeMode(mode);
+        });
       });
+
+      if (window.matchMedia) {
+        const darkQuery = window.matchMedia('(prefers-color-scheme: dark)');
+        const onSystemChange = function () {
+          if (appState.themeMode === 'system') {
+            refresh3DSceneThemeColors();
+          }
+        };
+        if (darkQuery.addEventListener) {
+          darkQuery.addEventListener('change', onSystemChange);
+        } else if (darkQuery.addListener) {
+          darkQuery.addListener(onSystemChange);
+        }
+      }
     }
 
     /* =========================================================================
@@ -4203,6 +4305,7 @@
     syncUnitOptionsAndPresets();
     renderWasteInputsGrid();
     bindAllUIEvents();
+    applyThemeMode('system');
     syncFollowAndLoopButtonsUI();
     recalculateAndRenderUI();
     appendEventLog('Starflex ERP 3D initialized with linear PRD line.');
