@@ -1733,105 +1733,86 @@
       ZONE_RM: {
         id: 'ZONE_RM',
         name: 'Warehouse RM',
-        role: 'Multi-level industrial pallet racking storing 9 raw material types and intermediate stock (Blown Film, Ready-to-use Ink).',
-        handling: 'RM Forklift picks pallets from RM racks and drives along the straight main aisle to PRD stations.',
-        center: [-86, 0, 2],
-        size: [36, 46]
+        role: 'Multi-level industrial pallet racking storing raw materials (resin, films, inks, solvents, adhesives, boxes).',
+        handling: 'RM Forklift retrieves pallets from racks and delivers along the central aisle.',
+        center: [-86, 0, 0],
+        size: [36, 44]
       },
       ZONE_PRD: {
         id: 'ZONE_PRD',
-        name: 'PRD (Linear Production Line)',
-        role: 'Seven packaging process machines arranged in a straight horizontal line from left to right.',
-        handling: 'Hand Pallet Truck transfers WIP straight along the front WIP lane (z = +3.2); Forklifts use the outer main highway (z = +8.8).',
-        center: [0, 0, 2],
-        size: [128, 46]
+        name: 'PRD Line (2-Row Production)',
+        role: 'Two-row flexible packaging manufacturing: Row 1 (Blown Film, Printing, Bag, Spout) & Row 2 (Ink Mix, PRD WH, Laminate, Slit).',
+        handling: 'Central transit highway (z = 0) connects all stations with designated Infeed & Outfeed bays.',
+        center: [0, 0, 0],
+        size: [126, 44]
+      },
+      ZONE_PRD_WH: {
+        id: 'ZONE_PRD_WH',
+        name: 'PRD WH (Production & WIP Warehouse)',
+        role: 'Intermediate WIP staging and adhesive/film curing racks holding Printed & Laminated rolls, slit rolls, and ink batches before pouch making.',
+        handling: 'Curing area and buffer storage between printing, lamination, slitting, and bag conversion.',
+        center: [-15, 0, 12],
+        size: [24, 18]
       },
       ZONE_FG: {
         id: 'ZONE_FG',
-        name: 'Warehouse FG & Delivery',
-        role: 'Multi-tier FG pallet storage racks and Delivery loading dock with parked Container Truck.',
-        handling: 'FG Forklift collects finished pallets from PRD into FG racks; Delivery Forklift loads the Container Truck.',
-        center: [87, 0, 2],
-        size: [38, 46]
+        name: 'Warehouse FG & Dock',
+        role: 'Multi-tier FG pallet storage racks and Delivery loading dock with parked Logistics Delivery Truck.',
+        handling: 'FG Forklift collects finished pallets from PRD into FG racks; Delivery Forklift loads the delivery truck at the dock.',
+        center: [87, 0, 0],
+        size: [38, 44]
       }
     };
 
-    /* All 7 PRD stations aligned in a straight horizontal line (z = -6.0)
-       with 17 units center-to-center spacing and dedicated non-overlapping dock points */
+    /* Two-Row Flexible Packaging Factory Layout (User Request):
+       - Row 1 (North / z = -12.0): Blown Film (Col 1), Printing (Col 2), Bag (Col 3), Spout (Col 4)
+       - Row 2 (South / z = +12.0): Ink Mix (Col 1), PRD WH (Col 2), Laminate (Col 3), Slit (Col 4)
+       - Central transit highway at z = 0.0 with dedicated Infeed & Outfeed bays beside each machine */
     const STATIONS_CONFIG = [
+      // Row 1 (North row / z = -12.0)
       {
         id: 'ST_BLOWN',
         stepNum: 1,
         name: 'Blown Film',
-        pos: [-51, 0, -6.0],
-        flDock: [-51, 0, 6.2],
-        hptDock: [-51, 0, 3.2],
+        row: 1,
+        pos: [-45, 0, -12.0],
+        flDock: [-45, 0, -5.0],
+        hptDock: [-45, 0, -5.0],
+        infeedMat: ['RESIN'],
+        outfeedMat: ['BLOWN_FILM'],
         padColor: 0x334155,
         defaultWaste: 3.0,
         inputSummary: 'Resin bags (Warehouse RM)',
-        outputSummary: 'Blown Film Roll → Warehouse RM',
+        outputSummary: 'Blown Film Roll → Printing / PRD WH',
         desc: 'Extruder melts resin pellets and blows vertical tubular film bubble through air ring and calibration basket.'
-      },
-      {
-        id: 'ST_INK',
-        stepNum: 2,
-        name: 'Ink Mix',
-        pos: [-34, 0, -6.0],
-        flDock: [-34, 0, 6.2],
-        hptDock: [-34, 0, 3.2],
-        padColor: 0x334155,
-        defaultWaste: 2.0,
-        inputSummary: 'Base-color ink drums (Warehouse RM)',
-        outputSummary: 'Ready-to-use Ink → Warehouse RM',
-        desc: 'High-shear stainless agitation tanks blend base gravure inks to job color target.'
       },
       {
         id: 'ST_PRINT',
         stepNum: 3,
         name: 'Printing',
-        pos: [-17, 0, -6.0],
-        flDock: [-17, 0, 6.2],
-        hptDock: [-17, 0, 3.2],
+        row: 1,
+        pos: [-15, 0, -12.0],
+        flDock: [-15, 0, -5.0],
+        hptDock: [-15, 0, -5.0],
+        infeedMat: ['BLOWN_FILM', 'MIXED_INK', 'CYLINDER'],
+        outfeedMat: ['PRINTING_ROLL'],
         padColor: 0x334155,
         defaultWaste: 4.0,
         inputSummary: 'Base Film + Cylinder + Ink + Solvent',
-        outputSummary: 'Printing Roll (WIP)',
+        outputSummary: 'Printing Roll (WIP) → PRD WH / Laminate',
         desc: 'Multi-unit rotogravure printing press with active Unwinder roll on the left, overhead web drying bridge, and Rewinder roll on the right.'
-      },
-      {
-        id: 'ST_LAM',
-        stepNum: 4,
-        name: 'Laminate',
-        pos: [0, 0, -6.0],
-        flDock: [0, 0, 6.2],
-        hptDock: [0, 0, 3.2],
-        padColor: 0x334155,
-        defaultWaste: 3.0,
-        inputSummary: 'Printing Roll + Laminate Film + Adhesive',
-        outputSummary: 'Laminate Roll (WIP)',
-        desc: 'Dry lamination machine with primary Printed Roll unwinder, secondary Laminate Film unwinder, overhead drying oven bridge, and Rewinder roll.'
-      },
-      {
-        id: 'ST_SLIT',
-        stepNum: 5,
-        name: 'Slit',
-        pos: [17, 0, -6.0],
-        flDock: [17, 0, 6.2],
-        hptDock: [17, 0, 3.2],
-        padColor: 0x1f6f78, /* Teal pad matching Slit reference image */
-        defaultWaste: 2.0,
-        inputSummary: 'Laminate Roll + Papercore (+ Box)',
-        outputSummary: 'Slit Roll',
-        desc: 'Slitter rewinder with white master unwind roll, grooved slitting knife shaft, and 4 mint-green slit rolls.'
       },
       {
         id: 'ST_BAG',
         stepNum: 6,
         name: 'Bag',
-        pos: [34, 0, -6.0],
-        flDock: [34, 0, 6.2],
-        hptDock: [34, 0, 3.2],
-        padColor: 0x7f3b42, /* Maroon pad matching Bag reference image */
+        row: 1,
+        pos: [15, 0, -12.0],
+        flDock: [15, 0, -5.0],
+        hptDock: [15, 0, -5.0],
+        infeedMat: ['SLIT_ROLL', 'BOX'],
+        outfeedMat: ['FG_BAG_BOX'],
+        padColor: 0x7f3b42,
         defaultWaste: 3.0,
         inputSummary: 'Slit/Laminate Roll + Corrugated Box',
         outputSummary: 'Bag (Finished Stand-up Pouch)',
@@ -1841,14 +1822,67 @@
         id: 'ST_SPOUT',
         stepNum: 7,
         name: 'Spout',
-        pos: [51, 0, -6.0],
-        flDock: [51, 0, 6.2],
-        hptDock: [51, 0, 3.2],
+        row: 1,
+        pos: [45, 0, -12.0],
+        flDock: [45, 0, -5.0],
+        hptDock: [45, 0, -5.0],
+        infeedMat: ['FG_BAG_BOX', 'SPOUT'],
+        outfeedMat: ['FG_SPOUT_BOX'],
         padColor: 0x334155,
         defaultWaste: 2.0,
         inputSummary: 'Bag + Spout Caps + Corrugated Box',
         outputSummary: 'Bag with Spout (Boxed)',
         desc: 'Vibratory bowl feeder and ultrasonic rotary welder attaching plastic spouts onto pouches.'
+      },
+
+      // Row 2 (South row / z = +12.0)
+      {
+        id: 'ST_INK',
+        stepNum: 2,
+        name: 'Ink Mix',
+        row: 2,
+        pos: [-45, 0, 12.0],
+        flDock: [-45, 0, 5.0],
+        hptDock: [-45, 0, 5.0],
+        infeedMat: ['RM_INK', 'SOLVENT'],
+        outfeedMat: ['MIXED_INK'],
+        padColor: 0x334155,
+        defaultWaste: 2.0,
+        inputSummary: 'Base-color ink drums (Warehouse RM)',
+        outputSummary: 'Ready-to-use Ink → Printing',
+        desc: 'High-shear stainless agitation tanks blend base gravure inks to job color target.'
+      },
+      {
+        id: 'ST_LAM',
+        stepNum: 4,
+        name: 'Laminate',
+        row: 2,
+        pos: [15, 0, 12.0],
+        flDock: [15, 0, 5.0],
+        hptDock: [15, 0, 5.0],
+        infeedMat: ['PRINTING_ROLL', 'LAMINATE_FILM', 'ADHESIVE'],
+        outfeedMat: ['LAMINATE_ROLL'],
+        padColor: 0x334155,
+        defaultWaste: 3.0,
+        inputSummary: 'Printing Roll + Laminate Film + Adhesive',
+        outputSummary: 'Laminate Roll (WIP) → PRD WH / Slit',
+        desc: 'Dry lamination machine with primary Printed Roll unwinder, secondary Laminate Film unwinder, overhead drying oven bridge, and Rewinder roll.'
+      },
+      {
+        id: 'ST_SLIT',
+        stepNum: 5,
+        name: 'Slit',
+        row: 2,
+        pos: [45, 0, 12.0],
+        flDock: [45, 0, 5.0],
+        hptDock: [45, 0, 5.0],
+        infeedMat: ['LAMINATE_ROLL', 'PAPERCORE'],
+        outfeedMat: ['SLIT_ROLL'],
+        padColor: 0x1f6f78,
+        defaultWaste: 2.0,
+        inputSummary: 'Laminate Roll + Papercore (+ Box)',
+        outputSummary: 'Slit Roll → Bag / Warehouse FG',
+        desc: 'Slitter rewinder with white master unwind roll, grooved slitting knife shaft, and 4 mint-green slit rolls.'
       }
     ];
 
@@ -3334,6 +3368,43 @@
       return item;
     }
 
+    /* Helper: Create Demarcated Station Material Bay (Yellow Floor Border + Stencil Label + Pallet with Authentic Materials) */
+    function createDemarcatedStationBay(label, matKeysList, xPos, zPos) {
+      const bayGroup = new THREE.Group();
+      bayGroup.position.set(xPos, 0.18, zPos);
+
+      // Yellow floor demarcation box (Image 2 style)
+      const lineMat = new THREE.MeshLambertMaterial({ color: 0xfacc15 });
+      const borderBox = new THREE.Mesh(new THREE.BoxGeometry(2.3, 0.03, 2.3), lineMat);
+      borderBox.position.y = 0.02;
+      bayGroup.add(borderBox);
+
+      const innerPad = new THREE.Mesh(
+        new THREE.BoxGeometry(2.1, 0.04, 2.1),
+        new THREE.MeshLambertMaterial({ color: 0x1e293b })
+      );
+      innerPad.position.y = 0.025;
+      bayGroup.add(innerPad);
+
+      // Stencil indicator bar (Blue for Infeed, Green for Outfeed)
+      const isOut = label.indexOf('OUT') !== -1;
+      const stencilPlate = new THREE.Mesh(
+        new THREE.BoxGeometry(1.6, 0.02, 0.35),
+        new THREE.MeshLambertMaterial({ color: isOut ? 0x16a34a : 0x0284c7 })
+      );
+      stencilPlate.position.set(0, 0.05, 0.95);
+      bayGroup.add(stencilPlate);
+
+      // Pallet with authentic material
+      const primaryKey = (matKeysList && matKeysList[0]) ? matKeysList[0] : 'RESIN';
+      const palletCargo = createCargoVisualByKey(primaryKey);
+      palletCargo.scale.set(0.78, 0.78, 0.78);
+      palletCargo.position.set(0, 0.05, -0.05);
+      bayGroup.add(palletCargo);
+
+      return bayGroup;
+    }
+
     function buildFactoryScene() {
       scene.background = new THREE.Color(getCssVar('--scene-sky', '#e8eff7'));
 
@@ -3347,9 +3418,10 @@
       sceneObjects.floorGround = groundMesh;
 
       const zoneColorVars = {
-        ZONE_RM:  { floor: '--zone-rm-floor',  border: '--zone-rm-border' },
-        ZONE_PRD: { floor: '--zone-prd-floor', border: '--zone-prd-border' },
-        ZONE_FG:  { floor: '--zone-fg-floor',  border: '--zone-fg-border' }
+        ZONE_RM:     { floor: '--zone-rm-floor',  border: '--zone-rm-border' },
+        ZONE_PRD:    { floor: '--zone-prd-floor', border: '--zone-prd-border' },
+        ZONE_PRD_WH: { floor: '--zone-prd-floor', border: '--zone-prd-border' },
+        ZONE_FG:     { floor: '--zone-fg-floor',  border: '--zone-fg-border' }
       };
 
       Object.keys(ZONES_CONFIG).forEach(function (zKey) {
@@ -3382,23 +3454,37 @@
         );
       });
 
-      /* Straight Linear Lanes across Zone 2 (PRD)
-         - Hand Pallet Truck straight WIP lane at z = +3.2
-         - Forklift main straight highway at z = +8.8
-         (Green walkway and patrol workers removed per user request) */
-      const hptStraightLane = new THREE.Mesh(
-        new THREE.BoxGeometry(114, 0.05, 1.5),
-        new THREE.MeshLambertMaterial({ color: 0xfbbf24 })
+      /* Central Multi-Lane Highway across Zone 2 (PRD) at z = 0.0
+         - Connects Warehouse RM on left to Warehouse FG on right
+         - Features asphalt road with dashed yellow center dividing line and pedestrian safety crossings */
+      const highwayRoad = new THREE.Mesh(
+        new THREE.BoxGeometry(140, 0.05, 4.4),
+        new THREE.MeshLambertMaterial({ color: 0x334155 })
       );
-      hptStraightLane.position.set(0, 0.12, 3.2);
-      scene.add(hptStraightLane);
+      highwayRoad.position.set(0, 0.12, 0);
+      scene.add(highwayRoad);
 
-      const flStraightHighway = new THREE.Mesh(
-        new THREE.BoxGeometry(156, 0.04, 2.8),
-        new THREE.MeshLambertMaterial({ color: 0x94a3b8 })
-      );
-      flStraightHighway.position.set(-4, 0.12, 8.8);
-      scene.add(flStraightHighway);
+      // Dashed yellow center dividing line
+      for (let xDash = -66; xDash <= 66; xDash += 6) {
+        const dash = new THREE.Mesh(
+          new THREE.BoxGeometry(3.0, 0.06, 0.18),
+          new THREE.MeshLambertMaterial({ color: 0xfacc15 })
+        );
+        dash.position.set(xDash, 0.15, 0);
+        scene.add(dash);
+      }
+
+      // Zebra safety pedestrian crossings at column entrances (Image 3 & 4 style)
+      [-45, -15, 15, 45].forEach(function (zx) {
+        for (let i = -1.6; i <= 1.6; i += 0.8) {
+          const zStrip = new THREE.Mesh(
+            new THREE.BoxGeometry(1.4, 0.06, 0.35),
+            new THREE.MeshLambertMaterial({ color: 0xf8fafc })
+          );
+          zStrip.position.set(zx, 0.15, i);
+          scene.add(zStrip);
+        }
+      });
 
       // Build Zone 1 (Warehouse RM) Multi-Tier Industrial Storage Racks
       Object.keys(MATERIAL_CATALOG).forEach(function (matKey) {
@@ -3408,8 +3494,8 @@
         const bayGroup = new THREE.Group();
         bayGroup.position.set(item.rmPos[0], 0.1, item.rmPos[2]);
 
-        // Multi-tier steel rack frame (blue uprights + orange load beams)
-        const rackUnit = createIndustrialRackUnit(6.6, 3.4, 4.8, 0x1e40af, 0xf97316);
+        // Multi-tier steel rack frame (blue uprights + orange load beams like Image 1)
+        const rackUnit = createIndustrialRackUnit(6.6, 3.4, 4.8, 0x1d4ed8, 0xf97316);
         bayGroup.add(rackUnit);
 
         // Lower level active pallets (2 pallets side by side)
@@ -3443,14 +3529,14 @@
         };
       });
 
-      // Build Zone 2: 7 PRD Process Stations aligned in a straight horizontal row at z = -6.0
+      // Build Zone 2: 7 PRD Process Stations in 2 Rows with dedicated Infeed & Outfeed bays (User Request)
       STATIONS_CONFIG.forEach(function (st) {
         const stGroup = new THREE.Group();
         stGroup.position.set(st.pos[0], 0.1, st.pos[2]);
 
-        // Base machine pad (12.2 wide x 7.4 deep, spanning z: -9.7 to -2.3 in world space)
+        // Station base pad (14.0 wide x 9.6 deep)
         const baseMesh = new THREE.Mesh(
-          new THREE.BoxGeometry(12.2, 0.35, 7.4),
+          new THREE.BoxGeometry(14.0, 0.32, 9.6),
           new THREE.MeshLambertMaterial({ color: st.padColor || 0x334155 })
         );
         baseMesh.position.y = 0.18;
@@ -3458,34 +3544,42 @@
         stGroup.add(baseMesh);
         sceneObjects.selectableMeshes.push(baseMesh);
 
+        // 1. INFEED BAY on the left side of machine (Demarcated yellow floor box with raw material / WIP)
+        const infeedBay = createDemarcatedStationBay('INFEED', st.infeedMat || ['RESIN'], -5.0, 0);
+        stGroup.add(infeedBay);
+
+        // 2. MACHINE MODEL in center of the pad
         const rollers = [];
         const reciprocators = [];
         const extraWorkers = [];
         const machineModel = buildRealisticStationMachine(st, rollers, reciprocators, extraWorkers);
         stGroup.add(machineModel);
 
+        // 3. OUTFEED BAY on the right side of machine (Demarcated yellow floor box with output WIP / FG product)
+        const outfeedBay = createDemarcatedStationBay('OUTFEED', st.outfeedMat || ['BLOWN_FILM'], 5.0, 0);
+        stGroup.add(outfeedBay);
+
         // Status Beacon Light
         const beaconMat = new THREE.MeshBasicMaterial({ color: 0x94a3b8 });
         const beacon = new THREE.Mesh(new THREE.SphereGeometry(0.42, 12, 12), beaconMat);
-        beacon.position.set(4.8, 5.4, -2.5);
+        beacon.position.set(5.8, 5.4, -2.5);
         stGroup.add(beacon);
 
-        // Primary Station Worker placed at non-overlapping front position on the pad
+        // Primary Station Worker placed facing the central highway
+        const isRow1 = (st.pos[2] < 0);
         let workerColor = 0xfacc15;
         let workerX = -0.5;
-        let workerZ = 2.4;
+        let workerZ = isRow1 ? 2.6 : -2.6;
         if (st.id === 'ST_SLIT') {
           workerColor = 0x10b981; // Green shirt worker matching Slit reference image
           workerX = -0.4;
-          workerZ = 2.15;
         } else if (st.id === 'ST_BAG') {
-          workerColor = 0x2563eb; // Blue shirt worker next to blue kiosk matching Bag reference image
+          workerColor = 0x2563eb; // Blue shirt worker next to kiosk
           workerX = 1.05;
-          workerZ = 2.45;
         }
         const worker = createWorkerMesh(workerColor, 0xfacc15);
         worker.position.set(workerX, 0.35, workerZ);
-        worker.rotation.y = Math.PI;
+        worker.rotation.y = isRow1 ? Math.PI : 0;
         stGroup.add(worker);
 
         scene.add(stGroup);
@@ -3500,13 +3594,13 @@
 
         const inTag = registerLabel3D(
           'In: ' + st.inputSummary,
-          new THREE.Vector3(st.pos[0] - 3.3, 3.1, st.pos[2] + 3.2),
+          new THREE.Vector3(st.pos[0] - 4.5, 3.2, st.pos[2] + (isRow1 ? 2.8 : -2.8)),
           'tag-io io-in',
           st.id
         );
         const outTag = registerLabel3D(
           'Out: ' + st.outputSummary,
-          new THREE.Vector3(st.pos[0] + 3.3, 3.1, st.pos[2] + 3.2),
+          new THREE.Vector3(st.pos[0] + 4.5, 3.2, st.pos[2] + (isRow1 ? 2.8 : -2.8)),
           'tag-io io-out',
           st.id
         );
@@ -3525,7 +3619,91 @@
         };
       });
 
-      // Build Zone 3 (Warehouse FG) Multi-Tier Industrial Storage Racks & Delivery Dock
+      // Build PRD WH (Production Warehouse & Curing Area) in Row 2, Column 2 at x = -15, z = +12 (User Request)
+      const prdWhGroup = new THREE.Group();
+      prdWhGroup.position.set(-15, 0.1, 12);
+
+      // PRD WH Base Pad
+      const prdWhFloor = new THREE.Mesh(
+        new THREE.BoxGeometry(22, 0.28, 16),
+        new THREE.MeshLambertMaterial({ color: 0x1e293b })
+      );
+      prdWhFloor.position.y = 0.14;
+      prdWhFloor.userData.selectKey = 'ZONE_PRD_WH';
+      prdWhGroup.add(prdWhFloor);
+      sceneObjects.selectableMeshes.push(prdWhFloor);
+
+      const prdWhEdges = new THREE.EdgesGeometry(new THREE.BoxGeometry(22.2, 0.32, 16.2));
+      const prdWhBorder = new THREE.LineSegments(prdWhEdges, new THREE.LineBasicMaterial({ color: 0xf59e0b }));
+      prdWhBorder.position.y = 0.16;
+      prdWhGroup.add(prdWhBorder);
+
+      // Dual-level industrial storage & curing rack unit (Image 1 style: blue uprights + orange beams)
+      const prdRack1 = createIndustrialRackUnit(8.8, 3.2, 4.8, 0x1d4ed8, 0xf97316);
+      prdRack1.position.set(-4.5, 0.14, 0);
+      prdRack1.rotation.y = Math.PI / 2;
+      prdWhGroup.add(prdRack1);
+
+      // Curing Rolls on lower & upper levels (Printed and Laminated rolls undergoing adhesive curing)
+      const curingRoll1 = createCargoVisualByKey('PRINTING_ROLL');
+      curingRoll1.position.set(0, 0.26, -1.8);
+      prdRack1.add(curingRoll1);
+
+      const curingRoll2 = createCargoVisualByKey('LAMINATE_ROLL');
+      curingRoll2.position.set(0, 0.26, 1.8);
+      prdRack1.add(curingRoll2);
+
+      const upperRoll1 = createCargoVisualByKey('SLIT_ROLL');
+      upperRoll1.position.set(0, 2.65, 0);
+      prdRack1.add(upperRoll1);
+
+      // Second Rack unit for staging boxes & materials
+      const prdRack2 = createIndustrialRackUnit(8.8, 3.2, 4.8, 0x1d4ed8, 0xf97316);
+      prdRack2.position.set(4.5, 0.14, 0);
+      prdRack2.rotation.y = Math.PI / 2;
+      prdWhGroup.add(prdRack2);
+
+      const stagingBox1 = createCargoVisualByKey('BOX');
+      stagingBox1.position.set(0, 0.26, -1.8);
+      prdRack2.add(stagingBox1);
+
+      const stagingBox2 = createCargoVisualByKey('MIXED_INK');
+      stagingBox2.position.set(0, 0.26, 1.8);
+      prdRack2.add(stagingBox2);
+
+      const upperBox1 = createCargoVisualByKey('FG_BAG_BOX');
+      upperBox1.position.set(0, 2.65, 0);
+      prdRack2.add(upperBox1);
+
+      // Central aisle between racks in PRD WH with cyan guide lines & arrows (Image 1 style)
+      const prdAisleLine1 = new THREE.Mesh(
+        new THREE.BoxGeometry(0.12, 0.04, 11),
+        new THREE.MeshLambertMaterial({ color: 0x38bdf8 })
+      );
+      prdAisleLine1.position.set(-1.8, 0.30, 0);
+      prdWhGroup.add(prdAisleLine1);
+
+      const prdAisleLine2 = new THREE.Mesh(
+        new THREE.BoxGeometry(0.12, 0.04, 11),
+        new THREE.MeshLambertMaterial({ color: 0x38bdf8 })
+      );
+      prdAisleLine2.position.set(1.8, 0.30, 0);
+      prdWhGroup.add(prdAisleLine2);
+
+      const arrowMesh = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.04, 1.8), new THREE.MeshLambertMaterial({ color: 0x38bdf8 }));
+      arrowMesh.position.set(0, 0.30, 0);
+      prdWhGroup.add(arrowMesh);
+
+      // Floor pallet with boxes (Image 2 style)
+      const floorStagingPallet = createCargoVisualByKey('FG_BAG_BOX');
+      floorStagingPallet.position.set(-3.2, 0.15, 0);
+      prdWhGroup.add(floorStagingPallet);
+
+      // Dedicated PRD WH 3D Label
+      registerLabel3D('PRD WH (Production & WIP Warehouse)', new THREE.Vector3(-15, 6.8, 12), 'tag-zone', 'ZONE_PRD_WH');
+      scene.add(prdWhGroup);
+
+      // Build Zone 3 (Warehouse FG) Multi-Tier Industrial Storage Racks & Delivery Dock (Image 3 & 4 style)
       for (let row = 0; row < 3; row++) {
         const zPos = -13 + row * 9;
         const fgRackGroup = new THREE.Group();
@@ -3551,12 +3729,81 @@
         );
       }
 
+      // High-Detail Logistics Loading Dock (Image 3 & 4)
       const dockMesh = new THREE.Mesh(
-        new THREE.BoxGeometry(7.5, 1.1, 10),
+        new THREE.BoxGeometry(9.5, 1.2, 14),
         new THREE.MeshLambertMaterial({ color: 0x475569 })
       );
-      dockMesh.position.set(92, 0.55, -8);
+      dockMesh.position.set(92, 0.6, -4);
       scene.add(dockMesh);
+
+      // Dock Canopy / Shelter Frame (Teal & White like Image 3)
+      const canopyRoof = new THREE.Mesh(
+        new THREE.BoxGeometry(8.8, 0.35, 10.5),
+        new THREE.MeshLambertMaterial({ color: 0x0891b2 })
+      );
+      canopyRoof.position.set(92, 5.2, -4);
+      scene.add(canopyRoof);
+
+      // Dock shelter pillars & safety roll-up door
+      [[-3.8, -4.8], [3.8, -4.8]].forEach(function (dp) {
+        const pillar = new THREE.Mesh(new THREE.BoxGeometry(0.35, 4.6, 0.35), new THREE.MeshLambertMaterial({ color: 0x0891b2 }));
+        pillar.position.set(92 + dp[0], 2.9, -4 + dp[1]);
+        scene.add(pillar);
+      });
+
+      // Roll-up shutter door
+      const shutterDoor = new THREE.Mesh(
+        new THREE.BoxGeometry(6.8, 3.8, 0.15),
+        new THREE.MeshLambertMaterial({ color: 0x94a3b8 })
+      );
+      shutterDoor.position.set(92, 3.1, -9.2);
+      scene.add(shutterDoor);
+
+      // Dock safety traffic lights (Green/Red LED like Image 3)
+      const dockLightBox = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.65, 0.2), new THREE.MeshLambertMaterial({ color: 0x1e293b }));
+      dockLightBox.position.set(88.0, 3.6, -9.1);
+      scene.add(dockLightBox);
+      const greenLight = new THREE.Mesh(new THREE.SphereGeometry(0.08, 10, 10), new THREE.MeshBasicMaterial({ color: 0x22c55e }));
+      greenLight.position.set(88.0, 3.8, -8.95);
+      scene.add(greenLight);
+      const redLight = new THREE.Mesh(new THREE.SphereGeometry(0.08, 10, 10), new THREE.MeshBasicMaterial({ color: 0xef4444 }));
+      redLight.position.set(88.0, 3.45, -8.95);
+      scene.add(redLight);
+
+      // Yellow safety bollards at dock edge (Image 3)
+      [-3.4, 3.4].forEach(function (bx) {
+        const bollard = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.14, 0.14, 1.0, 12),
+          new THREE.MeshLambertMaterial({ color: 0xfacc15 })
+        );
+        bollard.position.set(92 + bx, 1.7, 2.5);
+        scene.add(bollard);
+      });
+
+      // Yellow Zebra hazard stripes on dock edge
+      const hazardStripe = new THREE.Mesh(
+        new THREE.BoxGeometry(9.6, 0.22, 0.35),
+        new THREE.MeshLambertMaterial({ color: 0xeab308 })
+      );
+      hazardStripe.position.set(92, 1.1, 3.1);
+      scene.add(hazardStripe);
+
+      // Perimeter Landscaping & Stylized Trees (Image 4)
+      const treeMat = new THREE.MeshLambertMaterial({ color: 0x10b981 });
+      const trunkMat = new THREE.MeshLambertMaterial({ color: 0x78350f });
+      [
+        [-110, -32], [-70, -32], [-30, -32], [10, -32], [50, -32], [90, -32],
+        [-110, 32], [-70, 32], [-30, 32], [10, 32], [50, 32], [90, 32]
+      ].forEach(function (tp) {
+        const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.28, 2.0, 8), trunkMat);
+        trunk.position.set(tp[0], 1.0, tp[1]);
+        scene.add(trunk);
+        const foliage = new THREE.Mesh(new THREE.SphereGeometry(1.4, 12, 10), treeMat);
+        foliage.scale.set(1, 1.4, 1);
+        foliage.position.set(tp[0], 2.8, tp[1]);
+        scene.add(foliage);
+      });
 
       const roadMesh = new THREE.Mesh(
         new THREE.BoxGeometry(13, 0.12, 46),
@@ -3567,35 +3814,35 @@
       sceneObjects.roadMesh = roadMesh;
 
       const truck = createContainerTruckMesh();
-      truck.position.set(98, 0.12, -2);
+      truck.position.set(98, 0.12, -4);
       scene.add(truck);
       sceneObjects.containerTruck = truck;
 
       const truckLabel = registerLabel3D(
-        'Container Truck (Dock #1)',
-        new THREE.Vector3(98, 7.2, -2),
+        'Logistics Delivery Truck (Dock #1)',
+        new THREE.Vector3(98, 7.2, -4),
         'tag-zone',
         'ZONE_FG'
       );
       truckLabel.followObj = truck;
       truckLabel.offsetY = 7.0;
 
-      // Material Handling Fleet placed at non-overlapping parking spots
+      // Material Handling Fleet placed along central highway
       sceneObjects.rmForklift = createForkliftMesh(0xf59e0b);
-      sceneObjects.rmForklift.position.set(-66, 0.15, 8.8);
+      sceneObjects.rmForklift.position.set(-64, 0.15, 0);
       scene.add(sceneObjects.rmForklift);
 
       sceneObjects.fgForklift = createForkliftMesh(0x10b981);
-      sceneObjects.fgForklift.position.set(66, 0.15, 8.8);
+      sceneObjects.fgForklift.position.set(64, 0.15, 0);
       sceneObjects.fgForklift.rotation.y = Math.PI;
       scene.add(sceneObjects.fgForklift);
 
       sceneObjects.deliveryForklift = createForkliftMesh(0x3b82f6);
-      sceneObjects.deliveryForklift.position.set(86, 0.15, -6);
+      sceneObjects.deliveryForklift.position.set(86, 0.15, -4);
       scene.add(sceneObjects.deliveryForklift);
 
       sceneObjects.handPalletTruck = createHandPalletTruckMesh();
-      sceneObjects.handPalletTruck.position.set(-44, 0.15, 3.2);
+      sceneObjects.handPalletTruck.position.set(-15, 0.15, 0);
       scene.add(sceneObjects.handPalletTruck);
 
       [
@@ -3869,13 +4116,13 @@
       tag.visible = true;
     }
 
-    /* Collision-Free Straight Linear Waypoint Builders */
+    /* Collision-Free Two-Row Central Transit Highway Waypoint Builders */
     function buildRmToStationPath(rmKey, stationId, isReturnToRm) {
       const rmDock = MATERIAL_CATALOG[rmKey].rmDock || MATERIAL_CATALOG[rmKey].rmPos;
       const st = STATION_MAP[stationId];
       const stDock = st.flDock;
-      const highwayZ = 8.8;
-      const rmSpineX = -67;
+      const highwayZ = 0.0;
+      const rmSpineX = -64.0;
 
       const forwardPts = [
         new THREE.Vector3(rmDock[0], 0.15, rmDock[2]),
@@ -3890,23 +4137,25 @@
     function buildWipHptPath(fromStationId, toStationId) {
       const stA = STATION_MAP[fromStationId];
       const stB = STATION_MAP[toStationId];
-      // Pure straight horizontal line along z = +3.2 in front of the linear station row!
+      const highwayZ = 0.0;
       return [
-        new THREE.Vector3(stA.hptDock[0], 0.15, 3.2),
-        new THREE.Vector3(stB.hptDock[0], 0.15, 3.2)
+        new THREE.Vector3(stA.hptDock[0], 0.15, stA.hptDock[2]),
+        new THREE.Vector3(stA.hptDock[0], 0.15, highwayZ),
+        new THREE.Vector3(stB.hptDock[0], 0.15, highwayZ),
+        new THREE.Vector3(stB.hptDock[0], 0.15, stB.hptDock[2])
       ];
     }
 
     function buildStationToFgRackPath(stationId, fgSlotVec3) {
       const st = STATION_MAP[stationId];
       const stDock = st.flDock;
-      const highwayZ = 8.8;
+      const highwayZ = 0.0;
       return [
         new THREE.Vector3(stDock[0], 0.15, stDock[2]),
         new THREE.Vector3(stDock[0], 0.15, highwayZ),
-        new THREE.Vector3(67.0, 0.15, highwayZ),
-        new THREE.Vector3(67.0, 0.15, fgSlotVec3.z + 2.6),
-        new THREE.Vector3(fgSlotVec3.x, 0.15, fgSlotVec3.z + 2.6)
+        new THREE.Vector3(66.0, 0.15, highwayZ),
+        new THREE.Vector3(66.0, 0.15, fgSlotVec3.z + 2.5),
+        new THREE.Vector3(fgSlotVec3.x, 0.15, fgSlotVec3.z + 2.5)
       ];
     }
 
@@ -4801,6 +5050,7 @@
         { target: 'ALL', label: 'All Factory' },
         { target: 'ZONE_RM', label: 'Warehouse RM' },
         { target: 'ZONE_PRD', label: 'PRD Line' },
+        { target: 'ZONE_PRD_WH', label: 'PRD WH' },
         { target: 'ZONE_FG', label: 'Warehouse FG & Dock' }
       ];
 
@@ -4925,23 +5175,23 @@
       resetInventoryState();
       clearFgRackVisuals();
 
-      sceneObjects.rmForklift.position.set(-66, 0.15, 8.8);
+      sceneObjects.rmForklift.position.set(-64, 0.15, 0);
       sceneObjects.rmForklift.rotation.y = 0;
       mountCargoOnVehicle(sceneObjects.rmForklift, null, []);
 
-      sceneObjects.fgForklift.position.set(66, 0.15, 8.8);
+      sceneObjects.fgForklift.position.set(64, 0.15, 0);
       sceneObjects.fgForklift.rotation.y = Math.PI;
       mountCargoOnVehicle(sceneObjects.fgForklift, null, []);
 
-      sceneObjects.deliveryForklift.position.set(86, 0.15, -6);
+      sceneObjects.deliveryForklift.position.set(86, 0.15, -4);
       sceneObjects.deliveryForklift.rotation.y = 0;
       mountCargoOnVehicle(sceneObjects.deliveryForklift, null, []);
 
-      sceneObjects.handPalletTruck.position.set(-44, 0.15, 3.2);
+      sceneObjects.handPalletTruck.position.set(-15, 0.15, 0);
       sceneObjects.handPalletTruck.rotation.y = 0;
       mountCargoOnVehicle(sceneObjects.handPalletTruck, null, []);
 
-      sceneObjects.containerTruck.position.set(98, 0.12, -2);
+      sceneObjects.containerTruck.position.set(98, 0.12, -4);
     }
 
     function resetSimulation() {
