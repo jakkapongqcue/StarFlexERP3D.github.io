@@ -934,19 +934,28 @@
 
     .btn-row {
       display: grid;
-      grid-template-columns: 1.3fr 1fr 0.8fr;
+      grid-template-columns: 1.4fr 1fr;
       gap: 6px;
     }
 
     .btn {
       border: 1px solid var(--border-color);
       background: var(--bg-card);
+      color: var(--text-main);
       padding: 8px 10px;
       border-radius: 8px;
       font-size: 12px;
       font-weight: 700;
       cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
       transition: all 0.15s;
+    }
+
+    .btn .material-symbols-outlined {
+      font-size: 17px;
     }
 
     .btn-primary {
@@ -957,6 +966,26 @@
 
     .btn-primary:hover {
       background: var(--accent-hover);
+    }
+
+    .btn-pause-mode {
+      background: var(--warning);
+      color: #ffffff;
+      border-color: var(--warning);
+    }
+
+    .btn-pause-mode:hover {
+      background: #b45309;
+    }
+
+    .btn-outline-danger {
+      border: 1.5px solid var(--danger);
+      color: var(--danger);
+      background: transparent;
+    }
+
+    .btn-outline-danger:hover {
+      background: var(--danger-soft);
     }
 
     .btn:disabled {
@@ -1583,8 +1612,8 @@
         <div class="toggle-row">
           <label for="simSpeedSelect">Simulation Speed</label>
           <select id="simSpeedSelect" class="form-select" style="width:105px;padding:3px 6px;">
-            <option value="1">1x Normal</option>
-            <option value="1.8" selected>1.8x Fast</option>
+            <option value="1" selected>1x Normal</option>
+            <option value="1.8">1.8x Fast</option>
             <option value="3">3x Turbo</option>
           </select>
         </div>
@@ -1593,9 +1622,14 @@
       <div id="validationAlert" class="validation-msg">Please enter a valid order quantity greater than 0.</div>
 
       <div class="btn-row">
-        <button type="button" id="startSimBtn" class="btn btn-primary">Start</button>
-        <button type="button" id="pauseSimBtn" class="btn" disabled>Pause</button>
-        <button type="button" id="resetSimBtn" class="btn">Reset</button>
+        <button type="button" id="startSimBtn" class="btn btn-primary" title="Start or Pause simulation (Spacebar)">
+          <span class="material-symbols-outlined" id="startSimBtnIcon">play_arrow</span>
+          <span id="startSimBtnLabel">Start</span>
+        </button>
+        <button type="button" id="resetSimBtn" class="btn btn-outline-danger" title="Reset all inventory and vehicles">
+          <span class="material-symbols-outlined">restart_alt</span>
+          <span>Reset</span>
+        </button>
       </div>
 
       <!-- Detailed Mode Process & RM Consumption Summary Table -->
@@ -1844,10 +1878,16 @@
     };
 
     /* =========================================================================
-       2. APPLICATION STATE (In-memory, no localStorage)
+       2. APPLICATION STATE
        ========================================================================= */
     const appState = {
-      themeMode: 'system',       // 'light' | 'dark' | 'system'
+      themeMode: (function () {
+        try {
+          return localStorage.getItem('sf_theme_mode') || 'system';
+        } catch (e) {
+          return 'system';
+        }
+      })(),                      // 'light' | 'dark' | 'system'
       inputMode: 'MINIMAL',      // 'MINIMAL' | 'DETAILED'
       productType: 'FG_ROLL',    // 'FG_ROLL' | 'FG_BAG' | 'FG_SPOUT'
       quantity: 20,
@@ -1862,7 +1902,7 @@
       followFlow: false,
       loopRun: false,
       loopCycleCount: 0,
-      simSpeed: 1.8,
+      simSpeed: 1,
       simStatus: 'IDLE',         // 'IDLE' | 'RUNNING' | 'PAUSED' | 'COMPLETED'
       selectedTarget: 'ALL',
       activeStepId: null,
@@ -4201,6 +4241,10 @@
 
     function applyThemeMode(mode) {
       appState.themeMode = mode; // 'light' | 'dark' | 'system'
+      try {
+        localStorage.setItem('sf_theme_mode', mode);
+      } catch (e) {}
+
       const root = document.documentElement;
       if (mode === 'system') {
         root.removeAttribute('data-theme');
@@ -4442,9 +4486,27 @@
       badge.textContent = appState.simStatus;
       badge.className = 'status-badge ' + (appState.simStatus === 'RUNNING' ? 'status-running' : 'status-idle');
 
-      const pauseBtn = document.getElementById('pauseSimBtn');
-      pauseBtn.disabled = (appState.simStatus !== 'RUNNING' && appState.simStatus !== 'PAUSED');
-      pauseBtn.textContent = (appState.simStatus === 'PAUSED') ? 'Resume' : 'Pause';
+      const startBtn = document.getElementById('startSimBtn');
+      const startIcon = document.getElementById('startSimBtnIcon');
+      const startLabel = document.getElementById('startSimBtnLabel');
+      if (startBtn && startIcon && startLabel) {
+        if (appState.simStatus === 'RUNNING') {
+          startIcon.textContent = 'pause';
+          startLabel.textContent = 'Pause';
+          startBtn.className = 'btn btn-pause-mode';
+          startBtn.title = 'Pause simulation (Spacebar)';
+        } else if (appState.simStatus === 'PAUSED') {
+          startIcon.textContent = 'play_arrow';
+          startLabel.textContent = 'Resume';
+          startBtn.className = 'btn btn-primary';
+          startBtn.title = 'Resume simulation (Spacebar)';
+        } else {
+          startIcon.textContent = 'play_arrow';
+          startLabel.textContent = 'Start';
+          startBtn.className = 'btn btn-primary';
+          startBtn.title = 'Start simulation (Spacebar)';
+        }
+      }
 
       const stepperEl = document.getElementById('bottomStepperBar');
       const routeIds = plan.routeIds;
@@ -4631,6 +4693,20 @@
       startNextTask();
     }
 
+    function togglePlayPauseSimulation() {
+      if (appState.simStatus === 'RUNNING') {
+        appState.simStatus = 'PAUSED';
+        appendEventLog('Simulation paused.');
+        updateDashboardUI();
+      } else if (appState.simStatus === 'PAUSED') {
+        appState.simStatus = 'RUNNING';
+        appendEventLog('Simulation resumed.');
+        updateDashboardUI();
+      } else {
+        startSimulationOrder();
+      }
+    }
+
     function toggleFollowFlow() {
       appState.followFlow = !appState.followFlow;
       syncFollowAndLoopButtonsUI();
@@ -4743,23 +4819,28 @@
       });
 
       document.getElementById('simSpeedSelect').addEventListener('change', function (ev) {
-        appState.simSpeed = Number(ev.target.value) || 1.8;
+        appState.simSpeed = Number(ev.target.value) || 1;
       });
 
-      document.getElementById('startSimBtn').addEventListener('click', startSimulationOrder);
-
-      document.getElementById('pauseSimBtn').addEventListener('click', function () {
-        if (appState.simStatus === 'RUNNING') {
-          appState.simStatus = 'PAUSED';
-          appendEventLog('Simulation paused.');
-        } else if (appState.simStatus === 'PAUSED') {
-          appState.simStatus = 'RUNNING';
-          appendEventLog('Simulation resumed.');
-        }
-        updateDashboardUI();
-      });
-
+      document.getElementById('startSimBtn').addEventListener('click', togglePlayPauseSimulation);
       document.getElementById('resetSimBtn').addEventListener('click', resetSimulation);
+
+      /* Keyboard Shortcut: Spacebar toggles Start / Pause */
+      window.addEventListener('keydown', function (ev) {
+        if (ev.code === 'Space' || ev.key === ' ') {
+          const activeEl = document.activeElement;
+          const isInput = activeEl && (
+            activeEl.tagName === 'INPUT' ||
+            activeEl.tagName === 'SELECT' ||
+            activeEl.tagName === 'TEXTAREA' ||
+            activeEl.isContentEditable
+          );
+          if (!isInput) {
+            ev.preventDefault();
+            togglePlayPauseSimulation();
+          }
+        }
+      });
 
       document.getElementById('clearLogBtn').addEventListener('click', function () {
         appState.logs = [];
@@ -4873,7 +4954,11 @@
     syncUnitOptionsAndPresets();
     renderWasteInputsGrid();
     bindAllUIEvents();
-    applyThemeMode('system');
+    let initTheme = 'system';
+    try {
+      initTheme = localStorage.getItem('sf_theme_mode') || 'system';
+    } catch (e) {}
+    applyThemeMode(initTheme);
     syncFollowAndLoopButtonsUI();
     recalculateAndRenderUI();
     updateTopHeaderOffsetVar();
