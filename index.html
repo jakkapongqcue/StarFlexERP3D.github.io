@@ -7,10 +7,12 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20,500,0,0" rel="stylesheet" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <style>
     :root {
       --screen-pad: 20px;
+      --top-header-offset: 68px;
       --bg-app: #f1f5f9;
       --bg-panel: rgba(255, 255, 255, 0.94);
       --bg-card: #ffffff;
@@ -247,10 +249,27 @@
       vertical-align: middle;
     }
 
+    .material-symbols-outlined {
+      font-family: 'Material Symbols Outlined';
+      font-weight: normal;
+      font-style: normal;
+      font-size: 16px;
+      line-height: 1;
+      letter-spacing: normal;
+      text-transform: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      white-space: nowrap;
+      word-wrap: normal;
+      direction: ltr;
+      -webkit-font-smoothing: antialiased;
+    }
+
     /* Floating Center-Top Focus Process I/O Banner */
     #focusProcessBanner {
       position: fixed;
-      top: calc(var(--screen-pad) + 64px);
+      top: calc(var(--screen-pad) + var(--top-header-offset, 68px));
       left: 50%;
       transform: translateX(-50%);
       z-index: 12;
@@ -312,13 +331,13 @@
     .focus-io-label.in-lbl { color: #0284c7; }
     .focus-io-label.out-lbl { color: #16a34a; }
 
-    /* Top Bar + KPI Cards + Zone Chips (Inset from screen edges by --screen-pad) */
+    /* Top Bar + KPI Cards (Inset from screen edges by --screen-pad, equal height) */
     #topHeader {
       position: fixed;
       top: calc(env(safe-area-inset-top, 0px) + var(--screen-pad));
       left: calc(env(safe-area-inset-left, 0px) + var(--screen-pad));
       right: calc(env(safe-area-inset-right, 0px) + var(--screen-pad));
-      z-index: 10;
+      z-index: 15;
       display: flex;
       flex-direction: column;
       gap: 10px;
@@ -327,9 +346,9 @@
 
     .top-bar-row {
       display: flex;
-      align-items: center;
+      align-items: stretch;
       justify-content: space-between;
-      gap: 12px;
+      gap: 10px;
       flex-wrap: wrap;
     }
 
@@ -337,19 +356,19 @@
       pointer-events: auto;
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
       background: var(--bg-panel);
       backdrop-filter: blur(10px);
-      padding: 7px 12px;
+      padding: 6px 14px;
+      min-height: 58px;
       border-radius: 10px;
       border: 1px solid var(--border-color);
       box-shadow: var(--shadow-sm);
-      flex-wrap: wrap;
     }
 
     .brand-badge {
-      width: 30px;
-      height: 30px;
+      width: 34px;
+      height: 34px;
       border-radius: 8px;
       background: var(--accent);
       color: #fff;
@@ -358,32 +377,114 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      flex-shrink: 0;
     }
 
     .brand-title {
       font-size: 14px;
       font-weight: 700;
       letter-spacing: -0.01em;
+      line-height: 1.25;
     }
 
     .brand-sub {
       font-size: 11px;
       color: var(--text-muted);
+      line-height: 1.25;
+    }
+
+    .header-divider {
+      width: 1px;
+      height: 28px;
+      background: var(--border-color);
+      margin: 0 2px;
+      flex-shrink: 0;
+    }
+
+    /* Theme Dropdown with Google Material Symbols Icons */
+    .theme-dropdown {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .theme-dropdown-trigger {
+      border: 1px solid var(--border-color);
+      background: var(--bg-muted);
+      color: var(--text-main);
+      padding: 6px 10px;
+      border-radius: 8px;
+      font-size: 11.5px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+
+    .theme-dropdown-trigger:hover {
+      border-color: var(--accent);
+    }
+
+    .theme-dropdown-menu {
+      position: absolute;
+      top: calc(100% + 6px);
+      right: 0;
+      min-width: 142px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      box-shadow: var(--shadow-md);
+      padding: 4px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      z-index: 30;
+    }
+
+    .theme-dropdown-item {
+      border: none;
+      background: transparent;
+      color: var(--text-secondary);
+      padding: 7px 10px;
+      border-radius: 7px;
+      font-size: 11.5px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-align: left;
+      transition: all 0.12s;
+    }
+
+    .theme-dropdown-item:hover {
+      background: var(--bg-muted);
+      color: var(--text-main);
+    }
+
+    .theme-dropdown-item.active {
+      background: var(--accent-soft);
+      color: var(--accent);
     }
 
     .action-pill-btn {
       border: 1px solid var(--border-color);
       background: var(--bg-muted);
       color: var(--text-secondary);
-      padding: 5px 10px;
+      padding: 6px 8px;
       border-radius: 7px;
-      font-size: 11.5px;
+      font-size: 11px;
       font-weight: 700;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
-      gap: 5px;
+      justify-content: center;
+      gap: 4px;
       transition: all 0.15s;
+      white-space: nowrap;
     }
 
     .action-pill-btn:hover {
@@ -397,46 +498,10 @@
       border-color: var(--accent);
     }
 
-    /* Segmented 3-Mode Theme Switcher: Light / Dark / System */
-    .theme-mode-group {
-      display: inline-flex;
-      align-items: center;
-      background: var(--bg-muted);
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      padding: 2px;
-      gap: 2px;
-    }
-
-    .theme-mode-btn {
-      border: none;
-      background: transparent;
-      color: var(--text-secondary);
-      padding: 4px 8px;
-      border-radius: 6px;
-      font-size: 11px;
-      font-weight: 600;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      transition: all 0.15s;
-      white-space: nowrap;
-    }
-
-    .theme-mode-btn:hover {
-      color: var(--text-main);
-    }
-
-    .theme-mode-btn.active {
-      background: var(--accent);
-      color: #ffffff;
-      box-shadow: var(--shadow-sm);
-    }
-
     .kpi-grid {
       pointer-events: auto;
       display: flex;
+      align-items: stretch;
       gap: 8px;
       flex-wrap: wrap;
     }
@@ -447,7 +512,11 @@
       border: 1px solid var(--border-color);
       border-radius: 10px;
       padding: 6px 12px;
-      min-width: 120px;
+      min-width: 122px;
+      min-height: 58px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
       box-shadow: var(--shadow-sm);
     }
 
@@ -457,33 +526,21 @@
       letter-spacing: 0.04em;
       color: var(--text-muted);
       font-weight: 600;
+      line-height: 1.2;
     }
 
     .kpi-val {
-      font-size: 15.5px;
+      font-size: 15px;
       font-weight: 700;
       margin-top: 1px;
       color: var(--text-main);
+      line-height: 1.25;
     }
 
     .kpi-sub {
       font-size: 10px;
       color: var(--text-secondary);
-    }
-
-    .chip-bar {
-      pointer-events: auto;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      overflow-x: auto;
-      padding: 4px 6px;
-      background: var(--bg-panel);
-      backdrop-filter: blur(10px);
-      border: 1px solid var(--border-color);
-      border-radius: 9px;
-      box-shadow: var(--shadow-sm);
-      max-width: 100%;
+      line-height: 1.2;
     }
 
     .zone-chip {
@@ -509,12 +566,12 @@
       color: #ffffff;
     }
 
-    /* Left Panel: Production Order Input Panel (Inset from screen edges by --screen-pad) */
+    /* Left Panel: Production Order Input Panel (Dynamically positioned below #topHeader) */
     #orderPanel {
       position: fixed;
-      top: calc(env(safe-area-inset-top, 0px) + var(--screen-pad) + 64px);
+      top: calc(env(safe-area-inset-top, 0px) + var(--screen-pad) + var(--top-header-offset, 68px));
       left: calc(env(safe-area-inset-left, 0px) + var(--screen-pad));
-      bottom: calc(env(safe-area-inset-bottom, 0px) + var(--screen-pad) + 58px);
+      bottom: calc(env(safe-area-inset-bottom, 0px) + var(--screen-pad) + 54px);
       width: 348px;
       z-index: 10;
       background: var(--bg-panel);
@@ -525,14 +582,15 @@
       display: flex;
       flex-direction: column;
       overflow: hidden;
+      transition: top 0.15s ease;
     }
 
     /* Right Panel: Detail & Stock & Event Log (Shown only in Detailed Mode) */
     #detailPanel {
       position: fixed;
-      top: calc(env(safe-area-inset-top, 0px) + var(--screen-pad) + 64px);
+      top: calc(env(safe-area-inset-top, 0px) + var(--screen-pad) + var(--top-header-offset, 68px));
       right: calc(env(safe-area-inset-right, 0px) + var(--screen-pad));
-      bottom: calc(env(safe-area-inset-bottom, 0px) + var(--screen-pad) + 58px);
+      bottom: calc(env(safe-area-inset-bottom, 0px) + var(--screen-pad) + 54px);
       width: 338px;
       z-index: 10;
       background: var(--bg-panel);
@@ -543,6 +601,7 @@
       display: flex;
       flex-direction: column;
       overflow: hidden;
+      transition: top 0.15s ease;
     }
 
     .panel-header {
@@ -793,7 +852,7 @@
 
     .sim-assist-bar {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: repeat(3, 1fr);
       gap: 6px;
     }
 
@@ -1064,26 +1123,70 @@
       display: none !important;
     }
 
-    /* Responsive Mobile Bottom-Sheet Layout */
-    @media (max-width: 960px) {
+    /* Responsive Breakpoints (Tablet & Mobile) */
+    @media (max-width: 1200px) {
       :root {
         --screen-pad: 14px;
       }
       #orderPanel {
+        width: 318px;
+      }
+      #detailPanel {
+        width: 306px;
+      }
+      .kpi-card {
+        min-width: 108px;
+        padding: 6px 10px;
+      }
+    }
+
+    @media (max-width: 900px) {
+      :root {
+        --screen-pad: 12px;
+      }
+      .top-bar-row {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+      }
+      .brand-box {
+        justify-content: space-between;
+        width: 100%;
+      }
+      .kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+        width: 100%;
+        gap: 6px;
+      }
+      .kpi-card {
+        min-width: 0;
+      }
+      #orderPanel {
         top: auto;
-        bottom: calc(env(safe-area-inset-bottom, 0px) + var(--screen-pad) + 56px);
+        bottom: calc(env(safe-area-inset-bottom, 0px) + var(--screen-pad) + 54px);
         left: calc(env(safe-area-inset-left, 0px) + var(--screen-pad));
         right: calc(env(safe-area-inset-right, 0px) + var(--screen-pad));
         width: auto;
         max-height: 44vh;
       }
       #detailPanel {
-        display: none;
+        display: none !important;
       }
       #focusProcessBanner {
-        top: calc(var(--screen-pad) + 96px);
-        min-width: 280px;
-        max-width: calc(100vw - (var(--screen-pad) * 2));
+        top: calc(env(safe-area-inset-top, 0px) + var(--screen-pad) + var(--top-header-offset, 128px));
+        min-width: 260px;
+        width: calc(100vw - (var(--screen-pad) * 2));
+        max-width: 440px;
+      }
+    }
+
+    @media (max-width: 540px) {
+      .brand-sub {
+        display: none;
+      }
+      .sim-assist-bar {
+        grid-template-columns: 1fr;
       }
     }
   </style>
@@ -1121,24 +1224,36 @@
   <header id="topHeader">
     <div class="top-bar-row">
       <div class="brand-box">
-        <div class="brand-badge">SF</div>
-        <div>
-          <div class="brand-title">Starflex ERP 3D</div>
-          <div class="brand-sub">Linear Flexible Packaging Factory Simulator</div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div class="brand-badge">SF</div>
+          <div>
+            <div class="brand-title">Starflex ERP 3D</div>
+            <div class="brand-sub">Linear Flexible Packaging Factory Simulator</div>
+          </div>
         </div>
-        <button type="button" id="topFollowBtn" class="action-pill-btn" title="Automatically focus and follow RM → WIP → FG movement">
-          <span>🎯</span><span id="topFollowLabel">Follow Flow: OFF</span>
-        </button>
-        <button type="button" id="topLoopBtn" class="action-pill-btn" title="Repeat production order continuously">
-          <span>🔁</span><span id="topLoopLabel">Loop: OFF</span>
-        </button>
-        <!-- 3-Way Theme Mode Selector: Light / Dark / System -->
-        <div class="theme-mode-group" id="themeModeGroup" role="group" aria-label="Color Theme Mode">
-          <button type="button" class="theme-mode-btn" data-theme-mode="light" title="Light Mode">☀️ Light</button>
-          <button type="button" class="theme-mode-btn" data-theme-mode="dark" title="Dark Mode">🌙 Dark</button>
-          <button type="button" class="theme-mode-btn active" data-theme-mode="system" title="Follow System Theme">💻 System</button>
+        <div class="header-divider"></div>
+        <!-- Theme Mode Dropdown with Google Material Symbols Icons -->
+        <div class="theme-dropdown" id="themeDropdownWrap">
+          <button type="button" id="themeDropdownBtn" class="theme-dropdown-trigger" aria-haspopup="listbox" aria-expanded="false" title="Change Color Theme">
+            <span class="material-symbols-outlined" id="themeDropdownIcon">desktop_windows</span>
+            <span id="themeDropdownLabel">System</span>
+            <span class="material-symbols-outlined" style="font-size:15px;opacity:0.7;">expand_more</span>
+          </button>
+          <div class="theme-dropdown-menu hidden" id="themeDropdownMenu" role="listbox" aria-label="Theme Mode">
+            <button type="button" class="theme-dropdown-item" data-theme-mode="light" role="option">
+              <span class="material-symbols-outlined">light_mode</span>
+              <span>Light</span>
+            </button>
+            <button type="button" class="theme-dropdown-item" data-theme-mode="dark" role="option">
+              <span class="material-symbols-outlined">dark_mode</span>
+              <span>Dark</span>
+            </button>
+            <button type="button" class="theme-dropdown-item active" data-theme-mode="system" role="option">
+              <span class="material-symbols-outlined">desktop_windows</span>
+              <span>System</span>
+            </button>
+          </div>
         </div>
-        <button type="button" id="resetCameraBtn" class="zone-chip" title="Reset Camera View">Reset View</button>
       </div>
 
       <div class="kpi-grid">
@@ -1232,7 +1347,7 @@
         </div>
       </div>
 
-      <!-- Minimal Mode Visual Flow Summary Card (Hidden per user request 1) -->
+      <!-- Minimal Mode Visual Flow Summary Card (Hidden per user request) -->
       <div id="minimalAssumptionsBox" class="minimal-flow-card hidden">
         <div style="display:flex;align-items:center;justify-content:space-between;">
           <strong style="color:var(--text-main);font-size:11.5px;">Visual Flow Mode</strong>
@@ -1306,14 +1421,20 @@
         </div>
       </div>
 
-      <!-- Camera Tracking & Loop Controls -->
+      <!-- Camera Tracking, Loop & Reset View Controls (Single Consolidated Location) -->
       <div style="border-top:1px solid var(--border-color);padding-top:8px;display:flex;flex-direction:column;gap:6px;">
         <div class="sim-assist-bar">
-          <button type="button" id="panelFollowBtn" class="action-pill-btn" style="justify-content:center;">
-            <span>🎯</span><span id="panelFollowLabel">Follow Flow: OFF</span>
+          <button type="button" id="panelFollowBtn" class="action-pill-btn" title="Automatically focus and follow RM → WIP → FG movement">
+            <span class="material-symbols-outlined">my_location</span>
+            <span id="panelFollowLabel">Follow: OFF</span>
           </button>
-          <button type="button" id="panelLoopBtn" class="action-pill-btn" style="justify-content:center;">
-            <span>🔁</span><span id="panelLoopLabel">Loop Run: OFF</span>
+          <button type="button" id="panelLoopBtn" class="action-pill-btn" title="Repeat production order continuously">
+            <span class="material-symbols-outlined">repeat</span>
+            <span id="panelLoopLabel">Loop: OFF</span>
+          </button>
+          <button type="button" id="resetCameraBtn" class="action-pill-btn" title="Reset Camera View to All Factory">
+            <span class="material-symbols-outlined">center_focus_strong</span>
+            <span>Reset View</span>
           </button>
         </div>
         <div class="toggle-row">
@@ -1365,11 +1486,11 @@
     </div>
   </aside>
 
-  <!-- Right Panel: Factory Overview, RM Stock & Event Log (Hidden in Minimal Mode per Requirement 4) -->
-  <aside id="detailPanel" class="hidden" aria-label="Zone and Station Inspector Panel">
+  <!-- Right Panel: Factory Overview, RM Stock & Event Log (Hidden in Minimal Mode) -->
+  <aside id="detailPanel" class="hidden" aria-label="Area and Station Inspector Panel">
     <div class="panel-header">
       <div class="panel-title" id="inspectorTitle">Starflex Factory Overview</div>
-      <span id="inspectorBadge" class="status-badge status-idle">All Zones</span>
+      <span id="inspectorBadge" class="status-badge status-idle">All Factory</span>
     </div>
     <div class="panel-body">
       <div id="inspectorContent" style="display:flex;flex-direction:column;gap:8px;font-size:12px;"></div>
@@ -1392,7 +1513,7 @@
     </div>
   </aside>
 
-  <!-- Bottom Shipment-Style Process Stepper -->
+  <!-- Bottom Unified Zone & Process Stepper Bar -->
   <footer id="bottomStepperBar" aria-label="Production Process Progress Stepper"></footer>
 
   <script>
@@ -1432,7 +1553,7 @@
     const ZONES_CONFIG = {
       ZONE_RM: {
         id: 'ZONE_RM',
-        name: 'Zone 1 – Warehouse RM',
+        name: 'Warehouse RM',
         role: 'Multi-level industrial pallet racking storing 9 raw material types and intermediate stock (Blown Film, Ready-to-use Ink).',
         handling: 'RM Forklift picks pallets from RM racks and drives along the straight main aisle to PRD stations.',
         center: [-86, 0, 2],
@@ -1440,7 +1561,7 @@
       },
       ZONE_PRD: {
         id: 'ZONE_PRD',
-        name: 'Zone 2 – PRD (Linear Production Line)',
+        name: 'PRD (Linear Production Line)',
         role: 'Seven packaging process machines arranged in a straight horizontal line from left to right.',
         handling: 'Hand Pallet Truck transfers WIP straight along the front WIP lane (z = +3.2); Forklifts use the outer main highway (z = +8.8).',
         center: [0, 0, 2],
@@ -1448,7 +1569,7 @@
       },
       ZONE_FG: {
         id: 'ZONE_FG',
-        name: 'Zone 3 – Warehouse FG & Delivery',
+        name: 'Warehouse FG & Delivery',
         role: 'Multi-tier FG pallet storage racks and Delivery loading dock with parked Container Truck.',
         handling: 'FG Forklift collects finished pallets from PRD into FG racks; Delivery Forklift loads the Container Truck.',
         center: [87, 0, 2],
@@ -1496,7 +1617,7 @@
         defaultWaste: 4.0,
         inputSummary: 'Base Film + Cylinder + Ink + Solvent',
         outputSummary: 'Printing Roll (WIP)',
-        desc: 'Multi-unit rotogravure printing press with overhead drying bridge and red safety handrail.'
+        desc: 'Multi-unit rotogravure printing press with active Unwinder roll on the left, overhead web drying bridge, and Rewinder roll on the right.'
       },
       {
         id: 'ST_LAM',
@@ -1509,7 +1630,7 @@
         defaultWaste: 3.0,
         inputSummary: 'Printing Roll + Laminate Film + Adhesive',
         outputSummary: 'Laminate Roll (WIP)',
-        desc: 'Dry lamination machine with overhead drying oven bridge bonding barrier film layers.'
+        desc: 'Dry lamination machine with primary Printed Roll unwinder, secondary Laminate Film unwinder, overhead drying oven bridge, and Rewinder roll.'
       },
       {
         id: 'ST_SLIT',
@@ -1916,6 +2037,11 @@
       selectableMeshes: [],
       rmVisualGroups: {},
       stationObjs: {},
+      dynamicRollRefs: {
+        printUnwindRoll: null,
+        printUnwindWebs: [],
+        bagUnwindRolls: []
+      },
       fgRackSlots: [],
       fgStoredMeshes: [],
       rmForklift: null,
@@ -1923,7 +2049,6 @@
       deliveryForklift: null,
       handPalletTruck: null,
       containerTruck: null,
-      patrolWorkers: [],
       labels3D: []
     };
 
@@ -2117,6 +2242,85 @@
       return kiosk;
     }
 
+    /* Helper: Create a realistic Unwinder / Rewinder Film Roll with core, chuck spokes, and surface stripes
+       Oriented horizontally (rotation.x = Math.PI / 2) so rotating .rotation.y spins the roll around its Z axle! */
+    function createActiveFilmRollAssembly(radius, width, filmColorHex, stripeColorHex, coreColorHex) {
+      const rollAssembly = new THREE.Group();
+      rollAssembly.rotation.x = Math.PI / 2;
+
+      const bodyMat = new THREE.MeshLambertMaterial({ color: filmColorHex });
+      const stripeMat = new THREE.MeshLambertMaterial({ color: stripeColorHex || 0xfacc15 });
+      const coreMat = new THREE.MeshLambertMaterial({ color: coreColorHex || 0x1e293b });
+      const hubMat = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, metalness: 0.65, roughness: 0.3 });
+
+      // Main cylindrical film roll body
+      const rollBody = new THREE.Mesh(new THREE.CylinderGeometry(radius, radius, width, 24), bodyMat);
+      rollAssembly.add(rollBody);
+
+      // Extended steel core shaft
+      const coreShaft = new THREE.Mesh(new THREE.CylinderGeometry(radius * 0.30, radius * 0.30, width + 0.36, 16), coreMat);
+      rollAssembly.add(coreShaft);
+
+      // 4 longitudinal surface indicator bars so rotation is clearly visible from any camera angle
+      for (let i = 0; i < 4; i++) {
+        const angle = (i * Math.PI) / 2;
+        const bar = new THREE.Mesh(new THREE.BoxGeometry(0.11, width - 0.06, 0.06), stripeMat);
+        bar.position.set(Math.cos(angle) * (radius + 0.015), 0, Math.sin(angle) * (radius + 0.015));
+        bar.rotation.y = -angle;
+        rollAssembly.add(bar);
+      }
+
+      // Radial chuck spokes on both end faces of the roll
+      [-width / 2 - 0.03, width / 2 + 0.03].forEach(function (yEnd) {
+        const spoke1 = new THREE.Mesh(new THREE.BoxGeometry(radius * 1.75, 0.04, 0.14), hubMat);
+        spoke1.position.y = yEnd;
+        rollAssembly.add(spoke1);
+
+        const spoke2 = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.04, radius * 1.75), stripeMat);
+        spoke2.position.y = yEnd;
+        rollAssembly.add(spoke2);
+      });
+
+      return { group: rollAssembly, bodyMesh: rollBody, bodyMat: bodyMat, stripeMat: stripeMat };
+    }
+
+    /* Helper: Create a tense running film web span connecting two (x, y) points across the machine width */
+    function createFilmWebSpan(x1, y1, x2, y2, zCenter, webWidth, colorHex, opacityVal) {
+      const dx = x2 - x1;
+      const dy = y2 - y1;
+      const len = Math.hypot(dx, dy);
+      const angle = Math.atan2(dy, dx);
+      const webMat = new THREE.MeshLambertMaterial({
+        color: colorHex,
+        transparent: opacityVal !== undefined && opacityVal < 1.0,
+        opacity: opacityVal !== undefined ? opacityVal : 0.88
+      });
+      const webMesh = new THREE.Mesh(new THREE.BoxGeometry(len, 0.035, webWidth), webMat);
+      webMesh.position.set((x1 + x2) * 0.5, (y1 + y2) * 0.5, zCenter);
+      webMesh.rotation.z = angle;
+      return webMesh;
+    }
+
+    /* Helper: Create dual side support stands for an Unwinder or Rewinder station */
+    function createWinderStandPair(xPos, zCenter, height, rollWidth, standMat) {
+      const grp = new THREE.Group();
+      const halfSpan = rollWidth / 2 + 0.16;
+      [zCenter - halfSpan, zCenter + halfSpan].forEach(function (zArm) {
+        const post = new THREE.Mesh(new THREE.BoxGeometry(0.32, height, 0.24), standMat);
+        post.position.set(xPos, 0.35 + height / 2, zArm);
+        grp.add(post);
+
+        const bearingCap = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.22, 0.22, 0.28, 12),
+          new THREE.MeshLambertMaterial({ color: 0xf59e0b })
+        );
+        bearingCap.rotation.x = Math.PI / 2;
+        bearingCap.position.set(xPos, 0.35 + height - 0.18, zArm);
+        grp.add(bearingCap);
+      });
+      return grp;
+    }
+
     /* Bespoke Industrial Machine Models with ZERO overlapping workers/objects */
     function buildRealisticStationMachine(st, rollersOut, reciprocatorsOut, extraWorkersOut) {
       const mGroup = new THREE.Group();
@@ -2166,11 +2370,12 @@
         const winderFrame = tagSelectable(new THREE.Mesh(new THREE.BoxGeometry(2.2, 1.7, 2.3), whiteSteel));
         winderFrame.position.set(-3.3, 1.15, -0.1);
         mGroup.add(winderFrame);
-        const woundRoll = new THREE.Mesh(new THREE.CylinderGeometry(0.62, 0.62, 1.8, 18), new THREE.MeshLambertMaterial({ color: 0x2563eb }));
-        woundRoll.rotation.x = Math.PI / 2;
-        woundRoll.position.set(-3.3, 1.45, -0.1);
-        mGroup.add(woundRoll);
-        rollersOut.push(woundRoll);
+        // Blown Film Output Roll: Sky Blue (0x60a5fa) matching BLOWN_FILM catalog & Printing Unwinder
+        const woundRoll = createActiveFilmRollAssembly(0.62, 1.8, 0x60a5fa, 0xe0f2fe, 0x1e293b);
+        tagSelectable(woundRoll.bodyMesh);
+        woundRoll.group.position.set(-3.3, 1.45, -0.1);
+        mGroup.add(woundRoll.group);
+        rollersOut.push(woundRoll.group);
 
       } else if (st.id === 'ST_INK') {
         const platform = tagSelectable(new THREE.Mesh(new THREE.BoxGeometry(7.0, 0.8, 3.4), charcoalMat));
@@ -2191,70 +2396,165 @@
         });
 
       } else if (st.id === 'ST_PRINT') {
-        // Multi-Unit Rotogravure Printing Press with overhead bridge & red top rail
-        const bridge = tagSelectable(new THREE.Mesh(new THREE.BoxGeometry(10.2, 1.05, 2.7), whiteSteel));
+        /* 3. Printing Machine:
+           - Left Unwinder Stand & Active Base Film Roll (x = -5.05, y = 1.45, z = -0.4): Matches Blown Film (0x60a5fa) or Purchased Film (0x3b82f6)
+           - 5 Rotogravure Printing Units (x = -3.2, -1.6, 0, 1.6, 3.2) + Overhead Drying Bridge
+           - Right Rewinder Stand & Active Printed Film Roll (x = +5.05, y = 1.45, z = -0.4): Royal Blue + Gold Stripes (0x2563eb / 0xfacc15)
+           - Continuous running film web from Unwinder -> Printing Units -> Overhead Bridge -> Rewinder */
+        const bridge = tagSelectable(new THREE.Mesh(new THREE.BoxGeometry(8.6, 1.05, 2.7), whiteSteel));
         bridge.position.set(0, 4.5, -0.4);
         mGroup.add(bridge);
-        const redRailFront = new THREE.Mesh(new THREE.BoxGeometry(10.3, 0.18, 0.14), redRailMat);
+        const redRailFront = new THREE.Mesh(new THREE.BoxGeometry(8.8, 0.18, 0.14), redRailMat);
         redRailFront.position.set(0, 5.2, 0.88);
         mGroup.add(redRailFront);
-        const redRailBack = new THREE.Mesh(new THREE.BoxGeometry(10.3, 0.18, 0.14), redRailMat);
+        const redRailBack = new THREE.Mesh(new THREE.BoxGeometry(8.8, 0.18, 0.14), redRailMat);
         redRailBack.position.set(0, 5.2, -1.68);
         mGroup.add(redRailBack);
 
-        [-3.6, -1.8, 0, 1.8, 3.6].forEach(function (ux) {
-          const tower = tagSelectable(new THREE.Mesh(new THREE.BoxGeometry(1.3, 3.6, 2.4), whiteSteel));
+        [-3.2, -1.6, 0, 1.6, 3.2].forEach(function (ux) {
+          const tower = tagSelectable(new THREE.Mesh(new THREE.BoxGeometry(1.15, 3.6, 2.4), whiteSteel));
           tower.position.set(ux, 2.2, -0.4);
           mGroup.add(tower);
-          const panelFace = new THREE.Mesh(new THREE.BoxGeometry(0.6, 1.0, 0.08), darkSteel);
+          const panelFace = new THREE.Mesh(new THREE.BoxGeometry(0.55, 1.0, 0.08), darkSteel);
           panelFace.position.set(ux, 2.5, 0.82);
           mGroup.add(panelFace);
-          const wheel = new THREE.Mesh(new THREE.CylinderGeometry(0.26, 0.26, 0.12, 14), darkSteel);
+          const wheel = new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.25, 0.12, 14), darkSteel);
           wheel.rotation.x = Math.PI / 2;
           wheel.position.set(ux, 1.3, 0.84);
           mGroup.add(wheel);
           rollersOut.push(wheel);
         });
 
+        // Left Unwinder Stand & Rotating Unwind Film Roll (Matches Blown Film 0x60a5fa / Purchased Film 0x3b82f6)
+        mGroup.add(createWinderStandPair(-5.05, -0.4, 1.6, 2.0, charcoalMat));
+        const printUnwindRoll = createActiveFilmRollAssembly(0.95, 2.0, 0x60a5fa, 0xe0f2fe, 0x1e293b);
+        tagSelectable(printUnwindRoll.bodyMesh);
+        printUnwindRoll.group.position.set(-5.05, 1.45, -0.4);
+        mGroup.add(printUnwindRoll.group);
+        rollersOut.push(printUnwindRoll.group);
+        sceneObjects.dynamicRollRefs.printUnwindRoll = printUnwindRoll;
+
+        // Unwind guide dancer roller
+        const unwindGuide = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.16, 2.05, 12), chromeMat);
+        unwindGuide.rotation.x = Math.PI / 2;
+        unwindGuide.position.set(-4.15, 2.45, -0.4);
+        mGroup.add(unwindGuide);
+        rollersOut.push(unwindGuide);
+
+        // Right Rewinder Stand & Rotating Printed Film Roll (Royal Blue 0x2563eb + Gold Stripes 0xfacc15)
+        mGroup.add(createWinderStandPair(5.05, -0.4, 1.6, 2.0, charcoalMat));
+        const printRewindRoll = createActiveFilmRollAssembly(0.95, 2.0, 0x2563eb, 0xfacc15, 0x1e293b);
+        tagSelectable(printRewindRoll.bodyMesh);
+        printRewindRoll.group.position.set(5.05, 1.45, -0.4);
+        mGroup.add(printRewindRoll.group);
+        rollersOut.push(printRewindRoll.group);
+
+        // Rewind guide roller
+        const rewindGuide = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.16, 2.05, 12), chromeMat);
+        rewindGuide.rotation.x = Math.PI / 2;
+        rewindGuide.position.set(4.15, 2.45, -0.4);
+        mGroup.add(rewindGuide);
+        rollersOut.push(rewindGuide);
+
+        // Active Running Film Web Spans (Unwinder -> Guide -> Tower 1 -> Overhead Bridge -> Tower 5 -> Guide -> Rewinder)
+        const pWebIn1 = createFilmWebSpan(-5.05, 2.15, -4.15, 2.55, -0.4, 1.88, 0x60a5fa, 0.88);
+        const pWebIn2 = createFilmWebSpan(-4.15, 2.55, -3.2, 3.85, -0.4, 1.88, 0x60a5fa, 0.88);
+        sceneObjects.dynamicRollRefs.printUnwindWebs = [pWebIn1, pWebIn2];
+        mGroup.add(pWebIn1);
+        mGroup.add(pWebIn2);
+        mGroup.add(createFilmWebSpan(-3.2, 3.92, 3.2, 3.92, -0.4, 1.88, 0x2563eb, 0.92));
+        mGroup.add(createFilmWebSpan(3.2, 3.85, 4.15, 2.55, -0.4, 1.88, 0x2563eb, 0.92));
+        mGroup.add(createFilmWebSpan(4.15, 2.55, 5.05, 2.15, -0.4, 1.88, 0x2563eb, 0.94));
+
       } else if (st.id === 'ST_LAM') {
-        // Dry Lamination Line oriented horizontally along X (matching the linear line!)
-        const ovenBridge = tagSelectable(new THREE.Mesh(new THREE.BoxGeometry(9.6, 1.0, 3.0), whiteSteel));
+        /* 4. Dry Lamination Machine:
+           - Primary Unwinder on Left (x = -5.05, y = 1.45, z = -0.4): Exact match to Printing Rewinder Output (0x2563eb + 0xfacc15 stripes)
+           - Secondary Unwinder at Center-Left (x = -1.55, y = 1.32, z = -0.4): Laminate Barrier Film Roll (0x8b5cf6 + 0xe9d5ff stripes)
+           - Overhead Drying Oven Bridge & Lamination Nip Unit
+           - Rewinder on Right (x = +5.05, y = 1.45, z = -0.4): Laminate Roll Output (0x7c3aed + 0xfacc15 stripes)
+           - Active running film webs showing both film layers merging into the laminator and winding onto the Rewinder */
+        const ovenBridge = tagSelectable(new THREE.Mesh(new THREE.BoxGeometry(8.2, 1.0, 3.0), whiteSteel));
         ovenBridge.position.set(0, 4.4, -0.4);
         mGroup.add(ovenBridge);
-        const blueFascia = new THREE.Mesh(new THREE.BoxGeometry(9.7, 0.32, 3.1), blueAccentMat);
+        const blueFascia = new THREE.Mesh(new THREE.BoxGeometry(8.3, 0.32, 3.1), blueAccentMat);
         blueFascia.position.set(0, 4.0, -0.4);
         mGroup.add(blueFascia);
-        [-3.3, 0, 3.3].forEach(function (ux) {
-          const unit = tagSelectable(new THREE.Mesh(new THREE.BoxGeometry(2.1, 2.7, 2.8), whiteSteel));
+
+        [-3.2, 0.2, 3.1].forEach(function (ux) {
+          const unit = tagSelectable(new THREE.Mesh(new THREE.BoxGeometry(1.75, 2.7, 2.8), whiteSteel));
           unit.position.set(ux, 1.75, -0.4);
           mGroup.add(unit);
-          const nipRoller = new THREE.Mesh(new THREE.CylinderGeometry(0.36, 0.36, 2.4, 16), printedWebMat);
+          const nipRoller = new THREE.Mesh(new THREE.CylinderGeometry(0.34, 0.34, 2.35, 16), printedWebMat);
           nipRoller.rotation.x = Math.PI / 2;
-          nipRoller.position.set(ux + 0.7, 2.1, -0.4);
+          nipRoller.position.set(ux + 0.55, 2.15, -0.4);
           mGroup.add(nipRoller);
           rollersOut.push(nipRoller);
         });
 
+        // 1. Primary Unwinder (Left): Exact color match to Printing Rewinder Output (0x2563eb + 0xfacc15 gold stripes)
+        mGroup.add(createWinderStandPair(-5.05, -0.4, 1.6, 2.0, charcoalMat));
+        const lamPrimaryUnwind = createActiveFilmRollAssembly(0.95, 2.0, 0x2563eb, 0xfacc15, 0x1e293b);
+        tagSelectable(lamPrimaryUnwind.bodyMesh);
+        lamPrimaryUnwind.group.position.set(-5.05, 1.45, -0.4);
+        mGroup.add(lamPrimaryUnwind.group);
+        rollersOut.push(lamPrimaryUnwind.group);
+
+        // 2. Secondary Unwinder (Between Coating Unit & Laminating Nip): Laminate Barrier Film Roll (0x8b5cf6)
+        mGroup.add(createWinderStandPair(-1.55, -0.4, 1.45, 2.0, charcoalMat));
+        const lamSecondaryUnwind = createActiveFilmRollAssembly(0.78, 2.0, 0x8b5cf6, 0xe9d5ff, 0x1e293b);
+        tagSelectable(lamSecondaryUnwind.bodyMesh);
+        lamSecondaryUnwind.group.position.set(-1.55, 1.32, -0.4);
+        mGroup.add(lamSecondaryUnwind.group);
+        rollersOut.push(lamSecondaryUnwind.group);
+
+        // 3. Rewinder (Right): Laminate Roll Output (0x7c3aed + 0xfacc15 gold stripes)
+        mGroup.add(createWinderStandPair(5.05, -0.4, 1.6, 2.0, charcoalMat));
+        const lamRewindRoll = createActiveFilmRollAssembly(0.98, 2.0, 0x7c3aed, 0xfacc15, 0x1e293b);
+        tagSelectable(lamRewindRoll.bodyMesh);
+        lamRewindRoll.group.position.set(5.05, 1.45, -0.4);
+        mGroup.add(lamRewindRoll.group);
+        rollersOut.push(lamRewindRoll.group);
+
+        // Guide Rollers for Unwinder & Rewinder
+        const lamInGuide = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.16, 2.05, 12), chromeMat);
+        lamInGuide.rotation.x = Math.PI / 2;
+        lamInGuide.position.set(-4.15, 2.4, -0.4);
+        mGroup.add(lamInGuide);
+        rollersOut.push(lamInGuide);
+
+        const lamOutGuide = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.16, 2.05, 12), chromeMat);
+        lamOutGuide.rotation.x = Math.PI / 2;
+        lamOutGuide.position.set(4.18, 2.4, -0.4);
+        mGroup.add(lamOutGuide);
+        rollersOut.push(lamOutGuide);
+
+        // Active Film Web Spans:
+        // Primary Printed Web feeding up into Coating Unit -> Drying Oven Bridge -> Laminating Nip
+        mGroup.add(createFilmWebSpan(-5.05, 2.15, -4.15, 2.50, -0.4, 1.88, 0x2563eb, 0.90));
+        mGroup.add(createFilmWebSpan(-4.15, 2.50, -3.2, 3.85, -0.4, 1.88, 0x2563eb, 0.90));
+        mGroup.add(createFilmWebSpan(-3.2, 3.85, 0.2, 3.85, -0.4, 1.88, 0x2563eb, 0.90));
+        mGroup.add(createFilmWebSpan(0.2, 3.85, 0.75, 2.25, -0.4, 1.88, 0x2563eb, 0.90));
+        // Secondary Laminate Film Web feeding from Secondary Unwinder into Laminating Nip at x = 0.75
+        mGroup.add(createFilmWebSpan(-1.55, 1.95, 0.75, 2.15, -0.4, 1.86, 0x8b5cf6, 0.88));
+        // Combined Laminated Web exiting Nip -> Right Pull Unit -> Rewinder Roll
+        mGroup.add(createFilmWebSpan(0.75, 2.20, 3.65, 2.20, -0.4, 1.90, 0x7c3aed, 0.94));
+        mGroup.add(createFilmWebSpan(3.65, 2.20, 4.18, 2.48, -0.4, 1.90, 0x7c3aed, 0.94));
+        mGroup.add(createFilmWebSpan(4.18, 2.48, 5.05, 2.15, -0.4, 1.90, 0x7c3aed, 0.95));
+
       } else if (st.id === 'ST_SLIT') {
         /* Slit Machine
-           - Left: Large wide white master roll on dark axle stands
+           - Left: Master Unwind Roll matching Laminate Rewinder Output (0x7c3aed + 0xfacc15 stripes)
            - Middle: Dark grey parallel side walls with black guide rollers + central grooved slitting roller
-           - Right: 4 mint-green narrow slit rolls (2x2) + front pallet with 3 upright mint-green rolls
+           - Right: 4 mint-green narrow slit rolls (0x4ade80) + front pallet with 3 upright mint-green rolls
            - Front-Left: Blue control kiosk with light-blue screen */
-        const whiteRollMat = new THREE.MeshLambertMaterial({ color: 0xf8fafc });
         const mintRollMat = new THREE.MeshLambertMaterial({ color: 0x4ade80 });
 
-        // 1. Large White Master Roll on Left (-X)
-        const masterRoll = tagSelectable(new THREE.Mesh(new THREE.CylinderGeometry(1.3, 1.3, 2.8, 22), whiteRollMat));
-        masterRoll.rotation.x = Math.PI / 2;
-        masterRoll.position.set(-3.7, 1.85, -0.7);
-        mGroup.add(masterRoll);
-        rollersOut.push(masterRoll);
-
-        const masterCore = new THREE.Mesh(new THREE.CylinderGeometry(0.45, 0.45, 2.9, 16), darkSteel);
-        masterCore.rotation.x = Math.PI / 2;
-        masterCore.position.set(-3.7, 1.85, -0.7);
-        mGroup.add(masterCore);
+        // 1. Master Unwind Roll on Left (-X): Exact match to Laminate Rewinder Output (0x7c3aed + 0xfacc15 gold stripes)
+        const masterRollObj = createActiveFilmRollAssembly(1.3, 2.8, 0x7c3aed, 0xfacc15, 0x1e293b);
+        tagSelectable(masterRollObj.bodyMesh);
+        masterRollObj.group.position.set(-3.7, 1.85, -0.7);
+        mGroup.add(masterRollObj.group);
+        rollersOut.push(masterRollObj.group);
 
         [-2.25, 0.85].forEach(function (zArm) {
           const standArm = new THREE.Mesh(new THREE.BoxGeometry(0.25, 1.9, 0.25), charcoalMat);
@@ -2273,19 +2573,21 @@
 
         // Black guide rollers & grooved slitter shaft between the walls
         [-1.8, 0.0, 1.6].forEach(function (rx, idx) {
+          const rShaftGrp = new THREE.Group();
+          rShaftGrp.rotation.x = Math.PI / 2;
+          rShaftGrp.position.set(rx, 1.65, -0.7);
           const rShaft = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.22, 2.7, 14), darkSteel);
-          rShaft.rotation.x = Math.PI / 2;
-          rShaft.position.set(rx, 1.65, -0.7);
-          mGroup.add(rShaft);
+          rShaftGrp.add(rShaft);
           if (idx === 1) {
             // Central grooved slitting knife rings
-            for (let kz = -1.7; kz <= 0.3; kz += 0.4) {
+            for (let ky = -1.0; ky <= 1.0; ky += 0.4) {
               const blade = new THREE.Mesh(new THREE.CylinderGeometry(0.36, 0.36, 0.14, 14), darkSteel);
-              blade.rotation.x = Math.PI / 2;
-              blade.position.set(rx, 1.65, kz);
-              mGroup.add(blade);
+              blade.position.y = ky;
+              rShaftGrp.add(blade);
             }
           }
+          mGroup.add(rShaftGrp);
+          rollersOut.push(rShaftGrp);
         });
 
         // 3. Right Outfeed: 4 Mint-Green Slit Rolls (2x2 arrangement with black cores)
@@ -2295,15 +2597,11 @@
           [2.7, 1.45, 0.15],
           [3.9, 1.15, 0.15]
         ].forEach(function (rp) {
-          const sRoll = tagSelectable(new THREE.Mesh(new THREE.CylinderGeometry(0.68, 0.68, 0.85, 18), mintRollMat));
-          sRoll.rotation.x = Math.PI / 2;
-          sRoll.position.set(rp[0], rp[1], rp[2]);
-          mGroup.add(sRoll);
-          rollersOut.push(sRoll);
-          const sCore = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.24, 0.90, 12), darkSteel);
-          sCore.rotation.x = Math.PI / 2;
-          sCore.position.set(rp[0], rp[1], rp[2]);
-          mGroup.add(sCore);
+          const sRoll = createActiveFilmRollAssembly(0.68, 0.85, 0x4ade80, 0x166534, 0x1e293b);
+          tagSelectable(sRoll.bodyMesh);
+          sRoll.group.position.set(rp[0], rp[1], rp[2]);
+          mGroup.add(sRoll.group);
+          rollersOut.push(sRoll.group);
         });
 
         // 4. Foreground Pallet with 3 Upright Mint-Green Rolls (front-right, clear of worker)
@@ -2323,12 +2621,11 @@
 
       } else if (st.id === 'ST_BAG') {
         /* Dual-Lane Bag Making Machine
-           - Left: 2 White Unwind Film Rolls on black stands
+           - Left: 2 Unwind Film Rolls matching Slit Roll Output (0x4ade80 mint-green, or 0x7c3aed violet when Skip Slit is enabled)
            - Next: 2 Coral-Pink stepped forming chambers
            - Middle: 2 pairs of dark vertical sealing bars with orange top strips
            - Right: 2 Grey flat outfeed tables + beige carton boxes at end
            - Front: 3 beige carton boxes on left + Blue control kiosk on right + 2 non-overlapping workers */
-        const whiteRollMat = new THREE.MeshLambertMaterial({ color: 0xf8fafc });
         const pinkChamberMat = new THREE.MeshLambertMaterial({ color: 0xe15b64 });
         const orangeStripMat = new THREE.MeshLambertMaterial({ color: 0xf97316 });
         const tableGreyMat = new THREE.MeshLambertMaterial({ color: 0x94a3b8 });
@@ -2336,17 +2633,13 @@
 
         // Build two parallel bag lines at zLane = -1.7 (back) and zLane = +0.4 (front)
         [-1.7, 0.4].forEach(function (zLane) {
-          // White unwind roll
-          const uRoll = tagSelectable(new THREE.Mesh(new THREE.CylinderGeometry(0.85, 0.85, 1.55, 18), whiteRollMat));
-          uRoll.rotation.x = Math.PI / 2;
-          uRoll.position.set(-4.3, 1.35, zLane);
-          mGroup.add(uRoll);
-          rollersOut.push(uRoll);
-
-          const uCore = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.28, 1.62, 12), darkSteel);
-          uCore.rotation.x = Math.PI / 2;
-          uCore.position.set(-4.3, 1.35, zLane);
-          mGroup.add(uCore);
+          // Unwind roll matching Slit Roll output (0x4ade80 + 0x166534 stripes)
+          const uRoll = createActiveFilmRollAssembly(0.85, 1.55, 0x4ade80, 0x166534, 0x1e293b);
+          tagSelectable(uRoll.bodyMesh);
+          uRoll.group.position.set(-4.3, 1.35, zLane);
+          mGroup.add(uRoll.group);
+          rollersOut.push(uRoll.group);
+          sceneObjects.dynamicRollRefs.bagUnwindRolls.push(uRoll);
 
           // Coral-pink stepped forming housing
           const pinkBox = tagSelectable(new THREE.Mesh(new THREE.BoxGeometry(2.1, 1.65, 1.65), pinkChamberMat));
@@ -2620,7 +2913,7 @@
       /* Straight Linear Lanes across Zone 2 (PRD)
          - Hand Pallet Truck straight WIP lane at z = +3.2
          - Forklift main straight highway at z = +8.8
-         - Green pedestrian safety walkway at z = +14.2 */
+         (Green walkway and patrol workers removed per user request) */
       const hptStraightLane = new THREE.Mesh(
         new THREE.BoxGeometry(114, 0.05, 1.5),
         new THREE.MeshLambertMaterial({ color: 0xfbbf24 })
@@ -3303,7 +3596,7 @@
         duration: 2.0,
         inLabel: MATERIAL_CATALOG[baseFilmKey].name + ' + Cylinder + Ink + Solvent',
         outLabel: 'Printing Roll' + qTxt(plan.stepMap.ST_PRINT.outputKg, 'kg'),
-        logMsg: 'Station 3 (Printing): Rotogravure multi-color press → Printing Roll' + qTxt(plan.stepMap.ST_PRINT.outputKg, 'kg'),
+        logMsg: 'Station 3 (Printing): Unwinder feeding web through rotogravure units → Rewinder Printing Roll' + qTxt(plan.stepMap.ST_PRINT.outputKg, 'kg'),
         onComplete: function () { appState.completedSteps.ST_PRINT = true; }
       });
 
@@ -3348,7 +3641,7 @@
         duration: 1.9,
         inLabel: 'Printing Roll + Laminate Film + Adhesive',
         outLabel: 'Laminate Roll' + qTxt(plan.stepMap.ST_LAM.outputKg, 'kg'),
-        logMsg: 'Station 4 (Laminate): Dry lamination bridge → Laminate Roll' + qTxt(plan.stepMap.ST_LAM.outputKg, 'kg'),
+        logMsg: 'Station 4 (Laminate): Unwinders bonding Printed Roll & Laminate Film → Rewinder Laminate Roll' + qTxt(plan.stepMap.ST_LAM.outputKg, 'kg'),
         onComplete: function () { appState.completedSteps.ST_LAM = true; }
       });
 
@@ -3644,6 +3937,20 @@
     function stepSimulationFrame(dt) {
       const nowSec = performance.now() * 0.001;
 
+      // Rotate all rolls and rollers on every machine CLOCKWISE (negative local Y rotation when rotation.x = Math.PI/2)
+      // including Blown Film, Ink Mix, Printing, Laminate, Slit, Bag, and Spout
+      if (!prefersReducedMotion) {
+        STATIONS_CONFIG.forEach(function (st) {
+          const stObj = sceneObjects.stationObjs[st.id];
+          if (!stObj) return;
+          const isStationActive = (appState.simStatus === 'RUNNING' && appState.stationRuntime[st.id] && appState.stationRuntime[st.id].status === 'RUNNING');
+          if (!isStationActive) {
+            const idleSpinRate = (appState.simStatus === 'RUNNING') ? 2.4 : 1.25;
+            stObj.rollers.forEach(function (r) { r.rotation.y -= dt * idleSpinRate; });
+          }
+        });
+      }
+
       if (appState.simStatus !== 'RUNNING') return;
       const task = appState.tasks[appState.currentTaskIndex];
       if (!task) return;
@@ -3671,7 +3978,7 @@
       } else if (task.type === 'PROCESS') {
         const stObj = sceneObjects.stationObjs[task.stationId];
         if (stObj && !prefersReducedMotion) {
-          stObj.rollers.forEach(function (r) { r.rotation.y += scaledDt * 6.5; });
+          stObj.rollers.forEach(function (r) { r.rotation.y -= scaledDt * 6.5; });
           stObj.reciprocators.forEach(function (rec) {
             rec.mesh.position.y = rec.baseY + Math.sin(nowSec * 14) * 0.16;
           });
@@ -3740,6 +4047,13 @@
       });
     }
 
+    function updateTopHeaderOffsetVar() {
+      const topHeaderEl = document.getElementById('topHeader');
+      if (!topHeaderEl) return;
+      const h = topHeaderEl.offsetHeight || 58;
+      document.documentElement.style.setProperty('--top-header-offset', (h + 10) + 'px');
+    }
+
     function applyThemeMode(mode) {
       appState.themeMode = mode; // 'light' | 'dark' | 'system'
       const root = document.documentElement;
@@ -3749,7 +4063,18 @@
         root.setAttribute('data-theme', mode);
       }
 
-      document.querySelectorAll('#themeModeGroup .theme-mode-btn').forEach(function (btn) {
+      const themeMeta = {
+        light: { icon: 'light_mode', label: 'Light' },
+        dark: { icon: 'dark_mode', label: 'Dark' },
+        system: { icon: 'desktop_windows', label: 'System' }
+      }[mode] || { icon: 'desktop_windows', label: 'System' };
+
+      const iconEl = document.getElementById('themeDropdownIcon');
+      const labelEl = document.getElementById('themeDropdownLabel');
+      if (iconEl) iconEl.textContent = themeMeta.icon;
+      if (labelEl) labelEl.textContent = themeMeta.label;
+
+      document.querySelectorAll('#themeDropdownMenu .theme-dropdown-item').forEach(function (btn) {
         btn.classList.toggle('active', btn.getAttribute('data-theme-mode') === mode);
       });
 
@@ -3829,7 +4154,7 @@
     }
 
     /* Show Factory Overview & Event Log (#detailPanel) ONLY when in Detailed Mode,
-       and keep Visual Flow Mode card (#minimalAssumptionsBox) hidden per request 1 */
+       and keep Visual Flow Mode card (#minimalAssumptionsBox) hidden */
     function setInputMode(mode) {
       appState.inputMode = mode;
       const isMinimal = (mode === 'MINIMAL');
@@ -3846,27 +4171,57 @@
       document.getElementById('detailedSummarySection').classList.toggle('hidden', isMinimal);
       document.getElementById('detailPanel').classList.toggle('hidden', isMinimal);
       recalculateAndRenderUI();
+      updateTopHeaderOffsetVar();
     }
 
     function syncFollowAndLoopButtonsUI() {
-      const fText = 'Follow Flow: ' + (appState.followFlow ? 'ON' : 'OFF');
-      const lText = 'Loop: ' + (appState.loopRun ? 'ON' : 'OFF');
-      document.getElementById('topFollowLabel').textContent = fText;
-      document.getElementById('panelFollowLabel').textContent = fText;
-      document.getElementById('topLoopLabel').textContent = lText;
-      document.getElementById('panelLoopLabel').textContent = 'Loop Run: ' + (appState.loopRun ? 'ON' : 'OFF');
+      const followLabel = document.getElementById('panelFollowLabel');
+      const loopLabel = document.getElementById('panelLoopLabel');
+      const followBtn = document.getElementById('panelFollowBtn');
+      const loopBtn = document.getElementById('panelLoopBtn');
 
-      document.getElementById('topFollowBtn').classList.toggle('active', appState.followFlow);
-      document.getElementById('panelFollowBtn').classList.toggle('active', appState.followFlow);
-      document.getElementById('topLoopBtn').classList.toggle('active', appState.loopRun);
-      document.getElementById('panelLoopBtn').classList.toggle('active', appState.loopRun);
+      if (followLabel) followLabel.textContent = 'Follow: ' + (appState.followFlow ? 'ON' : 'OFF');
+      if (loopLabel) loopLabel.textContent = 'Loop: ' + (appState.loopRun ? 'ON' : 'OFF');
+      if (followBtn) followBtn.classList.toggle('active', appState.followFlow);
+      if (loopBtn) loopBtn.classList.toggle('active', appState.loopRun);
       updateFocusProcessBanner();
+    }
+
+    function syncDynamicMachineRollColors() {
+      const refs = sceneObjects.dynamicRollRefs;
+      if (!refs) return;
+
+      // 1. Printing Unwinder matches Blown Film (0x60a5fa) or Purchased Film (0x3b82f6)
+      const isInhouse = (appState.filmSource === 'INHOUSE');
+      const baseFilmHex = isInhouse ? 0x60a5fa : 0x3b82f6;
+      const baseStripeHex = isInhouse ? 0xe0f2fe : 0xbfdbfe;
+      if (refs.printUnwindRoll) {
+        refs.printUnwindRoll.bodyMat.color.setHex(baseFilmHex);
+        refs.printUnwindRoll.stripeMat.color.setHex(baseStripeHex);
+      }
+      if (refs.printUnwindWebs) {
+        refs.printUnwindWebs.forEach(function (w) {
+          w.material.color.setHex(baseFilmHex);
+        });
+      }
+
+      // 2. Bag Unwinder matches Slit Roll output (0x4ade80 mint-green) or Laminate Roll output (0x7c3aed violet) when Skip Slit is checked
+      const bagFromLaminate = (appState.productType !== 'FG_ROLL' && appState.skipSlit);
+      const bagUnwindHex = bagFromLaminate ? 0x7c3aed : 0x4ade80;
+      const bagStripeHex = bagFromLaminate ? 0xfacc15 : 0x166534;
+      if (refs.bagUnwindRolls) {
+        refs.bagUnwindRolls.forEach(function (r) {
+          r.bodyMat.color.setHex(bagUnwindHex);
+          r.stripeMat.color.setHex(bagStripeHex);
+        });
+      }
     }
 
     function recalculateAndRenderUI() {
       const plan = computeOrderPlan();
       appState.plan = plan;
       const isMinimal = (appState.inputMode === 'MINIMAL');
+      syncDynamicMachineRollColors();
 
       const isPieces = (appState.unit === 'pieces');
       document.getElementById('piecesPerBoxGroup').classList.toggle('hidden', !isPieces);
@@ -3950,9 +4305,9 @@
       const routeIds = plan.routeIds;
       const zoneButtons = [
         { target: 'ALL', label: 'All Factory' },
-        { target: 'ZONE_RM', label: 'Zone 1: RM' },
-        { target: 'ZONE_PRD', label: 'Zone 2: PRD Line' },
-        { target: 'ZONE_FG', label: 'Zone 3: FG & Dock' }
+        { target: 'ZONE_RM', label: 'Warehouse RM' },
+        { target: 'ZONE_PRD', label: 'PRD Line' },
+        { target: 'ZONE_FG', label: 'Warehouse FG & Dock' }
       ];
 
       const zoneChipsHtml = '<div class="bottom-bar-group">' +
@@ -4049,14 +4404,14 @@
       } else if (ZONES_CONFIG[target]) {
         const z = ZONES_CONFIG[target];
         titleEl.textContent = z.name;
-        badgeEl.textContent = 'Zone View';
+        badgeEl.textContent = 'Area View';
         badgeEl.className = 'status-badge status-idle';
         contentEl.innerHTML =
           '<p style="color:var(--text-secondary);">' + z.role + '</p>' +
           '<div class="stock-row"><span>Material Handling</span><strong>' + z.handling + '</strong></div>';
       } else {
         titleEl.textContent = 'Starflex Factory Overview';
-        badgeEl.textContent = 'All Zones';
+        badgeEl.textContent = 'All Factory';
         badgeEl.className = 'status-badge status-idle';
         contentEl.innerHTML =
           '<div class="stock-row"><span>Selected Product</span><strong>' + appState.productType.replace('FG_', 'FG ') + '</strong></div>' +
@@ -4151,9 +4506,7 @@
       const jumpBtn = document.getElementById('jumpDetailedBtn');
       if (jumpBtn) jumpBtn.addEventListener('click', function () { setInputMode('DETAILED'); });
 
-      document.getElementById('topFollowBtn').addEventListener('click', toggleFollowFlow);
       document.getElementById('panelFollowBtn').addEventListener('click', toggleFollowFlow);
-      document.getElementById('topLoopBtn').addEventListener('click', toggleLoopRun);
       document.getElementById('panelLoopBtn').addEventListener('click', toggleLoopRun);
 
       document.getElementById('closeFocusBannerBtn').addEventListener('click', function () {
@@ -4274,13 +4627,46 @@
         selectZoneOrStation('ALL');
       });
 
-      /* 3-Mode Theme Switcher: Light / Dark / System */
-      document.querySelectorAll('#themeModeGroup .theme-mode-btn').forEach(function (btn) {
-        btn.addEventListener('click', function () {
-          const mode = btn.getAttribute('data-theme-mode');
-          applyThemeMode(mode);
+      /* Theme Dropdown with Google Material Symbols Icons: Light / Dark / System */
+      const themeDropdownBtn = document.getElementById('themeDropdownBtn');
+      const themeDropdownMenu = document.getElementById('themeDropdownMenu');
+      const themeDropdownWrap = document.getElementById('themeDropdownWrap');
+
+      if (themeDropdownBtn && themeDropdownMenu) {
+        themeDropdownBtn.addEventListener('click', function (ev) {
+          ev.stopPropagation();
+          const isHidden = themeDropdownMenu.classList.toggle('hidden');
+          themeDropdownBtn.setAttribute('aria-expanded', String(!isHidden));
         });
-      });
+
+        document.querySelectorAll('#themeDropdownMenu .theme-dropdown-item').forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            const mode = btn.getAttribute('data-theme-mode');
+            applyThemeMode(mode);
+            themeDropdownMenu.classList.add('hidden');
+            themeDropdownBtn.setAttribute('aria-expanded', 'false');
+          });
+        });
+
+        document.addEventListener('click', function (ev) {
+          if (themeDropdownWrap && !themeDropdownWrap.contains(ev.target)) {
+            themeDropdownMenu.classList.add('hidden');
+            themeDropdownBtn.setAttribute('aria-expanded', 'false');
+          }
+        });
+      }
+
+      /* Dynamically track #topHeader height so #orderPanel / #detailPanel never overlap KPI cards */
+      window.addEventListener('resize', updateTopHeaderOffsetVar);
+      if (window.ResizeObserver) {
+        const headerEl = document.getElementById('topHeader');
+        if (headerEl) {
+          const ro = new ResizeObserver(function () {
+            updateTopHeaderOffsetVar();
+          });
+          ro.observe(headerEl);
+        }
+      }
 
       if (window.matchMedia) {
         const darkQuery = window.matchMedia('(prefers-color-scheme: dark)');
@@ -4308,6 +4694,7 @@
     applyThemeMode('system');
     syncFollowAndLoopButtonsUI();
     recalculateAndRenderUI();
+    updateTopHeaderOffsetVar();
     appendEventLog('Starflex ERP 3D initialized with linear PRD line.');
 
     let lastFrameTime = performance.now();
