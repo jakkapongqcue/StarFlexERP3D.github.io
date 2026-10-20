@@ -5,185 +5,130 @@
 Build a single-page 3D ERP / production simulator for a **flexible packaging (plastic film) factory**.
 The user configures a production order (product type, quantity, unit, waste %) and presses **Start**;
 the page then animates the full flow: raw materials leave the RM warehouse, are processed station by station
-in the production area, finished goods are stored in the FG warehouse, and a container truck is loaded for delivery.
+across a realistic two-row production floor with a dedicated PRD Warehouse (curing/staging area), finished goods are stored in the FG warehouse, and a container truck is loaded at the high-detail logistics loading dock for delivery.
 
 **References**
 
 1. https://github.com/Boom-Vitt/boombignose-erp (3D ERP concept and structure)
-2. WareTrack-style dashboard screenshot: light background, KPI cards on top, zone chips, detail panel on the right, shipment-style stepper at the bottom, blue accent.
+2. WareTrack-style dashboard screenshot: light/dark theme support, KPI cards on top, collapsible floating panels, zone chips, inspector panel on the right, shipment-style stepper at the bottom, blue accent.
+3. Industrial factory reference standards: Two-row production layout, central transit highway, dual-level industrial racks with blue uprights & orange load beams, high-detail logistics dock with teal canopy frame & safety bollards, dedicated yellow-demarcated Infeed/Outfeed material bays beside machines.
 
 **UI language:** English only (labels, buttons, tooltips, panels, logs).
 
-## 2. Three zones (isometric layout)
+---
 
-| Zone                          | Role                                                                                  | Material handling                                                                                                                                            |
-| ----------------------------- | ------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **Zone 1 – Warehouse RM**     | Stores raw materials and intermediate stock returned from PRD (blown film, mixed ink) | **Forklift** delivers RM from the warehouse to PRD stations                                                                                                  |
-| **Zone 2 – PRD (Production)** | Seven process stations arranged in process order                                      | WIP moves between stations with a **Manual Hand Pallet Truck** (operator-pushed)                                                                             |
-| **Zone 3 – Warehouse FG**     | (a) FG storage racks, (b) **Delivery Department** with a loading dock                 | A **forklift drives into PRD** to collect FG pallets and stores them in FG racks; a **Delivery forklift** loads pallets onto the container truck at the dock |
+## 2. Factory Layout & Zones (Isometric 3D View)
 
-Suggested floor plan: RM on the left, PRD in the middle (largest, 7 stations in a U or S shape with a central aisle),
-FG on the right with the Delivery dock and truck yard (road + parking bay) at the far end.
-Keep aisles wide enough for forklifts; use separate lanes for forklift and hand-pallet-truck paths to avoid collisions.
+The factory is arranged horizontally along the X-axis ($X = -130$ to $+130$) with a wide central transit spine along $Z = 0.0$:
 
-## 3. Warehouse RM contents (3D models, built from three.js primitives)
+| Zone | Area & Coordinates | Role & Equipment | Material Handling |
+| :--- | :--- | :--- | :--- |
+| **Zone 1 – Warehouse RM** | West wing ($X \approx -110$ to $-65$, $Z \approx -22$ to $+22$) | Stores raw materials and intermediate stock returned from PRD (blown film, mixed ink). Industrial racks, drum pallets, resin bags, film rolls. | **RM Forklift** delivers raw materials from RM racks along the Central Highway to PRD station Infeed bays. |
+| **Zone 2 – PRD (Production Floor)** | Center floor ($X \approx -65$ to $+65$, $Z \approx -22$ to $+22$) | **Two-row layout (Row 1 North, Row 2 South)** with a wide Central Transit Highway ($Z = 0.0$) in between: <br>• **Row 1 (North, $Z = -12.0$):** Blown Film ($X=-45$), Printing ($X=-15$), Bag Making ($X=+15$), Spout ($X=+45$)<br>• **Row 2 (South, $Z = +12.0$):** Ink Mix ($X=-45$), **PRD WH** ($X=-15$), Laminate ($X=+15$), Slit ($X=+45$) | WIP is transported between stations and PRD WH via a **Manual Hand Pallet Truck (HPT)** with walking operator along the Central Highway. |
+| **Zone 2.5 – PRD WH (Curing & Staging Area)** | PRD Row 2, Col 2 ($X = -15.0$, $Z = +12.0$) | Intermediate warehouse in the production area with dual-level industrial racks (blue uprights, orange load beams) storing rolls undergoing curing/adhesive bond development and WIP staging boxes. Aisle features cyan guide lines & arrows. | Hand Pallet Truck moves rolls into curing racks and out to subsequent lamination, slitting, or bag making steps. |
+| **Zone 3 – Warehouse FG & Logistics Dock** | East wing ($X \approx +65$ to $+130$, $Z \approx -22$ to $+22$) | **(a) FG Storage Racks:** Multilevel pallet racks for finished goods.<br>**(b) High-Detail Logistics Loading Dock ($Z = -4.0$):** Teal steel canopy frame, roll-up shutter, red/green LED dock safety lights, yellow safety bollards, zebra hazard stripes, container truck loading yard, asphalt perimeter roads with zebra crossings & perimeter trees. | **FG Forklift** collects finished goods from Outfeed bays into FG racks; **Delivery Forklift** loads pallets into the container truck. |
 
-Each item has a visible, recognizable model on racks or pallets:
+### Central Transit Highway ($Z = 0.0$)
+- High-visibility thoroughfare running east-west dividing Row 1 and Row 2.
+- Features asphalt textured surface, yellow dashed centerline markings, directional arrows, and white pedestrian zebra crossings.
+- All machine docks face this highway at $Z = \pm 5.0$, eliminating route collisions and vehicle clipping through machine geometry.
 
-1. **Cylinder** – gravure/printing cylinders: long metal rods (chrome cylinders lying on a rack)
-2. **Base-color ink drums** – large drums (RM Ink)
-3. **Solvent drums** – small drums
-4. **Adhesive drums** – small drums
-5. **Resin bags** – white sacks stacked on pallets
-6. **Film rolls** – wrapped film rolls, kept as three separately named stocks: **Purchased Film** (bought in, ready for Printing), **Blown Film** (made in-house and returned from PRD), and **Laminate Film** (second layer for Laminate)
-7. **Paper cores (Papercore)** – cardboard tubes in bundles
-8. **Corrugated boxes** – flat/stacked brown cartons with tape
-9. **Spout caps** – small plastic fitment boxes/bags (required by the Spout process)
+---
 
-Also store here the intermediate outputs sent back from PRD: **Blown Film rolls** and **ready-to-use Ink**.
-Show a small stock label per item type that decreases as the simulation consumes materials.
+## 3. Machine Models & Demarcated Infeed / Outfeed Bays
 
-### Material name labels (required)
+### A. Realistic Machine & Product Models
+Every station features custom three.js geometry matching real industrial flexible packaging equipment:
+1. **Blown Film Extruder:** Extruder barrel, hopper, tall circular die, vertical scaffolding tower with bubble collapsing frame, bubble cage, take-up rolls, and dual surface winders.
+2. **Ink Mixing Station:** Heavy steel frame, stainless mixing tanks with agitator motors, operator control panel, transfer pump manifolds, and drum staging pads.
+3. **Rotogravure Printing Press:** Multi-unit color printing towers with dry chambers, chrome print cylinders, overhead web bridge, and unwinder/rewinder reels.
+4. **Laminator:** Primary unwinder, adhesive coating station, drying tunnel hood, nip rollers, secondary unwinder, and rewinder.
+5. **Slitter Rewinder:** Heavy unwind chucks, slitter knife arbor (rotary circular blades), trim extractors, dual differential rewind shafts with finished rolls.
+6. **Bag Making Machine (Pouch Maker):** Roll unwind stand, folding triangular plate, seal bars (bottom/side sealing), cooling bars, guillotine cutter, and shingled outfeed conveyor producing stand-up pouches.
+7. **Spout Applicator Machine:** Industrial light grey chassis, bowl vibratory feeder / hopper for spout fitments, vertical inserter chute, ultrasonic sealing horn, and transfer conveyor.
+8. **Pouches & Spouted Pouches:** Stand-up pouches rendered with bottom gusset and realistic foil metallic sheen (`MeshStandardMaterial` metalness/roughness). Spouted pouches rendered with top-welded screw spout fitment caps.
 
-Every material must be identifiable by name wherever it appears, from storage to the point of use:
+### B. Yellow Demarcated Infeed & Outfeed Bays
+Every machine station features dedicated yellow-line safety boxes stenciled on the factory floor:
+- **`INFEED` Bay (Input side):** Staged raw material euro-pallets holding the required inputs (e.g. resin bags for Blown Film; base-color ink & solvent drums for Ink Mix; film rolls, cylinders, ink drums for Printing; adhesive & laminate film for Laminate; papercores for Slit; carton boxes for Bag; spout fitments for Spout).
+- **`OUTFEED` Bay (Output side):** Staged pallets holding WIP products or finished goods (e.g. extruded film rolls, mixed ink drums, printed rolls, laminated rolls, slitted roll boxes, stand-up pouch boxes, spouted pouch boxes).
 
-- **In Warehouse RM:** a floating name tag above each item group (e.g. "Resin bags", "Base-color ink drums", "Purchased film", "Blown film"), showing the current stock quantity and unit.
-- **During transport:** each pallet carried by a forklift or hand pallet truck has a floating tag following it with the material name and quantity (e.g. "Resin – 120 kg", "Printing Roll – 1 pallet", "Papercore + Corrugated Box"). A pallet carrying several materials lists them (max 3 lines, then "+N more").
-- **At each PRD station:** an "Input" tag listing the materials currently supplied to that station, and an "Output" tag naming what it produces (e.g. "Out: Laminate Roll").
-- **Tag behavior:** tags face the camera, stay readable at any zoom (scale or hide below a size threshold), use the same material names and colors everywhere, and have a toggle "Show material labels" (default on) in the order panel.
+---
 
-## 4. Production processes (data flow)
+## 4. Warehouse RM Contents & Material Labels
 
-| #   | Process                                             | Input (from)                                                                                                                   | Process                                                                                                             | Output                                    |
-| --- | --------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------- | ----------------------------------------- |
-| 1   | **Blown Film** _(only when Film source = In-house)_ | Resin (Warehouse RM)                                                                                                           | Melt resin in the extruder and blow it into film                                                                    | Blown Film roll → stored in Warehouse RM  |
-| 2   | **Ink Mix**                                         | Base-color ink drums (RM Ink) from Warehouse RM                                                                                | Mix and tune color to job spec                                                                                      | Ready-to-use Ink → stored in Warehouse RM |
-| 3   | **Printing**                                        | Film roll (**Purchased Film or in-house Blown Film**, per Film source), Cylinder, Ink, Solvent & Other (all from Warehouse RM) | Print artwork and text onto the film                                                                                | Printing Roll                             |
-| 4   | **Laminate**                                        | Printing Roll (previous process), Laminate Film and Adhesive & Other (from Warehouse RM)                                       | Bond 2+ film layers with adhesive (lamination) or molten plastic (extrusion lamination) for strength and protection | Laminate Roll                             |
-| 5   | **Slit**                                            | Laminate Roll (previous process), Papercore (Warehouse RM)                                                                     | Slit the wide roll into narrow rolls to customer width                                                              | Slit Roll, packed in Corrugated Box       |
-| 6   | **Bag**                                             | Laminate/Slit Roll (previous process), Corrugated Box (Warehouse RM)                                                           | Fold and seal film into finished bags                                                                               | Bag (finished pouch), packed in boxes     |
-| 7   | **Spout**                                           | Bag/Slit Roll (previous process), Spout, Corrugated Box (Warehouse RM)                                                         | Weld a plastic spout onto the pouch (liquid products)                                                               | Bag with Spout, packed in boxes           |
-| 8   | **Warehouse FG**                                    | Finished goods from PRD                                                                                                        | Store Slit Rolls on pallets; Bags and Spout Bags in boxes on pallets; wait for delivery                             | FG stock → Delivery → container truck     |
+### A. 3D Raw Material Models
+1. **Cylinder** – Rotogravure cylinders: long chrome metal cylinders racked horizontally.
+2. **Base-color ink drums** – Large industrial drums (`RM_INK`).
+3. **Solvent drums** – Chemical solvent drums (`SOLVENT`).
+4. **Adhesive drums** – Polyurethane lamination adhesive drums (`ADHESIVE`).
+5. **Resin bags** – White polypropylene/polyethylene polymer sacks stacked on wooden pallets.
+6. **Purchased Film** – Commercial polymer film reels on pallets, ready for printing.
+7. **Paper cores (Papercore)** – Heavy spiral cardboard tubes in bundles.
+8. **Corrugated boxes** – Folded/stacked brown shipping cartons with sealing tape.
+9. **Spout caps** – Fitment boxes containing plastic spout caps.
+10. **Blown Film rolls & Mixed Ink drums** – Intermediate stocks returned from PRD into RM.
 
-### Film source (new option)
+### B. Material Name Labels
+- **In Warehouse RM:** Floating name tags above each item stack showing material name, current stock quantity, and unit.
+- **During Transport:** Each pallet moving with a forklift or hand pallet truck has a floating tag attached at $Y = 3.6$ showing the cargo description and quantity.
+- **At Stations:** Demarcated `INFEED` and `OUTFEED` bay tags dynamically display active material types.
+- **Toggle:** "Show material labels" checkbox in the UI allows hiding/showing tags at any time.
 
-The user chooses where the base film for Printing comes from:
+---
 
-- **In-house Blown Film:** the Blown Film process runs (resin consumed), and its film roll is returned to Warehouse RM before being issued to Printing.
-- **Purchased Film:** the Blown Film process is **skipped** (greyed in the stepper, no resin consumed, no blown-film waste); Printing takes **Purchased Film** rolls straight from Warehouse RM stock.
+## 5. Production Processes & Routing
 
-The choice changes the route, the animation, the stock deductions and the summary table. Ink Mix is unaffected.
+| # | Process Station | Location | Inputs | Processing Action | Output |
+| :---: | :--- | :--- | :--- | :--- | :--- |
+| **1** | **Blown Film** | Row 1, Col 1 ($X=-45, Z=-12$) | Resin bags | Melt & blow plastic bubble into tubular film | Blown Film roll → Stored in RM |
+| **2** | **Ink Mix** | Row 2, Col 1 ($X=-45, Z=+12$) | Base ink drums, Solvent | Blend and color-match ink formula | Ready-to-use Ink → Stored in RM |
+| **3** | **Printing** | Row 1, Col 2 ($X=-15, Z=-12$) | Film roll (Purchased or In-house Blown), Cylinder, Ink, Solvent | Multi-color rotogravure printing | Printing Roll → Stored/Cured in PRD WH |
+| **4** | **Laminate** | Row 2, Col 3 ($X=+15, Z=+12$) | Printed Roll, Laminate Film, Adhesive | Dry-bond lamination of barrier layers | Laminate Roll → Curing in PRD WH |
+| **5** | **Slit** | Row 2, Col 4 ($X=+45, Z=+12$) | Laminate Roll (cured), Papercores | Rotary slitting into custom widths | Slit Rolls (packed in boxes or rolls) |
+| **6** | **Bag** | Row 1, Col 3 ($X=+15, Z=-12$) | Slit Roll, Corrugated Boxes | Pouch forming, side/bottom sealing | Stand-up Pouches (in cartons) |
+| **7** | **Spout** | Row 1, Col 4 ($X=+45, Z=-12$) | Pouches from Bag, Spout fitments, Boxes | Ultrasonic welding of spout spout fitment | Spouted Pouches (in cartons) |
+| **8** | **Warehouse FG** | FG Wing ($X=+75, Z=0$) | Finished Goods from PRD | Palletized storage in FG racks | Pallets loaded into Container Truck |
 
-### Route per product type
+### Film Source Routing
+- **In-house Blown Film:** Blown Film process runs first (consuming resin); extruded rolls return to Warehouse RM before issuance to Printing.
+- **Purchased Film:** Blown Film step is **skipped** (greyed in stepper, 0 resin consumed); Printing directly draws **Purchased Film** rolls from Warehouse RM.
 
-Shown for Film source = In-house. With Film source = Purchased, remove Blown Film from the route.
+### Product Routing
+- **FG Roll:** Blown Film + Ink Mix $\rightarrow$ Printing $\rightarrow$ Laminate $\rightarrow$ Slit $\rightarrow$ FG Warehouse.
+- **FG Bag:** Blown Film + Ink Mix $\rightarrow$ Printing $\rightarrow$ Laminate $\rightarrow$ Slit $\rightarrow$ Bag $\rightarrow$ FG Warehouse.
+- **FG Spout:** Blown Film + Ink Mix $\rightarrow$ Printing $\rightarrow$ Laminate $\rightarrow$ Slit $\rightarrow$ Bag $\rightarrow$ Spout $\rightarrow$ FG Warehouse.
 
-- **FG Roll:** Blown Film + Ink Mix (upstream, feed RM) → Printing → Laminate → Slit → FG
-- **FG Bag:** Blown Film + Ink Mix → Printing → Laminate → Slit → Bag → FG
-- **FG Spout:** Blown Film + Ink Mix → Printing → Laminate → Slit → Bag → Spout → FG
+---
 
-(Assumption: Bag takes Slit Roll by default; make "skip Slit for Bag/Spout" a toggle if the factory needs it.)
+## 6. User Interface & Controls
 
-## 5. Production order input panel (Run Simulation)
+### A. Theme Switcher & Persistence
+- **3-State Theme Toggle:** Light (`light`), Dark (`dark`), or System (`system`).
+- **Persistence:** Remembers user selection in `localStorage` (`starflex_erp_theme`) and restores it upon reload. Automatically adjusts 3D scene background, fog, grid, and ambient lighting.
 
-A clean, compact form (left sidebar or collapsible floating card) with a **mode switcher** at the top so the user can choose between a quick **Minimal Mode** and a full **Detailed Mode**. The animation starts only when **Start** is pressed.
+### B. Panels Visibility Toggle
+- **Collapsible Panels Button:** Floating action button (`#togglePanelsBtn`) in the top bar to toggle visibility of floating UI panels (`#orderPanel`, `#detailPanel`), providing an unobstructed full-screen view of the 3D plant.
 
-### Input Mode Switcher
+### C. Simulation Playback & Speed Controls
+- **Combined Start / Pause Button:** Single button that dynamically toggles between Start (Play icon) and Pause (Pause icon) with appropriate status-based color styling.
+- **Reset Button:** Styled with an outline red accent (`btn-outline-danger`) to prevent accidental clicks.
+- **Default Speed:** Defaults to **1.0x** on page load with speed multiplier buttons (0.5x, 1x, 2x, 4x).
+- **Keyboard Shortcut:** Pressing the **Spacebar** triggers Start, Pause, or Resume simulation.
 
-A segmented control / tab bar at the top of the panel:
+### D. Order Input Modes
+- **Minimal Mode (Default):** Streamlined inputs (Product Type, Quantity, Units with quick presets, Film Source, Assumptions Summary pill).
+- **Detailed Mode:** Granular controls (Pieces per box, Roll spec length/weight conversions, Skip Slit toggle, and individual per-station Waste % inputs).
 
-- **Minimal (Simple) Mode** _(default)_ – clean, low-friction UI showing only essential inputs while applying smart factory defaults in the background.
-- **Detailed (Advanced) Mode** – reveals granular process parameters, custom conversion specs, routing overrides, and per-station waste % controls.
-- Switching between modes preserves the user's current values (with a "Reset to defaults" link in Detailed mode).
+### E. Unified Bottom Stepper & Zone Bar
+- Interactive zone quick-focus chips (`All Factory`, `Warehouse RM`, `PRD Line`, `PRD WH`, `Warehouse FG & Dock`).
+- Visual process stepper node chain showing real-time execution status (Idle, Active, Done, or Skipped).
 
-### A. Minimal Mode fields (always visible)
+---
 
-1. **Product type** (compact visual pill/segment choice)
-   - **FG Roll** – finished roll from the Slit process
-   - **FG Bag** – pouch without spout, from the Bag process
-   - **FG Spout** – pouch with spout, from the Spout process
-2. **Quantity** (number) and **Unit** (choice, depends on product type) + **Quick preset chips** (e.g., `10`, `50`, `100` rolls or `3,000`, `10,000` pcs)
-   - FG Roll units: **roll**, **meter**, **kilogram**
-   - FG Bag / FG Spout units: **pieces** (packed in boxes)
-3. **Film source** (single choice, default In-house): **In-house Blown Film** or **Purchased Film**. If Purchased is chosen, show a subtle badge that Blown Film is skipped.
-4. **Compact assumptions summary pill** (shown only in Minimal mode): a single muted line summarizing active background defaults (e.g., _"Defaults: 3% waste/step · 300 pcs/box · 1,000 m / 25 kg per roll — click Detailed to customize"_).
+## 7. Technical Architecture & Constraints
 
-### B. Detailed Mode fields (additional controls shown when Detailed Mode is active)
-
-5. **Pieces per box** – shown only when unit = pieces; **default 300 pieces per box** (editable). Box count = ceil(pieces / pieces-per-box).
-6. **Roll spec** for roll/meter/kg conversion (editable assumed defaults: **1,000 m** and **25 kg** per roll).
-7. **Route option** – **Skip Slit for Bag/Spout** toggle (default off; only shown when Product type is FG Bag or FG Spout).
-8. **Waste % per process** (one number input per active process in the selected route, default e.g. 2–5%, editable, plus a quick "Apply to all" helper).
-   - If Film source = **Purchased Film**, hide the Blown Film waste field and show a note that Blown Film is skipped.
-   - Waste affects every process: required input of each step = required output ÷ (1 − waste %), computed backwards from the ordered FG quantity so the first step's input is correctly scaled up. With In-house film the chain starts at resin (Blown Film input); with Purchased film it starts at the Purchased Film quantity needed by Printing.
-
-### C. Common controls & Output (visible in both modes)
-
-9. **Show material labels** toggle (default on).
-10. **Buttons:** **Start**, **Pause/Resume**, **Reset**. Show an inline validation message if quantity ≤ 0.
-
-After **Start**, show a **results/summary table**: per process – input qty, waste qty, output qty, and RM consumed (resin kg **or** purchased film kg depending on Film source, ink kg, solvent, adhesive, cores, boxes, spouts).
-
-## 6. Animation behavior
-
-Animation is driven by the order; visible objects are capped (e.g. max 6 pallets per hop) while numeric counters show the real quantities.
-
-0. Before the run starts, all material name tags are visible in Warehouse RM; once Start is pressed, tags follow each pallet through every transport leg and update their quantities on arrival.
-1. Forklift takes RM from Warehouse RM to each PRD station that needs it (resin → Blown Film (In-house only), ink drums → Ink Mix, film (purchased or blown, per Film source) + cylinder + ink + solvent → Printing, laminate film + adhesive → Laminate, papercore → Slit, boxes → Slit/Bag/Spout, spout caps → Spout).
-2. With In-house film, Blown Film rolls are returned from PRD to Warehouse RM (forklift) and then issued to Printing; with Purchased film this step is skipped and the Purchased Film pallet goes directly from RM to Printing. Mixed Ink is returned to Warehouse RM and issued to Printing in both cases.
-3. Between stations, WIP (printing roll, laminate roll, slit roll, bags) is moved by **manual hand pallet truck** with an operator walking beside it; stations show running status (rotating rolls, status light) only while they are active.
-4. A forklift enters PRD to pick up FG pallets (roll pallets or boxed bags/spouts) and stores them in FG racks.
-5. The Delivery forklift loads FG pallets onto the **container truck** at the dock; the truck then drives away and the run ends with a completion summary.
-6. Workers (hard hat, hi-vis vest) stay at stations with working arm animation; walking inspectors patrol the aisles.
-
-Truck: tractor + blue container with open rear, wheels rotate with movement, label "Container Truck".
-
-## 7. ERP UI
-
-- **KPI cards (top):** WIP orders, total FG stock, overall waste %, order progress %.
-- **Zone/station chips:** Warehouse RM, PRD (and each of the 7 stations), Warehouse FG / Delivery.
-- **Camera:** drag to orbit, wheel to zoom, click a zone/station to select it (blue highlight) and focus the detail panel.
-- **Floating labels** above zones/stations with name, status, and current quantity.
-- **Detail panel (right):** station status, input/output quantities, waste %, current job, stock list for warehouses.
-- **Bottom stepper:** (Blown Film is greyed out when Film source = Purchased) Blown Film → Ink Mix → Printing → Laminate → Slit → Bag → Spout → FG → Delivered, highlighting the active step (steps not used by the route are greyed out).
-- **Event log:** timestamped lines that name the material and quantity, such as "Forklift #1: Resin 120 kg → Blown Film" or "Forklift #1: Purchased Film 300 kg → Printing".
-- **Stock list (Warehouse RM detail):** Purchased Film, Blown Film, Laminate Film, Resin, ink, solvent, adhesive, cylinder, papercore, boxes and spouts, each with unit.
-- Mock data lives in JS state; no backend required.
-
-## 8. Technical requirements
-
-- Single HTML file (inline CSS/JS) using **three.js r128 UMD** from `https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js`.
-- Noto Sans (or system font) with fallback; no other external libraries.
-- Write orbit/zoom controls manually with pointer events (OrbitControls is not in the r128 core build).
-- Light/dark theme via CSS variables (`prefers-color-scheme`); read zone colors from CSS variables when building the scene.
-- Responsive: bottom-sheet panels on mobile; `viewport-fit=cover` and safe-area insets.
-- Visible keyboard focus; respect `prefers-reduced-motion` (render a static pose and skip animation).
-- No localStorage; keep state in memory.
-- Paths: define waypoint lists for every forklift/hand pallet truck/worker route; movement time based on path length and speed.
-
-## 9. Pitfalls learned (avoid these)
-
-1. **Do not name functions/variables the same as DOM element ids** (e.g. a `panel()` function shadowed `<aside id="panel">` and broke the detail panel).
-2. **Watch `const`/`let` temporal dead zone:** functions called during scene construction must not use constants declared later in the script.
-3. **Avoid name collisions** (e.g. floor mesh `fl` vs forklift list); use descriptive names.
-4. When patching with multi-line regex (`.*?`), verify the result; a greedy/early match once deleted large parts of the file.
-5. Before publishing, smoke-test the script in Node with a stubbed `THREE` and `document` to catch ReferenceErrors.
-
-## 10. Acceptance criteria
-
-- Three clearly separated zones (Warehouse RM, PRD, Warehouse FG with Delivery dock) are visible; all text is in English.
-- Warehouse RM shows all 9 item types listed in section 3.
-- The Order Input panel provides a **Minimal Mode** (default, showing only Product type, Quantity/Unit with presets, Film source, and a compact assumptions summary) and a **Detailed Mode** (revealing Pieces per box, Roll spec, Skip Slit toggle, and per-process Waste % inputs) without losing values when switching.
-- Selecting FG Roll / FG Bag / FG Spout changes the route, available units, and the stepper.
-- Pieces unit shows the pieces-per-box field (in Detailed mode, default 300 in Minimal mode); box count is calculated correctly.
-- Waste % per process changes the required input quantities and the summary table.
-- Pressing Start runs: RM forklift → PRD stations (hand pallet truck for WIP) → FG forklift pick-up → FG storage → Delivery forklift → container truck departs.
-- Material name tags are visible on every Warehouse RM item group, follow each pallet during forklift and hand-pallet-truck transport, and appear as Input/Output tags at each PRD station; the labels toggle works.
-- Film source = Purchased: Blown Film is skipped and greyed, no resin is consumed, Purchased Film stock decreases, and Printing receives the purchased film pallet. Film source = In-house: Blown Film runs and returns film to RM before Printing.
-- No console errors; works on desktop and mobile; the user can pause and reset.
-
-## 11. Future extensions
-
-- Bind animation to real inventory and orders (e.g. Epicor ERP via API) instead of mock data.
-- Cost per process, customer orders and delivery notes, ink recipes, film layer structures.
-- Replace primitive models with real machine models (.glb/.gltf) from vendors.
+- **Pure Client-Side:** Single HTML file containing inline CSS and JavaScript.
+- **Three.js:** r128 UMD loaded via CDN (`cdnjs.cloudflare.com`). No external loaders (GLTFLoader, OrbitControls) required; all geometry and pointer controls are custom-coded with Three.js primitives and pointer events.
+- **Responsive Layout:** Adaptive safe-area inset padding for desktop, tablet, and mobile views.
+- **Zero Collision Navigation:** Explicit waypoint arrays for all vehicle routes (RM Forklift, Hand Pallet Truck, FG Forklift, Delivery Forklift, Container Truck) utilizing the $Z = 0.0$ Central Highway corridor.
