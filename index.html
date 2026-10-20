@@ -337,7 +337,7 @@
       top: calc(env(safe-area-inset-top, 0px) + var(--screen-pad));
       left: calc(env(safe-area-inset-left, 0px) + var(--screen-pad));
       right: calc(env(safe-area-inset-right, 0px) + var(--screen-pad));
-      z-index: 15;
+      z-index: 40;
       display: flex;
       flex-direction: column;
       gap: 10px;
@@ -354,6 +354,8 @@
 
     .brand-box {
       pointer-events: auto;
+      position: relative;
+      z-index: 35;
       display: flex;
       align-items: center;
       gap: 10px;
@@ -430,18 +432,18 @@
 
     .theme-dropdown-menu {
       position: absolute;
-      top: calc(100% + 6px);
+      top: calc(100% + 8px);
       right: 0;
-      min-width: 142px;
+      min-width: 148px;
       background: var(--bg-card);
       border: 1px solid var(--border-color);
       border-radius: 10px;
-      box-shadow: var(--shadow-md);
-      padding: 4px;
+      box-shadow: 0 14px 32px rgba(0, 0, 0, 0.38);
+      padding: 5px;
       display: flex;
       flex-direction: column;
       gap: 2px;
-      z-index: 30;
+      z-index: 120;
     }
 
     .theme-dropdown-item {
@@ -500,6 +502,8 @@
 
     .kpi-grid {
       pointer-events: auto;
+      position: relative;
+      z-index: 1;
       display: flex;
       align-items: stretch;
       gap: 8px;
@@ -582,7 +586,20 @@
       display: flex;
       flex-direction: column;
       overflow: hidden;
-      transition: top 0.15s ease;
+      transition: top 0.15s ease, max-height 0.2s ease;
+    }
+
+    #orderPanel.collapsed {
+      bottom: auto !important;
+      max-height: none !important;
+    }
+
+    #orderPanel.collapsed .panel-body {
+      display: none !important;
+    }
+
+    #orderPanel.collapsed .panel-header {
+      border-bottom: none;
     }
 
     /* Right Panel: Detail & Stock & Event Log (Shown only in Detailed Mode) */
@@ -601,7 +618,66 @@
       display: flex;
       flex-direction: column;
       overflow: hidden;
-      transition: top 0.15s ease;
+      transition: top 0.15s ease, max-height 0.2s ease;
+    }
+
+    #detailPanel.collapsed {
+      bottom: auto !important;
+      max-height: none !important;
+    }
+
+    #detailPanel.collapsed .panel-body {
+      display: none !important;
+    }
+
+    #detailPanel.collapsed .panel-header {
+      border-bottom: none;
+    }
+
+    .panel-collapse-btn {
+      border: 1px solid var(--border-color);
+      background: var(--bg-muted);
+      color: var(--text-secondary);
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      transition: all 0.15s;
+    }
+
+    .panel-collapse-btn:hover {
+      border-color: var(--accent);
+      color: var(--text-main);
+    }
+
+    .icon-toggle-btn {
+      border: 1px solid var(--border-color);
+      background: var(--bg-muted);
+      color: var(--text-secondary);
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s;
+      flex-shrink: 0;
+    }
+
+    .icon-toggle-btn:hover {
+      border-color: var(--accent);
+      color: var(--text-main);
+    }
+
+    .icon-toggle-btn.active {
+      background: var(--accent-soft);
+      color: var(--accent);
+      border-color: var(--accent);
     }
 
     .panel-header {
@@ -1142,42 +1218,73 @@
 
     @media (max-width: 900px) {
       :root {
-        --screen-pad: 12px;
+        --screen-pad: 10px;
       }
       .top-bar-row {
         flex-direction: column;
         align-items: stretch;
-        gap: 8px;
+        gap: 6px;
       }
       .brand-box {
         justify-content: space-between;
         width: 100%;
+        min-height: 48px;
+        padding: 5px 10px;
+      }
+      .brand-badge {
+        width: 30px;
+        height: 30px;
+        font-size: 12.5px;
+      }
+      .brand-title {
+        font-size: 13px;
       }
       .kpi-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(92px, 1fr));
         width: 100%;
         gap: 6px;
       }
       .kpi-card {
         min-width: 0;
+        min-height: 48px;
+        padding: 4px 8px;
+      }
+      .kpi-label {
+        font-size: 9px;
+      }
+      .kpi-val {
+        font-size: 13px;
+      }
+      .kpi-sub {
+        font-size: 9px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
       }
       #orderPanel {
         top: auto;
-        bottom: calc(env(safe-area-inset-bottom, 0px) + var(--screen-pad) + 54px);
+        bottom: calc(env(safe-area-inset-bottom, 0px) + var(--screen-pad) + 48px);
         left: calc(env(safe-area-inset-left, 0px) + var(--screen-pad));
         right: calc(env(safe-area-inset-right, 0px) + var(--screen-pad));
         width: auto;
-        max-height: 44vh;
+        max-height: 46vh;
+      }
+      #orderPanel.collapsed {
+        bottom: calc(env(safe-area-inset-bottom, 0px) + var(--screen-pad) + 48px) !important;
       }
       #detailPanel {
         display: none !important;
       }
       #focusProcessBanner {
-        top: calc(env(safe-area-inset-top, 0px) + var(--screen-pad) + var(--top-header-offset, 128px));
-        min-width: 260px;
+        top: calc(env(safe-area-inset-top, 0px) + var(--screen-pad) + var(--top-header-offset, 112px));
+        min-width: 250px;
         width: calc(100vw - (var(--screen-pad) * 2));
-        max-width: 440px;
+        max-width: 420px;
+        padding: 7px 10px;
+      }
+      #bottomStepperBar {
+        padding: 5px 8px;
       }
     }
 
@@ -1186,7 +1293,24 @@
         display: none;
       }
       .sim-assist-bar {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 4px;
+      }
+      .sim-assist-bar .action-pill-btn {
+        padding: 5px 4px;
+        font-size: 10.5px;
+      }
+      .panel-body {
+        padding: 10px 12px;
+        gap: 8px;
+      }
+      .seg-btn {
+        padding: 5px 6px;
+        font-size: 11px;
+      }
+      .seg-btn svg {
+        width: 18px;
+        height: 18px;
       }
     }
   </style>
@@ -1231,32 +1355,38 @@
             <div class="brand-sub">Linear Flexible Packaging Factory Simulator</div>
           </div>
         </div>
-        <div class="header-divider"></div>
-        <!-- Theme Mode Dropdown with Google Material Symbols Icons -->
-        <div class="theme-dropdown" id="themeDropdownWrap">
-          <button type="button" id="themeDropdownBtn" class="theme-dropdown-trigger" aria-haspopup="listbox" aria-expanded="false" title="Change Color Theme">
-            <span class="material-symbols-outlined" id="themeDropdownIcon">desktop_windows</span>
-            <span id="themeDropdownLabel">System</span>
-            <span class="material-symbols-outlined" style="font-size:15px;opacity:0.7;">expand_more</span>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <div class="header-divider"></div>
+          <!-- Toggle KPI Bar Visibility Button -->
+          <button type="button" id="toggleKpiBarBtn" class="icon-toggle-btn active" title="Show / Hide KPI Cards">
+            <span class="material-symbols-outlined" id="toggleKpiBarIcon">monitoring</span>
           </button>
-          <div class="theme-dropdown-menu hidden" id="themeDropdownMenu" role="listbox" aria-label="Theme Mode">
-            <button type="button" class="theme-dropdown-item" data-theme-mode="light" role="option">
-              <span class="material-symbols-outlined">light_mode</span>
-              <span>Light</span>
+          <!-- Theme Mode Dropdown with Google Material Symbols Icons -->
+          <div class="theme-dropdown" id="themeDropdownWrap">
+            <button type="button" id="themeDropdownBtn" class="theme-dropdown-trigger" aria-haspopup="listbox" aria-expanded="false" title="Change Color Theme">
+              <span class="material-symbols-outlined" id="themeDropdownIcon">desktop_windows</span>
+              <span id="themeDropdownLabel">System</span>
+              <span class="material-symbols-outlined" style="font-size:15px;opacity:0.7;">expand_more</span>
             </button>
-            <button type="button" class="theme-dropdown-item" data-theme-mode="dark" role="option">
-              <span class="material-symbols-outlined">dark_mode</span>
-              <span>Dark</span>
-            </button>
-            <button type="button" class="theme-dropdown-item active" data-theme-mode="system" role="option">
-              <span class="material-symbols-outlined">desktop_windows</span>
-              <span>System</span>
-            </button>
+            <div class="theme-dropdown-menu hidden" id="themeDropdownMenu" role="listbox" aria-label="Theme Mode">
+              <button type="button" class="theme-dropdown-item" data-theme-mode="light" role="option">
+                <span class="material-symbols-outlined">light_mode</span>
+                <span>Light</span>
+              </button>
+              <button type="button" class="theme-dropdown-item" data-theme-mode="dark" role="option">
+                <span class="material-symbols-outlined">dark_mode</span>
+                <span>Dark</span>
+              </button>
+              <button type="button" class="theme-dropdown-item active" data-theme-mode="system" role="option">
+                <span class="material-symbols-outlined">desktop_windows</span>
+                <span>System</span>
+              </button>
+            </div>
           </div>
         </div>
       </div>
 
-      <div class="kpi-grid">
+      <div class="kpi-grid" id="topKpiGrid">
         <div class="kpi-card">
           <div class="kpi-label">WIP Orders</div>
           <div class="kpi-val" id="kpiWipVal">0</div>
@@ -1285,8 +1415,17 @@
   <!-- Left Panel: Production Order Configuration -->
   <aside id="orderPanel" aria-label="Production Order Input Panel">
     <div class="panel-header">
-      <div class="panel-title">Production Simulation Setup</div>
-      <span id="simStateBadge" class="status-badge status-idle">Ready</span>
+      <div class="panel-title">
+        <span class="material-symbols-outlined" style="font-size:16px;color:var(--accent);">tune</span>
+        <span>Production Simulation Setup</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;">
+        <span id="simStateBadge" class="status-badge status-idle">Ready</span>
+        <button type="button" id="toggleOrderPanelBtn" class="panel-collapse-btn" aria-expanded="true" title="Hide or Show Setup Panel">
+          <span class="material-symbols-outlined" id="toggleOrderPanelIcon" style="font-size:15px;">expand_less</span>
+          <span id="toggleOrderPanelLabel">Hide</span>
+        </button>
+      </div>
     </div>
     <div class="panel-body">
       <!-- Input Mode Switcher: Minimal (Visual Flow) vs Detailed (Numeric ERP + Overview & Log) -->
@@ -1490,7 +1629,13 @@
   <aside id="detailPanel" class="hidden" aria-label="Area and Station Inspector Panel">
     <div class="panel-header">
       <div class="panel-title" id="inspectorTitle">Starflex Factory Overview</div>
-      <span id="inspectorBadge" class="status-badge status-idle">All Factory</span>
+      <div style="display:flex;align-items:center;gap:6px;">
+        <span id="inspectorBadge" class="status-badge status-idle">All Factory</span>
+        <button type="button" id="toggleDetailPanelBtn" class="panel-collapse-btn" aria-expanded="true" title="Hide or Show Inspector Panel">
+          <span class="material-symbols-outlined" id="toggleDetailPanelIcon" style="font-size:15px;">expand_less</span>
+          <span id="toggleDetailPanelLabel">Hide</span>
+        </button>
+      </div>
     </div>
     <div class="panel-body">
       <div id="inspectorContent" style="display:flex;flex-direction:column;gap:8px;font-size:12px;"></div>
@@ -4626,6 +4771,43 @@
         syncFollowAndLoopButtonsUI();
         selectZoneOrStation('ALL');
       });
+
+      /* Panel Collapse / Expand & KPI Bar Visibility Toggles */
+      const toggleKpiBarBtn = document.getElementById('toggleKpiBarBtn');
+      const topKpiGrid = document.getElementById('topKpiGrid');
+      if (toggleKpiBarBtn && topKpiGrid) {
+        toggleKpiBarBtn.addEventListener('click', function () {
+          const isHidden = topKpiGrid.classList.toggle('hidden');
+          toggleKpiBarBtn.classList.toggle('active', !isHidden);
+          updateTopHeaderOffsetVar();
+        });
+      }
+
+      const toggleOrderPanelBtn = document.getElementById('toggleOrderPanelBtn');
+      const orderPanelEl = document.getElementById('orderPanel');
+      if (toggleOrderPanelBtn && orderPanelEl) {
+        toggleOrderPanelBtn.addEventListener('click', function () {
+          const isCollapsed = orderPanelEl.classList.toggle('collapsed');
+          toggleOrderPanelBtn.setAttribute('aria-expanded', String(!isCollapsed));
+          const iconEl = document.getElementById('toggleOrderPanelIcon');
+          const lblEl = document.getElementById('toggleOrderPanelLabel');
+          if (iconEl) iconEl.textContent = isCollapsed ? 'expand_more' : 'expand_less';
+          if (lblEl) lblEl.textContent = isCollapsed ? 'Show' : 'Hide';
+        });
+      }
+
+      const toggleDetailPanelBtn = document.getElementById('toggleDetailPanelBtn');
+      const detailPanelEl = document.getElementById('detailPanel');
+      if (toggleDetailPanelBtn && detailPanelEl) {
+        toggleDetailPanelBtn.addEventListener('click', function () {
+          const isCollapsed = detailPanelEl.classList.toggle('collapsed');
+          toggleDetailPanelBtn.setAttribute('aria-expanded', String(!isCollapsed));
+          const iconEl = document.getElementById('toggleDetailPanelIcon');
+          const lblEl = document.getElementById('toggleDetailPanelLabel');
+          if (iconEl) iconEl.textContent = isCollapsed ? 'expand_more' : 'expand_less';
+          if (lblEl) lblEl.textContent = isCollapsed ? 'Show' : 'Hide';
+        });
+      }
 
       /* Theme Dropdown with Google Material Symbols Icons: Light / Dark / System */
       const themeDropdownBtn = document.getElementById('themeDropdownBtn');
