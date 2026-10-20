@@ -8,6 +8,7 @@ the page then animates the full flow: raw materials leave the RM warehouse, are 
 in the production area, finished goods are stored in the FG warehouse, and a container truck is loaded for delivery.
 
 **References**
+
 1. https://github.com/Boom-Vitt/boombignose-erp (3D ERP concept and structure)
 2. WareTrack-style dashboard screenshot: light background, KPI cards on top, zone chips, detail panel on the right, shipment-style stepper at the bottom, blue accent.
 
@@ -15,11 +16,11 @@ in the production area, finished goods are stored in the FG warehouse, and a con
 
 ## 2. Three zones (isometric layout)
 
-| Zone | Role | Material handling |
-|---|---|---|
-| **Zone 1 – Warehouse RM** | Stores raw materials and intermediate stock returned from PRD (blown film, mixed ink) | **Forklift** delivers RM from the warehouse to PRD stations |
-| **Zone 2 – PRD (Production)** | Seven process stations arranged in process order | WIP moves between stations with a **Manual Hand Pallet Truck** (operator-pushed) |
-| **Zone 3 – Warehouse FG** | (a) FG storage racks, (b) **Delivery Department** with a loading dock | A **forklift drives into PRD** to collect FG pallets and stores them in FG racks; a **Delivery forklift** loads pallets onto the container truck at the dock |
+| Zone                          | Role                                                                                  | Material handling                                                                                                                                            |
+| ----------------------------- | ------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Zone 1 – Warehouse RM**     | Stores raw materials and intermediate stock returned from PRD (blown film, mixed ink) | **Forklift** delivers RM from the warehouse to PRD stations                                                                                                  |
+| **Zone 2 – PRD (Production)** | Seven process stations arranged in process order                                      | WIP moves between stations with a **Manual Hand Pallet Truck** (operator-pushed)                                                                             |
+| **Zone 3 – Warehouse FG**     | (a) FG storage racks, (b) **Delivery Department** with a loading dock                 | A **forklift drives into PRD** to collect FG pallets and stores them in FG racks; a **Delivery forklift** loads pallets onto the container truck at the dock |
 
 Suggested floor plan: RM on the left, PRD in the middle (largest, 7 stations in a U or S shape with a central aisle),
 FG on the right with the Delivery dock and truck yard (road + parking bay) at the far end.
@@ -43,7 +44,9 @@ Also store here the intermediate outputs sent back from PRD: **Blown Film rolls*
 Show a small stock label per item type that decreases as the simulation consumes materials.
 
 ### Material name labels (required)
+
 Every material must be identifiable by name wherever it appears, from storage to the point of use:
+
 - **In Warehouse RM:** a floating name tag above each item group (e.g. "Resin bags", "Base-color ink drums", "Purchased film", "Blown film"), showing the current stock quantity and unit.
 - **During transport:** each pallet carried by a forklift or hand pallet truck has a floating tag following it with the material name and quantity (e.g. "Resin – 120 kg", "Printing Roll – 1 pallet", "Papercore + Corrugated Box"). A pallet carrying several materials lists them (max 3 lines, then "+N more").
 - **At each PRD station:** an "Input" tag listing the materials currently supplied to that station, and an "Output" tag naming what it produces (e.g. "Out: Laminate Roll").
@@ -51,26 +54,30 @@ Every material must be identifiable by name wherever it appears, from storage to
 
 ## 4. Production processes (data flow)
 
-| # | Process | Input (from) | Process | Output |
-|---|---|---|---|---|
-| 1 | **Blown Film** *(only when Film source = In-house)* | Resin (Warehouse RM) | Melt resin in the extruder and blow it into film | Blown Film roll → stored in Warehouse RM |
-| 2 | **Ink Mix** | Base-color ink drums (RM Ink) from Warehouse RM | Mix and tune color to job spec | Ready-to-use Ink → stored in Warehouse RM |
-| 3 | **Printing** | Film roll (**Purchased Film or in-house Blown Film**, per Film source), Cylinder, Ink, Solvent & Other (all from Warehouse RM) | Print artwork and text onto the film | Printing Roll |
-| 4 | **Laminate** | Printing Roll (previous process), Laminate Film and Adhesive & Other (from Warehouse RM) | Bond 2+ film layers with adhesive (lamination) or molten plastic (extrusion lamination) for strength and protection | Laminate Roll |
-| 5 | **Slit** | Laminate Roll (previous process), Papercore (Warehouse RM) | Slit the wide roll into narrow rolls to customer width | Slit Roll, packed in Corrugated Box |
-| 6 | **Bag** | Laminate/Slit Roll (previous process), Corrugated Box (Warehouse RM) | Fold and seal film into finished bags | Bag (finished pouch), packed in boxes |
-| 7 | **Spout** | Bag/Slit Roll (previous process), Spout, Corrugated Box (Warehouse RM) | Weld a plastic spout onto the pouch (liquid products) | Bag with Spout, packed in boxes |
-| 8 | **Warehouse FG** | Finished goods from PRD | Store Slit Rolls on pallets; Bags and Spout Bags in boxes on pallets; wait for delivery | FG stock → Delivery → container truck |
+| #   | Process                                             | Input (from)                                                                                                                   | Process                                                                                                             | Output                                    |
+| --- | --------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------- | ----------------------------------------- |
+| 1   | **Blown Film** _(only when Film source = In-house)_ | Resin (Warehouse RM)                                                                                                           | Melt resin in the extruder and blow it into film                                                                    | Blown Film roll → stored in Warehouse RM  |
+| 2   | **Ink Mix**                                         | Base-color ink drums (RM Ink) from Warehouse RM                                                                                | Mix and tune color to job spec                                                                                      | Ready-to-use Ink → stored in Warehouse RM |
+| 3   | **Printing**                                        | Film roll (**Purchased Film or in-house Blown Film**, per Film source), Cylinder, Ink, Solvent & Other (all from Warehouse RM) | Print artwork and text onto the film                                                                                | Printing Roll                             |
+| 4   | **Laminate**                                        | Printing Roll (previous process), Laminate Film and Adhesive & Other (from Warehouse RM)                                       | Bond 2+ film layers with adhesive (lamination) or molten plastic (extrusion lamination) for strength and protection | Laminate Roll                             |
+| 5   | **Slit**                                            | Laminate Roll (previous process), Papercore (Warehouse RM)                                                                     | Slit the wide roll into narrow rolls to customer width                                                              | Slit Roll, packed in Corrugated Box       |
+| 6   | **Bag**                                             | Laminate/Slit Roll (previous process), Corrugated Box (Warehouse RM)                                                           | Fold and seal film into finished bags                                                                               | Bag (finished pouch), packed in boxes     |
+| 7   | **Spout**                                           | Bag/Slit Roll (previous process), Spout, Corrugated Box (Warehouse RM)                                                         | Weld a plastic spout onto the pouch (liquid products)                                                               | Bag with Spout, packed in boxes           |
+| 8   | **Warehouse FG**                                    | Finished goods from PRD                                                                                                        | Store Slit Rolls on pallets; Bags and Spout Bags in boxes on pallets; wait for delivery                             | FG stock → Delivery → container truck     |
 
 ### Film source (new option)
+
 The user chooses where the base film for Printing comes from:
+
 - **In-house Blown Film:** the Blown Film process runs (resin consumed), and its film roll is returned to Warehouse RM before being issued to Printing.
 - **Purchased Film:** the Blown Film process is **skipped** (greyed in the stepper, no resin consumed, no blown-film waste); Printing takes **Purchased Film** rolls straight from Warehouse RM stock.
 
 The choice changes the route, the animation, the stock deductions and the summary table. Ink Mix is unaffected.
 
 ### Route per product type
+
 Shown for Film source = In-house. With Film source = Purchased, remove Blown Film from the route.
+
 - **FG Roll:** Blown Film + Ink Mix (upstream, feed RM) → Printing → Laminate → Slit → FG
 - **FG Bag:** Blown Film + Ink Mix → Printing → Laminate → Slit → Bag → FG
 - **FG Spout:** Blown Film + Ink Mix → Printing → Laminate → Slit → Bag → Spout → FG
@@ -82,12 +89,15 @@ Shown for Film source = In-house. With Film source = Purchased, remove Blown Fil
 A clean, compact form (left sidebar or collapsible floating card) with a **mode switcher** at the top so the user can choose between a quick **Minimal Mode** and a full **Detailed Mode**. The animation starts only when **Start** is pressed.
 
 ### Input Mode Switcher
+
 A segmented control / tab bar at the top of the panel:
-- **Minimal (Simple) Mode** *(default)* – clean, low-friction UI showing only essential inputs while applying smart factory defaults in the background.
+
+- **Minimal (Simple) Mode** _(default)_ – clean, low-friction UI showing only essential inputs while applying smart factory defaults in the background.
 - **Detailed (Advanced) Mode** – reveals granular process parameters, custom conversion specs, routing overrides, and per-station waste % controls.
 - Switching between modes preserves the user's current values (with a "Reset to defaults" link in Detailed mode).
 
 ### A. Minimal Mode fields (always visible)
+
 1. **Product type** (compact visual pill/segment choice)
    - **FG Roll** – finished roll from the Slit process
    - **FG Bag** – pouch without spout, from the Bag process
@@ -96,9 +106,10 @@ A segmented control / tab bar at the top of the panel:
    - FG Roll units: **roll**, **meter**, **kilogram**
    - FG Bag / FG Spout units: **pieces** (packed in boxes)
 3. **Film source** (single choice, default In-house): **In-house Blown Film** or **Purchased Film**. If Purchased is chosen, show a subtle badge that Blown Film is skipped.
-4. **Compact assumptions summary pill** (shown only in Minimal mode): a single muted line summarizing active background defaults (e.g., *"Defaults: 3% waste/step · 300 pcs/box · 1,000 m / 25 kg per roll — click Detailed to customize"*).
+4. **Compact assumptions summary pill** (shown only in Minimal mode): a single muted line summarizing active background defaults (e.g., _"Defaults: 3% waste/step · 300 pcs/box · 1,000 m / 25 kg per roll — click Detailed to customize"_).
 
 ### B. Detailed Mode fields (additional controls shown when Detailed Mode is active)
+
 5. **Pieces per box** – shown only when unit = pieces; **default 300 pieces per box** (editable). Box count = ceil(pieces / pieces-per-box).
 6. **Roll spec** for roll/meter/kg conversion (editable assumed defaults: **1,000 m** and **25 kg** per roll).
 7. **Route option** – **Skip Slit for Bag/Spout** toggle (default off; only shown when Product type is FG Bag or FG Spout).
@@ -107,6 +118,7 @@ A segmented control / tab bar at the top of the panel:
    - Waste affects every process: required input of each step = required output ÷ (1 − waste %), computed backwards from the ordered FG quantity so the first step's input is correctly scaled up. With In-house film the chain starts at resin (Blown Film input); with Purchased film it starts at the Purchased Film quantity needed by Printing.
 
 ### C. Common controls & Output (visible in both modes)
+
 9. **Show material labels** toggle (default on).
 10. **Buttons:** **Start**, **Pause/Resume**, **Reset**. Show an inline validation message if quantity ≤ 0.
 
