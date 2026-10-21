@@ -7,17 +7,43 @@ The user configures a production order (product type, quantity, unit, waste %) a
 the page then animates the full flow: raw materials leave the RM warehouse, are processed station by station
 across a realistic two-row production floor with a dedicated PRD Warehouse (curing/staging area), finished goods are stored in the FG warehouse, and a container truck is loaded at the high-detail logistics loading dock for delivery.
 
-**References**
+**References & Visual Inspiration**
 
 1. https://github.com/Boom-Vitt/boombignose-erp (3D ERP concept and structure)
 2. WareTrack-style dashboard screenshot: light/dark theme support, KPI cards on top, collapsible floating panels, zone chips, inspector panel on the right, shipment-style stepper at the bottom, blue accent.
-3. Industrial factory reference standards: Two-row production layout, central transit highway, dual-level industrial racks with blue uprights & orange load beams, high-detail logistics dock with teal canopy frame & safety bollards, dedicated yellow-demarcated Infeed/Outfeed material bays beside machines.
+3. **Stylized Isometric Industrial Digital Twin Reference (Reference Image):** Clean architectural cutaway building, low-profile perimeter walls, matte epoxy concrete floors, elevated glass supervisor control booth with teal trim, selective pallet racks (blue uprights, orange load beams), yellow counterbalance forklifts, numbered loading dock bays with teal canopies, exterior dark asphalt truck apron, thin yellow staging boxes, cyan transit guide arrows, and miniature workers in hi-vis vests.
 
 **UI language:** English only (labels, buttons, tooltips, panels, logs).
 
 ---
 
-## 2. Factory Layout & Zones (Isometric 3D View)
+## 2. 3D Visual & Art Direction (Stylized Isometric Industrial Digital Twin)
+
+The entire 3D scene must adopt a modern, clean, stylized **Isometric Industrial Architectural Cutaway / Digital Twin** aesthetic:
+
+### A. Architectural Cutaway & Environment
+- **Cutaway Building Structure:** Low-profile perimeter concrete walls (`#cbd5e1` / `#e2e8f0`) cut off at chest height, giving an open, unobstructed cutaway view into the warehouse and manufacturing floor.
+- **Factory Floor:** Polished light-grey concrete / matte epoxy floor (`#f1f5f9` / `#e2e8f0`) with subtle grid joints and crisp floor markings.
+- **Supervisor Control Office:** Elevated glass-walled control room located at the perimeter corner, featuring panoramic tinted glass windows, teal structural trim (`#0f766e` / `#0d9488`), and interior computer operator desks.
+- **Logistics Exterior Yard:** Dark slate asphalt loading apron (`#334155` / `#1e293b`) extending outside the loading dock doors, complete with white truck parking stall guidelines, numbered bays (`01`, `02`, `03`), and directional road arrows.
+- **Seamless Neutral Backdrop:** Clean, non-distracting studio background (`#edf2f7` in light mode, `#0f172a` in dark mode).
+
+### B. Lighting, Shadows & Material Aesthetics
+- **Soft Ambient & Directional Lighting:** Balanced three-point lighting setup with soft, realistic ground contact shadows beneath racks, machines, pallets, and vehicles (subtle ambient occlusion effect).
+- **Geometric Precision:** Clean, stylized low-to-mid poly geometry with chamfered edges, avoiding noisy photorealistic textures in favor of smooth, modern industrial matte and metallic materials (`MeshStandardMaterial` with tuned roughness and metalness).
+
+### C. Standardized Industrial Color Palette
+- **Pallet Racks:** Royal Blue vertical upright posts (`#1d4ed8` / `#2563eb`) with Safety Orange horizontal load beams (`#ea580c` / `#f97316`).
+- **Material Handling Vehicles:** Industrial Safety Yellow forklifts (`#eab308` / `#facc15`) with matte black masts, overhead driver roll cages, and black counterweights.
+- **Logistics Loading Docks:** Deep teal/cyan canopy portals (`#0f766e` / `#14b8a6`) with overhead roll-up doors, red/green LED dock safety lights, and yellow safety bollards/railings.
+- **Logistics Trucks:** Clean white delivery box trucks (`#f8fafc`) with modern teal horizontal cabin/box stripes parked on the exterior asphalt apron.
+- **Floor Demarcation:** Crisp, thin safety yellow bounding boxes (`#facc15`) defining pallet drop bays and staging zones; thin cyan arrows (`#06b6d4` / `#0284c7`) marking one-way traffic lanes.
+- **Conveyor & Material Handling:** Charcoal black modular belt conveyors (`#1e293b`) with silver support legs and blue control consoles.
+- **Human Operators:** Stylized miniature low-poly human models wearing high-visibility yellow safety vests (`#facc15`), safety hard hats, and dark trousers stationed at machines, inspection desks, and driving forklifts.
+
+---
+
+## 3. Factory Layout & Zones (Isometric 3D View)
 
 The factory is arranged horizontally along the X-axis ($X = -130$ to $+130$) with a wide central transit spine along $Z = 0.0$:
 
@@ -26,7 +52,7 @@ The factory is arranged horizontally along the X-axis ($X = -130$ to $+130$) wit
 | **Zone 1 – Warehouse RM** | West wing ($X \approx -110$ to $-65$, $Z \approx -22$ to $+22$) | Stores raw materials and intermediate stock returned from PRD (blown film, mixed ink). Industrial racks, drum pallets, resin bags, film rolls. | **RM Forklift** delivers raw materials from RM racks along the Central Highway to PRD station Infeed bays. |
 | **Zone 2 – PRD (Production Floor)** | Center floor ($X \approx -65$ to $+65$, $Z \approx -22$ to $+22$) | **Two-row layout (Row 1 North, Row 2 South)** with a wide Central Transit Highway ($Z = 0.0$) in between: <br>• **Row 1 (North, $Z = -12.0$):** Blown Film ($X=-45$), Printing ($X=-15$), Bag Making ($X=+15$), Spout ($X=+45$)<br>• **Row 2 (South, $Z = +12.0$):** Ink Mix ($X=-45$), **PRD WH** ($X=-15$), Laminate ($X=+15$), Slit ($X=+45$) | WIP is transported between stations and PRD WH via a **Manual Hand Pallet Truck (HPT)** with walking operator along the Central Highway. |
 | **Zone 2.5 – PRD WH (Curing & Staging Area)** | PRD Row 2, Col 2 ($X = -15.0$, $Z = +12.0$) | Intermediate warehouse in the production area with dual-level industrial racks (blue uprights, orange load beams) storing rolls undergoing curing/adhesive bond development and WIP staging boxes. Aisle features cyan guide lines & arrows. | Hand Pallet Truck moves rolls into curing racks and out to subsequent lamination, slitting, or bag making steps. |
-| **Zone 3 – Warehouse FG & Logistics Dock** | East wing ($X \approx +65$ to $+130$, $Z \approx -22$ to $+22$) | **(a) FG Storage Racks:** Multilevel pallet racks for finished goods.<br>**(b) High-Detail Logistics Loading Dock ($Z = -4.0$):** Teal steel canopy frame, roll-up shutter, red/green LED dock safety lights, yellow safety bollards, zebra hazard stripes, container truck loading yard, asphalt perimeter roads with zebra crossings & perimeter trees. | **FG Forklift** collects finished goods from Outfeed bays into FG racks; **Delivery Forklift** loads pallets into the container truck. |
+| **Zone 3 – Warehouse FG & Logistics Dock** | East wing ($X \approx +65$ to $+130$, $Z \approx -22$ to $+22$) | **(a) FG Storage Racks:** Multilevel pallet racks for finished goods.<br>**(b) High-Detail Logistics Loading Dock ($Z = -4.0$):** Teal steel canopy frame, numbered roll-up shutters (`01`, `02`, `03`), red/green LED dock safety lights, yellow safety bollards, zebra hazard stripes, container truck loading yard, asphalt perimeter roads with zebra crossings & perimeter trees. | **FG Forklift** collects finished goods from Outfeed bays into FG racks; **Delivery Forklift** loads pallets into the container truck. |
 
 ### Central Transit Highway ($Z = 0.0$)
 - High-visibility thoroughfare running east-west dividing Row 1 and Row 2.
@@ -35,7 +61,7 @@ The factory is arranged horizontally along the X-axis ($X = -130$ to $+130$) wit
 
 ---
 
-## 3. Machine Models & Demarcated Infeed / Outfeed Bays
+## 4. Machine Models & Demarcated Infeed / Outfeed Bays
 
 ### A. Realistic Machine & Product Models
 Every station features custom three.js geometry matching real industrial flexible packaging equipment:
@@ -55,7 +81,7 @@ Every machine station features dedicated yellow-line safety boxes stenciled on t
 
 ---
 
-## 4. Warehouse RM Contents & Material Labels
+## 5. Warehouse RM Contents & Material Labels
 
 ### A. 3D Raw Material Models
 1. **Cylinder** – Rotogravure cylinders: long chrome metal cylinders racked horizontally.
@@ -77,7 +103,7 @@ Every machine station features dedicated yellow-line safety boxes stenciled on t
 
 ---
 
-## 5. Production Processes & Routing
+## 6. Production Processes & Routing
 
 | # | Process Station | Location | Inputs | Processing Action | Output |
 | :---: | :--- | :--- | :--- | :--- | :--- |
@@ -101,7 +127,7 @@ Every machine station features dedicated yellow-line safety boxes stenciled on t
 
 ---
 
-## 6. User Interface & Controls
+## 7. User Interface & Controls
 
 ### A. Theme Switcher & Persistence
 - **3-State Theme Toggle:** Light (`light`), Dark (`dark`), or System (`system`).
@@ -126,7 +152,7 @@ Every machine station features dedicated yellow-line safety boxes stenciled on t
 
 ---
 
-## 7. Technical Architecture & Constraints
+## 8. Technical Architecture & Constraints
 
 - **Pure Client-Side:** Single HTML file containing inline CSS and JavaScript.
 - **Three.js:** r128 UMD loaded via CDN (`cdnjs.cloudflare.com`). No external loaders (GLTFLoader, OrbitControls) required; all geometry and pointer controls are custom-coded with Three.js primitives and pointer events.
