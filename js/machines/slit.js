@@ -81,24 +81,99 @@ function buildSlitMachine(st, rollersOut, reciprocatorsOut, extraWorkersOut) {
           rollersOut.push(sRoll.group);
         });
 
-        // 4. Foreground Pallet with 3 Upright Slit Hygiene Rolls (front-right, resting on floor)
-        const slitPallet = new THREE.Mesh(new THREE.BoxGeometry(2.3, 0.2, 1.3), new THREE.MeshLambertMaterial({ color: 0xfde68a }));
-        slitPallet.position.set(2.2, 0.10, 2.55);
-        mGroup.add(slitPallet);
+        // 4. Foreground Square Pallet with 3 Tiers of Upright Slit Hygiene Rolls & Cardboard Interlayers
+        const palletSize = 2.1;
+        const palletDeckH = 0.08;
+        const palletRunnerH = 0.08;
+        const palletTotalH = palletDeckH + palletRunnerH; // 0.16
+        const palX = 2.2;
+        const palZ = 2.55;
+
+        const palletGroup = new THREE.Group();
+        palletGroup.position.set(palX, 0.0, palZ);
+
+        // Authentic wooden pallet materials
+        const woodMat = new THREE.MeshLambertMaterial({ color: 0xd4a373 });
+        const woodBlockMat = new THREE.MeshLambertMaterial({ color: 0xb45309 });
+
+        // Square upper deck
+        const palletDeck = new THREE.Mesh(new THREE.BoxGeometry(palletSize, palletDeckH, palletSize), woodMat);
+        palletDeck.position.y = palletRunnerH + palletDeckH / 2;
+        palletDeck.castShadow = true;
+        palletDeck.receiveShadow = true;
+        palletGroup.add(palletDeck);
+
+        // 3 bottom stringer runners
+        [-0.85, 0, 0.85].forEach(function (bx) {
+          const runner = new THREE.Mesh(new THREE.BoxGeometry(0.20, palletRunnerH, palletSize), woodBlockMat);
+          runner.position.set(bx, palletRunnerH / 2, 0);
+          runner.castShadow = true;
+          runner.receiveShadow = true;
+          palletGroup.add(runner);
+        });
+        mGroup.add(palletGroup);
+
+        // Reusable Kraft Cardboard Interlayer Sheets (แผ่นกระดาษลังคั่นระหว่างชั้น)
+        const sheetSize = palletSize - 0.08; // 2.02 x 2.02
+        const sheetThick = 0.025;
+        const kraftSheetMat = getKraftBoxMaterial();
+
+        function createCardboardInterlayer(yCenter) {
+          const sheet = new THREE.Mesh(new THREE.BoxGeometry(sheetSize, sheetThick, sheetSize), kraftSheetMat);
+          sheet.position.set(palX, yCenter, palZ);
+          sheet.castShadow = true;
+          sheet.receiveShadow = true;
+          mGroup.add(sheet);
+          return sheet;
+        }
+
+        // Shorter slit rolls (adjusted height as requested)
+        const rollRadius = 0.35;
+        const rollHeight = 0.45; // Shorter roll height (reduced from 1.05)
+        const rollGeo = new THREE.CylinderGeometry(rollRadius, rollRadius, rollHeight, 22);
+        const coreGeo = new THREE.CylinderGeometry(0.12, 0.12, rollHeight + 0.005, 14);
+        const coreMat = new THREE.MeshLambertMaterial({ color: 0x1e293b });
+
         const upRollSideMat = new THREE.MeshStandardMaterial({
           map: getHygieneFilmTexture(),
           roughness: 0.28,
           metalness: 0.12
         });
         const upRollFaceMat = new THREE.MeshLambertMaterial({ color: 0xfbcfe8 });
-        [-0.7, 0, 0.7].forEach(function (ox) {
-          const upRoll = new THREE.Mesh(
-            new THREE.CylinderGeometry(0.36, 0.36, 1.05, 20),
-            [upRollSideMat, upRollFaceMat, upRollFaceMat]
-          );
-          upRoll.position.set(2.2 + ox, 0.725, 2.55);
-          mGroup.add(upRoll);
-        });
+        const rollMaterials = [upRollSideMat, upRollFaceMat, upRollFaceMat];
+
+        // 2x2 grid positions on the square pallet
+        const gridOffsets = [-0.52, 0.52];
+
+        // 3 Tiers of stacked slit rolls with cardboard interlayer sheets between tiers
+        let currentY = palletTotalH; // 0.16
+
+        for (let tier = 0; tier < 3; tier++) {
+          // Cardboard interlayer sheet (placed on base pallet and between tiers)
+          const sheetY = currentY + sheetThick / 2;
+          createCardboardInterlayer(sheetY);
+          currentY += sheetThick;
+
+          // 4 Upright Rolls on this tier (2x2 grid)
+          const rollCenterY = currentY + rollHeight / 2;
+          gridOffsets.forEach(function (ox, rIdx) {
+            gridOffsets.forEach(function (oz, cIdx) {
+              const roll = new THREE.Mesh(rollGeo, rollMaterials);
+              roll.position.set(palX + ox, rollCenterY, palZ + oz);
+              roll.rotation.y = tier * 1.8 + rIdx * 2.2 + cIdx * 1.4; // Varied orientation
+              roll.castShadow = true;
+              roll.receiveShadow = true;
+              mGroup.add(roll);
+
+              // Center core hole
+              const core = new THREE.Mesh(coreGeo, coreMat);
+              core.position.set(palX + ox, rollCenterY, palZ + oz);
+              mGroup.add(core);
+            });
+          });
+
+          currentY += rollHeight;
+        }
 
         // 5. Blue Control Kiosk at Front-Left resting on floor
         const slitKiosk = createBlueControlKioskMesh();
