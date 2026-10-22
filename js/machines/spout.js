@@ -691,9 +691,9 @@ function buildSpoutMachine(st, rollersOut, reciprocatorsOut, extraWorkersOut) {
     mGroup.add(packedPouch);
   }
 
-  // Box 2: Larger staging box on floor beside the conveyor (matching reference image)
+  // Box 2: Larger staging box on floor beside the conveyor (positioned clear of machine cabinet & conveyor)
   const floorBox = createKraftCartonBox(1.2, 0.85, 1.1, 'z');
-  floorBox.position.set(convCenterX + 0.55, 0.0, convCenterZ + convW / 2 + 0.75);
+  floorBox.position.set(3.5, 0.0, 2.1);
   mGroup.add(floorBox);
 
   return mGroup;
