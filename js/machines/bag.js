@@ -187,7 +187,7 @@ function buildBagMachine(st, rollersOut, reciprocatorsOut, extraWorkersOut) {
     bagOffsetsX.forEach(function (bx, xi) {
       bagOffsetsZ.forEach(function (bz, zi) {
         const boxMesh = new THREE.Mesh(new THREE.BoxGeometry(bagBoxW, bagBoxH, bagBoxD), bagKraftMat);
-        boxMesh.position.set(bx, curY + boxH / 2, bz);
+        boxMesh.position.set(bx, curY + bagBoxH / 2, bz);
         boxMesh.castShadow = true;
         boxMesh.receiveShadow = true;
         bagPalletGroup.add(boxMesh);
