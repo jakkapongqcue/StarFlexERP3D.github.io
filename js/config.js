@@ -70,7 +70,7 @@
       },
       ZONE_PRD: {
         id: 'ZONE_PRD',
-        name: 'PRD Line (2-Row Production)',
+        name: 'PRD Line',
         role: 'Two-row flexible packaging manufacturing: Row 1 (Blown Film, Printing, Bag, Spout) & Row 2 (Ink Mix, PRD WH, Laminate, Slit).',
         handling: 'Central transit highway (z = 0) connects all stations with designated Infeed & Outfeed bays.',
         center: [0, 0, 0],
