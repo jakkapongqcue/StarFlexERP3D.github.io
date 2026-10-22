@@ -1963,3 +1963,126 @@ function createFgVerticalRollsPallet() {
 
   return grp;
 }
+
+
+/* 4. Floor-Staged Finished Goods Box Pallet with Stepped Upper Tier & Clear Stretch Wrap (Matching Reference Photo) */
+function createFgFloorStagedBoxPallet(variant) {
+  const grp = new THREE.Group();
+  const palW = 2.4;
+  const palD = 1.6;
+  const pallet = createRedIndustrialPallet(palW, palD);
+  grp.add(pallet);
+
+  const palH = 0.16;
+  const boxW = 1.08;
+  const boxD = 0.72;
+  const boxH = 0.48;
+  const kraftMat = getKraftBoxMaterial();
+  const tapeMat = getWhiteTapeMaterial();
+  const mangoMat = new THREE.MeshBasicMaterial({ map: getBoxMangoLabelTexture() });
+  const starflexMat = new THREE.MeshBasicMaterial({ map: getBoxStarflexLabelTexture() });
+
+  const xOffsets = [-palW / 4, palW / 4];
+  const zOffsets = [-palD / 4, palD / 4];
+
+  // Lower 2 Full Tiers (2x2 grid = 4 boxes per tier)
+  for (let t = 0; t < 2; t++) {
+    const curY = palH + t * boxH;
+    xOffsets.forEach(function (bx, xi) {
+      zOffsets.forEach(function (bz, zi) {
+        const boxMesh = new THREE.Mesh(new THREE.BoxGeometry(boxW, boxH, boxD), kraftMat);
+        boxMesh.position.set(bx, curY + boxH / 2, bz);
+        boxMesh.castShadow = true;
+        boxMesh.receiveShadow = true;
+        grp.add(boxMesh);
+
+        // Sealing tape on top
+        const tape = new THREE.Mesh(new THREE.BoxGeometry(boxW + 0.005, 0.01, 0.16), tapeMat);
+        tape.position.set(bx, curY + boxH + 0.005, bz);
+        grp.add(tape);
+
+        // Labels on visible outer sides
+        if (bz > 0) {
+          const lMat = (xi === 0) ? mangoMat : starflexMat;
+          const label = new THREE.Mesh(new THREE.PlaneGeometry(0.38, 0.22), lMat);
+          label.position.set(bx, curY + boxH * 0.52, bz + boxD / 2 + 0.003);
+          grp.add(label);
+        }
+      });
+    });
+  }
+
+  // Stepped Partial Top Tier (Tier 3) matching the user's photo!
+  const topY = palH + 2 * boxH;
+  if (variant === 'stepped_dual') {
+    // 2 boxes along the back row
+    xOffsets.forEach(function (bx, xi) {
+      const bz = -palD / 4;
+      const boxMesh = new THREE.Mesh(new THREE.BoxGeometry(boxW, boxH, boxD), kraftMat);
+      boxMesh.position.set(bx, topY + boxH / 2, bz);
+      boxMesh.castShadow = true;
+      boxMesh.receiveShadow = true;
+      grp.add(boxMesh);
+
+      const tape = new THREE.Mesh(new THREE.BoxGeometry(boxW + 0.005, 0.01, 0.16), tapeMat);
+      tape.position.set(bx, topY + boxH + 0.005, bz);
+      grp.add(tape);
+
+      const lMat = (xi === 0) ? mangoMat : starflexMat;
+      const label = new THREE.Mesh(new THREE.PlaneGeometry(0.38, 0.22), lMat);
+      label.position.set(bx, topY + boxH * 0.52, bz + boxD / 2 + 0.003);
+      grp.add(label);
+    });
+
+    // Top tier wrap
+    const topWrap = new THREE.Mesh(
+      new THREE.BoxGeometry(palW - 0.08, boxH + 0.03, boxD + 0.04),
+      getStretchWrapMaterial()
+    );
+    topWrap.position.set(0, topY + boxH / 2, -palD / 4);
+    grp.add(topWrap);
+  } else {
+    // 1 box centered or stepped on front left
+    const bx = -palW / 4;
+    const bz = palD / 4;
+    const boxMesh = new THREE.Mesh(new THREE.BoxGeometry(boxW, boxH, boxD), kraftMat);
+    boxMesh.position.set(bx, topY + boxH / 2, bz);
+    boxMesh.castShadow = true;
+    boxMesh.receiveShadow = true;
+    grp.add(boxMesh);
+
+    const tape = new THREE.Mesh(new THREE.BoxGeometry(boxW + 0.005, 0.01, 0.16), tapeMat);
+    tape.position.set(bx, topY + boxH + 0.005, bz);
+    grp.add(tape);
+
+    const label = new THREE.Mesh(new THREE.PlaneGeometry(0.38, 0.22), mangoMat);
+    label.position.set(bx, topY + boxH * 0.52, bz + boxD / 2 + 0.003);
+    grp.add(label);
+
+    const topWrap = new THREE.Mesh(
+      new THREE.BoxGeometry(boxW + 0.04, boxH + 0.03, boxD + 0.04),
+      getStretchWrapMaterial()
+    );
+    topWrap.position.set(bx, topY + boxH / 2, bz);
+    grp.add(topWrap);
+  }
+
+  // Main Transparent Stretch Wrap Film Envelope around lower tiers
+  const lowerH = 2 * boxH;
+  const wrapMesh = new THREE.Mesh(
+    new THREE.BoxGeometry(palW - 0.06, lowerH + 0.04, palD - 0.06),
+    getStretchWrapMaterial()
+  );
+  wrapMesh.position.set(0, palH + lowerH / 2, 0);
+  grp.add(wrapMesh);
+
+  // Subtle stretch wrap horizontal ribbon seams
+  const seamMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.25 });
+  for (let sy = palH + 0.22; sy < palH + lowerH; sy += 0.32) {
+    const seam = new THREE.Mesh(new THREE.BoxGeometry(palW - 0.04, 0.02, palD - 0.04), seamMat);
+    seam.position.set(0, sy, 0);
+    grp.add(seam);
+  }
+
+  return grp;
+}

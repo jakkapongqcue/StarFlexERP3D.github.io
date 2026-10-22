@@ -859,6 +859,17 @@
         );
       }
 
+      // 2 Staged Floor Pallets with Finished Goods Boxes beside Racks (User Request matching media_1792689980510)
+      const floorPallet1 = createFgFloorStagedBoxPallet('stepped_dual');
+      floorPallet1.position.set(65.0, 0.0, 0.2);
+      floorPallet1.rotation.y = 0.06;
+      scene.add(floorPallet1);
+
+      const floorPallet2 = createFgFloorStagedBoxPallet('stepped_single');
+      floorPallet2.position.set(63.2, 0.0, 6.5);
+      floorPallet2.rotation.y = -0.04;
+      scene.add(floorPallet2);
+
       // Open Concrete Truck Loading Yard (Level Ground - No Bays, No Elevated Platform, No Roads)
       const truckYardGroup = new THREE.Group();
       scene.add(truckYardGroup);
