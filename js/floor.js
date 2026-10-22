@@ -216,10 +216,7 @@ function createCentralHighwayDashes(xStart, xEnd, step, zPos, colorHex, dashLeng
 function createZoneFloorMesh(zKey, zCfg, colorHex, yPos) {
   const y = yPos !== undefined ? yPos : 0.003;
   const fGeo = new THREE.PlaneGeometry(zCfg.size[0], zCfg.size[1]);
-  const fMat = new THREE.MeshLambertMaterial({
-    color: colorHex,
-    roughness: 0.85
-  });
+  const fMat = new THREE.MeshLambertMaterial({ color: colorHex });
   const fMesh = new THREE.Mesh(fGeo, fMat);
   fMesh.rotation.x = -Math.PI / 2;
   fMesh.position.set(zCfg.center[0], y, zCfg.center[2]);

@@ -316,11 +316,11 @@
       const cabMat = new THREE.MeshLambertMaterial({ color: 0x1d4ed8 }); // Royal Blue
       const bumperMat = new THREE.MeshLambertMaterial({ color: 0x111827 }); // Charcoal bumper
       const headlightMat = new THREE.MeshBasicMaterial({ color: 0xfef08a }); // Bright yellow headlights
-      const darkGlassMat = new THREE.MeshLambertMaterial({ color: 0x0f172a, roughness: 0.2 }); // Dark tinted visor
-      const boxWhiteMat = new THREE.MeshLambertMaterial({ color: 0xf8fafc, roughness: 0.6 }); // Crisp white trailer
+      const darkGlassMat = new THREE.MeshLambertMaterial({ color: 0x0f172a }); // Dark tinted visor
+      const boxWhiteMat = new THREE.MeshLambertMaterial({ color: 0xf8fafc }); // Crisp white trailer
       const boxStripeMat = new THREE.MeshLambertMaterial({ color: 0x1d4ed8 }); // Royal blue lower trim
       const chassisMat = new THREE.MeshLambertMaterial({ color: 0x1e293b }); // Chassis rails
-      const wheelMat = new THREE.MeshLambertMaterial({ color: 0x0f172a, roughness: 0.9 }); // Dark tires
+      const wheelMat = new THREE.MeshLambertMaterial({ color: 0x0f172a }); // Dark tires
       const rimMat = new THREE.MeshLambertMaterial({ color: 0x475569 }); // Hub rims
       const chromeMat = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, metalness: 0.85, roughness: 0.2 });
       const floorMat = new THREE.MeshLambertMaterial({ color: 0x334155 }); // Ribbed steel deck
@@ -332,7 +332,6 @@
       const logoSideMat = logoTexture
         ? new THREE.MeshLambertMaterial({
             map: logoTexture,
-            roughness: 0.6,
             polygonOffset: true,
             polygonOffsetFactor: -2,
             polygonOffsetUnits: -2

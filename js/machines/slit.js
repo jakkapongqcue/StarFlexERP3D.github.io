@@ -250,7 +250,7 @@ function buildSlitMachine(st, rollersOut, reciprocatorsOut, extraWorkersOut) {
   const darkSteel = new THREE.MeshLambertMaterial({ color: 0x1e293b }); // Structure / motor dark steel
   const charcoalMat = new THREE.MeshLambertMaterial({ color: 0x0f172a }); // Base & frame bed
   const chromeMat = new THREE.MeshStandardMaterial({ color: 0xf8fafc, metalness: 0.85, roughness: 0.18 });
-  const rubberMat = new THREE.MeshLambertMaterial({ color: 0x334155, roughness: 0.92 });
+  const rubberMat = new THREE.MeshLambertMaterial({ color: 0x334155 });
   const yellowArmMat = new THREE.MeshLambertMaterial({ color: 0xfacc15 });
   const bronzeBushingMat = new THREE.MeshStandardMaterial({ color: 0xd97706, metalness: 0.6, roughness: 0.35 });
   const filmWebMat = new THREE.MeshStandardMaterial({
