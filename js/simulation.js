@@ -594,6 +594,7 @@
         onComplete: function () {
           const loadedCargo = createCargoVisualByKey(finalWipKeyForFg);
           sceneObjects.containerTruck.userData.loadedPalletsGroup.add(loadedCargo);
+          mountCargoOnVehicle(sceneObjects.deliveryForklift, null, []);
         }
       });
 
@@ -758,6 +759,7 @@
         timerDeliv: 0,
         durDeliv: 3.8,
         wpDeliv: buildConcurrentDeliveryWaypoints(),
+        delivDropped: false,
         truckCycleTimer: 0,
         truckDeparted: false,
 
@@ -958,8 +960,24 @@
       const poseDeliv = sampleWaypoints(cd.wpDeliv, tDeliv);
       sceneObjects.deliveryForklift.position.copy(poseDeliv.pos);
       sceneObjects.deliveryForklift.rotation.y = poseDeliv.yaw;
+
+      // When reaching the truck (waypoint 2 at tDeliv >= 0.48), unload pallet into truck and clear forklift forks!
+      if (tDeliv >= 0.48 && !cd.delivDropped) {
+        cd.delivDropped = true;
+        mountCargoOnVehicle(sceneObjects.deliveryForklift, null, []);
+        if (sceneObjects.containerTruck && sceneObjects.containerTruck.userData.loadedPalletsGroup) {
+          const tg = sceneObjects.containerTruck.userData.loadedPalletsGroup;
+          if (tg.children.length === 0) {
+            const loadedCargo = createCargoVisualByKey('FG_BAG_BOX');
+            tg.add(loadedCargo);
+          }
+        }
+      }
+
+      // When completing return trip back to staging area (tDeliv >= 1), reset and pick up next pallet
       if (tDeliv >= 1) {
         cd.timerDeliv = 0;
+        cd.delivDropped = false;
         mountCargoOnVehicle(sceneObjects.deliveryForklift, 'FG_BAG_BOX', [{ key: 'FG_BAG_BOX', qtyText: 'Pallet for Dispatch' }]);
       }
 
@@ -982,11 +1000,12 @@
           cd.truckCycleTimer = 0;
           cd.truckDeparted = false;
           sceneObjects.containerTruck.position.set(81, 0.0, -4);
-      if (sceneObjects.containerTruck.userData.setDoorOpenRatio) {
-        sceneObjects.containerTruck.userData.setDoorOpenRatio(1.0);
-      }
+          if (sceneObjects.containerTruck.userData.loadedPalletsGroup) {
+            const tg = sceneObjects.containerTruck.userData.loadedPalletsGroup;
+            while (tg.children.length > 0) tg.remove(tg.children[0]);
+          }
           if (sceneObjects.containerTruck.userData.setDoorOpenRatio) {
-            sceneObjects.containerTruck.userData.setDoorOpenRatio(1.0); // Re-open side doors for next loading cycle
+            sceneObjects.containerTruck.userData.setDoorOpenRatio(1.0);
           }
         }
       } else {
