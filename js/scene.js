@@ -220,21 +220,6 @@
       addFloorRect(-79, -65,   3, 20); // Supplies Used WH (SW)
       addFloorRect(-61, -47,   3, 20); // Resin & Film Storage (SE)
 
-      // Center cross-aisle dividing lines
-      const eWLine1 = new THREE.Mesh(new THREE.BoxGeometry(33, 0.01, 0.16), rmLineMat);
-      eWLine1.position.set(-63, 0.015, -0.3);
-      eWLine1.receiveShadow = true;
-      rmGroup.add(eWLine1);
-      const eWLine2 = new THREE.Mesh(new THREE.BoxGeometry(33, 0.01, 0.16), rmLineMat);
-      eWLine2.position.set(-63, 0.015, 0.3);
-      eWLine2.receiveShadow = true;
-      rmGroup.add(eWLine2);
-
-      const nSLine = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.01, 40), rmLineMat);
-      nSLine.position.set(-63, 0.015, 0);
-      nSLine.receiveShadow = true;
-      rmGroup.add(nSLine);
-
       // 4 Main 3D Floating Tags (matching reference image pills)
       registerLabel3D('Cylinder WH', new THREE.Vector3(-72, 6.4, -11.5), 'tag-zone', 'ZONE_RM');
       registerLabel3D('Chemical WH', new THREE.Vector3(-54, 6.4, -11.5), 'tag-zone', 'ZONE_RM');
