@@ -253,7 +253,12 @@ function buildSlitMachine(st, rollersOut, reciprocatorsOut, extraWorkersOut) {
   const rubberMat = new THREE.MeshLambertMaterial({ color: 0x334155, roughness: 0.92 });
   const yellowArmMat = new THREE.MeshLambertMaterial({ color: 0xfacc15 });
   const bronzeBushingMat = new THREE.MeshStandardMaterial({ color: 0xd97706, metalness: 0.6, roughness: 0.35 });
-  const printedWebMat = new THREE.MeshLambertMaterial({ color: 0xfacc15, transparent: true, opacity: 0.82 });
+  const filmWebMat = new THREE.MeshStandardMaterial({
+    map: getHygieneFilmTexture(),
+    roughness: 0.28,
+    metalness: 0.12,
+    side: THREE.DoubleSide
+  });
 
   function tagSelectable(mesh) {
     mesh.userData.selectKey = st.id;
@@ -788,32 +793,32 @@ function buildSlitMachine(st, rollersOut, reciprocatorsOut, extraWorkersOut) {
   mGroup.add(masterRollGroup);
 
   // Overhead tension web from master roll over guide rollers into slitter
-  const webTop = new THREE.Mesh(new THREE.BoxGeometry(masterWidth - 0.04, 0.015, 1.25), printedWebMat);
+  const webTop = new THREE.Mesh(new THREE.BoxGeometry(masterWidth - 0.04, 0.015, 1.25), filmWebMat);
   webTop.position.set(0.0, 2.32, -0.85);
   webTop.rotation.x = 0.25;
   mGroup.add(webTop);
 
   // Split webs feeding into Upper and Lower rolls
-  const webUpper = new THREE.Mesh(new THREE.BoxGeometry(rollWidth, 0.012, 0.55), printedWebMat);
+  const webUpper = new THREE.Mesh(new THREE.BoxGeometry(rollWidth, 0.012, 0.55), filmWebMat);
   webUpper.position.set(0.65, 2.10, 0.18);
   webUpper.rotation.x = 0.65;
   mGroup.add(webUpper);
 
-  const webLower = new THREE.Mesh(new THREE.BoxGeometry(rollWidth, 0.012, 0.72), printedWebMat);
+  const webLower = new THREE.Mesh(new THREE.BoxGeometry(rollWidth, 0.012, 0.72), filmWebMat);
   webLower.position.set(-0.65, 1.55, 0.25);
   webLower.rotation.x = -0.55;
   mGroup.add(webLower);
 
   // =========================================================================
   // 7. FOREGROUND SQUARE PALLET (3 TIERS OF SHORT ROLLS & CARDBOARD SHEETS)
-  // (User Request: "สำคัญคงรูปแบบวัตถุดิบเดิมไว้")
+  // (User Request: "สำคัญคงรูปแบบวัตถุดิบเดิมไว้" & "ปรับ pallet ให้ห่างออกจากเครื่องนิดหน่อย")
   // =========================================================================
   const palletSize = 2.1;
   const palletDeckH = 0.08;
   const palletRunnerH = 0.08;
   const palletTotalH = palletDeckH + palletRunnerH;
-  const palX = 2.2;
-  const palZ = 2.55;
+  const palX = 2.85;
+  const palZ = 3.35;
 
   const palletGroup = new THREE.Group();
   palletGroup.position.set(palX, 0.0, palZ);
