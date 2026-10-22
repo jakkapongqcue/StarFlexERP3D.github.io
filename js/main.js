@@ -7,9 +7,9 @@
     renderWasteInputsGrid();
     renderStationTimingGrid();
     bindAllUIEvents();
-    let initTheme = 'system';
+    let initTheme = 'light';
     try {
-      initTheme = localStorage.getItem('sf_theme_mode') || 'system';
+      initTheme = localStorage.getItem('sf_theme_mode') || 'light';
     } catch (e) {}
     applyThemeMode(initTheme);
     syncFollowAndLoopButtonsUI();

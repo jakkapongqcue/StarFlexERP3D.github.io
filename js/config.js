@@ -257,9 +257,9 @@
     const appState = {
       themeMode: (function () {
         try {
-          return localStorage.getItem('sf_theme_mode') || 'system';
+          return localStorage.getItem('sf_theme_mode') || 'light';
         } catch (e) {
-          return 'system';
+          return 'light';
         }
       })(),                      // 'light' | 'dark' | 'system'
       inputMode: 'MINIMAL',      // 'MINIMAL' | 'DETAILED'

@@ -46,7 +46,7 @@
         light: { icon: 'light_mode', label: 'Light' },
         dark: { icon: 'dark_mode', label: 'Dark' },
         system: { icon: 'desktop_windows', label: 'System' }
-      }[mode] || { icon: 'desktop_windows', label: 'System' };
+      }[mode] || { icon: 'light_mode', label: 'Light' };
 
       const iconEl = document.getElementById('themeDropdownIcon');
       const labelEl = document.getElementById('themeDropdownLabel');
