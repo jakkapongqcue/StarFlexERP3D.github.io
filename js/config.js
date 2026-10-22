@@ -273,7 +273,7 @@
       skipSlit: false,
       wasteByStep: Object.assign({}, DEFAULT_WASTE_MAP),
       stationTiming: JSON.parse(JSON.stringify(DEFAULT_TIMING_MAP)),
-      showMaterialLabels: true,
+      showMaterialLabels: false,
       followFlow: false,
       loopRun: false,
       loopCycleCount: 0,
