@@ -622,23 +622,23 @@
         }
       });
 
-      sceneObjects.rmForklift.position.set(-68, 0.15, -1.8);
+      sceneObjects.rmForklift.position.set(-45, 0.15, -1.8);
       sceneObjects.rmForklift.rotation.y = Math.PI;
       mountCargoOnVehicle(sceneObjects.rmForklift, null, []);
 
-      sceneObjects.fgForklift.position.set(64, 0.15, 1.8);
+      sceneObjects.fgForklift.position.set(45, 0.15, 1.8);
       sceneObjects.fgForklift.rotation.y = 0;
       mountCargoOnVehicle(sceneObjects.fgForklift, null, []);
 
-      sceneObjects.deliveryForklift.position.set(86, 0.15, -4);
+      sceneObjects.deliveryForklift.position.set(63, 0.15, -4);
       sceneObjects.deliveryForklift.rotation.y = 0;
       mountCargoOnVehicle(sceneObjects.deliveryForklift, null, []);
 
-      sceneObjects.handPalletTruck.position.set(-15, 0.15, 1.8);
+      sceneObjects.handPalletTruck.position.set(-10, 0.15, 1.8);
       sceneObjects.handPalletTruck.rotation.y = 0;
       mountCargoOnVehicle(sceneObjects.handPalletTruck, null, []);
 
-      sceneObjects.containerTruck.position.set(104, 0.12, -4);
+      sceneObjects.containerTruck.position.set(81, 0.12, -4);
       if (sceneObjects.containerTruck.userData.setDoorOpenRatio) {
         sceneObjects.containerTruck.userData.setDoorOpenRatio(1.0);
       }

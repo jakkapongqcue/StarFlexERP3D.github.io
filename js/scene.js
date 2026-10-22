@@ -62,8 +62,8 @@
     const camControl = {
       target: new THREE.Vector3(0, 0, 0),
       desiredTarget: new THREE.Vector3(0, 0, 0),
-      spherical: { radius: 152, theta: 0.12, phi: 0.90 },
-      desiredSpherical: { radius: 152, theta: 0.12, phi: 0.90 },
+      spherical: { radius: 118, theta: 0.12, phi: 0.90 },
+      desiredSpherical: { radius: 118, theta: 0.12, phi: 0.90 },
       isDragging: false,
       isPanning: false,
       startX: 0,
@@ -92,16 +92,16 @@
     function focusCameraOnTarget(targetKey) {
       if (targetKey === 'ALL') {
         camControl.desiredTarget.set(0, 0, 0);
-        camControl.desiredSpherical.radius = 152;
+        camControl.desiredSpherical.radius = 118;
         camControl.desiredSpherical.theta = 0.12;
         camControl.desiredSpherical.phi = 0.90;
       } else if (targetKey === 'STEP_FG') {
-        camControl.desiredTarget.set(74, 2.0, 0);
+        camControl.desiredTarget.set(51, 2.0, 0);
         camControl.desiredSpherical.radius = 42;
         camControl.desiredSpherical.phi = 0.82;
         camControl.desiredSpherical.theta = 0.16;
       } else if (targetKey === 'STEP_DELIVERED') {
-        camControl.desiredTarget.set(104, 2.0, -4);
+        camControl.desiredTarget.set(81, 2.0, -4);
         camControl.desiredSpherical.radius = 44;
         camControl.desiredSpherical.phi = 0.80;
         camControl.desiredSpherical.theta = 0.22;
@@ -114,17 +114,17 @@
           camControl.desiredSpherical.theta = 0.18;
         } else if (targetKey === 'ZONE_RM') {
           camControl.desiredTarget.set(zc[0], 1.5, zc[2]);
-          camControl.desiredSpherical.radius = 64;
+          camControl.desiredSpherical.radius = 56;
           camControl.desiredSpherical.phi = 0.86;
           camControl.desiredSpherical.theta = 0.16;
         } else if (targetKey === 'ZONE_FG') {
           camControl.desiredTarget.set(zc[0], 1.5, zc[2]);
-          camControl.desiredSpherical.radius = 64;
+          camControl.desiredSpherical.radius = 56;
           camControl.desiredSpherical.phi = 0.86;
           camControl.desiredSpherical.theta = 0.16;
         } else {
           camControl.desiredTarget.set(zc[0], 0, zc[2]);
-          camControl.desiredSpherical.radius = (targetKey === 'ZONE_PRD') ? 105 : 64;
+          camControl.desiredSpherical.radius = (targetKey === 'ZONE_PRD') ? 78 : 56;
           camControl.desiredSpherical.phi = 0.86;
           camControl.desiredSpherical.theta = 0.14;
         }
@@ -241,7 +241,7 @@
       });
 
       // Central Transit Corridor across concrete floor at z = 0.0 (Dashed yellow center dividing line between East/West lanes)
-      for (let xDash = -86; xDash <= 82; xDash += 5.0) {
+      for (let xDash = -63; xDash <= 65; xDash += 5.0) {
         const dash = new THREE.Mesh(
           new THREE.BoxGeometry(2.8, 0.03, 0.22),
           new THREE.MeshLambertMaterial({ color: 0xfacc15 })
@@ -296,32 +296,32 @@
       }
 
       // Yellow boundary boxes for the 4 quadrants (matching reference image)
-      addFloorRect(-102, -88, -20, -3); // Cylinder WH (NW)
-      addFloorRect(-84,  -70, -20, -3); // Chemical WH (NE)
-      addFloorRect(-102, -88,   3, 20); // Supplies Used WH (SW)
-      addFloorRect(-84,  -70,   3, 20); // Resin & Film Storage (SE)
+      addFloorRect(-79, -65, -20, -3); // Cylinder WH (NW)
+      addFloorRect(-61, -47, -20, -3); // Chemical WH (NE)
+      addFloorRect(-79, -65,   3, 20); // Supplies Used WH (SW)
+      addFloorRect(-61, -47,   3, 20); // Resin & Film Storage (SE)
 
       // Center cross-aisle dividing lines
       const eWLine1 = new THREE.Mesh(new THREE.BoxGeometry(33, 0.03, 0.16), rmLineMat);
-      eWLine1.position.set(-86, 0.13, -0.3);
+      eWLine1.position.set(-63, 0.13, -0.3);
       rmGroup.add(eWLine1);
       const eWLine2 = new THREE.Mesh(new THREE.BoxGeometry(33, 0.03, 0.16), rmLineMat);
-      eWLine2.position.set(-86, 0.13, 0.3);
+      eWLine2.position.set(-63, 0.13, 0.3);
       rmGroup.add(eWLine2);
 
       const nSLine = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.03, 40), rmLineMat);
-      nSLine.position.set(-86, 0.13, 0);
+      nSLine.position.set(-63, 0.13, 0);
       rmGroup.add(nSLine);
 
       // 4 Main 3D Floating Tags (matching reference image pills)
-      registerLabel3D('Cylinder WH', new THREE.Vector3(-95, 6.4, -11.5), 'tag-zone', 'ZONE_RM');
-      registerLabel3D('Chemical WH', new THREE.Vector3(-77, 6.4, -11.5), 'tag-zone', 'ZONE_RM');
-      registerLabel3D('Supplies Used WH', new THREE.Vector3(-95, 6.4, 11.5), 'tag-zone', 'ZONE_RM');
-      registerLabel3D('Resin & Film Storage', new THREE.Vector3(-77, 6.4, 11.5), 'tag-zone', 'ZONE_RM');
+      registerLabel3D('Cylinder WH', new THREE.Vector3(-72, 6.4, -11.5), 'tag-zone', 'ZONE_RM');
+      registerLabel3D('Chemical WH', new THREE.Vector3(-54, 6.4, -11.5), 'tag-zone', 'ZONE_RM');
+      registerLabel3D('Supplies Used WH', new THREE.Vector3(-72, 6.4, 11.5), 'tag-zone', 'ZONE_RM');
+      registerLabel3D('Resin & Film Storage', new THREE.Vector3(-54, 6.4, 11.5), 'tag-zone', 'ZONE_RM');
 
       // 1. CYLINDER WH (NW Quadrant: Selective rack + 8 vertical black cylinders)
       const cylRackGroup = new THREE.Group();
-      cylRackGroup.position.set(-95, 0.1, -11.5);
+      cylRackGroup.position.set(-72, 0.1, -11.5);
 
       // 4 Blue upright corner posts
       [[-3.8, -3.2], [3.8, -3.2], [-3.8, 3.2], [3.8, 3.2]].forEach(function (pt) {
@@ -373,7 +373,7 @@
 
       // 2. CHEMICAL WH (NE Quadrant: 4 dark drums + 2 green drums + 4 yellow/orange drums)
       const chemGroup = new THREE.Group();
-      chemGroup.position.set(-77, 0.1, -11.5);
+      chemGroup.position.set(-54, 0.1, -11.5);
 
       // (a) 4 Large Navy / Dark Slate Drums (2x2 grid at back-left: Base Ink & Solvent)
       const navyMat = new THREE.MeshLambertMaterial({ color: 0x1e293b });
@@ -436,7 +436,7 @@
 
       // 3. SUPPLIES USED WH (SW Quadrant: Industrial Rack Row with Paper Cores + Floor Box Stacks matching User Reference Image)
       const supGroup = new THREE.Group();
-      supGroup.position.set(-95, 0.1, 11.5);
+      supGroup.position.set(-72, 0.1, 11.5);
 
       // (a) Industrial Multi-Tier Storage Rack (1 Row of Racks on the Left side, local x = -3.2, z = 0.0)
       const supRack = new THREE.Group();
@@ -564,7 +564,7 @@
 
       // 4. RESIN & FILM STORAGE (SE Quadrant: Stacked resin sacks + 6 vertical standing film rolls)
       const rfGroup = new THREE.Group();
-      rfGroup.position.set(-77, 0.1, 11.5);
+      rfGroup.position.set(-54, 0.1, 11.5);
 
       // (a) Polymer Resin Bags (Realistic horizontal sacks stacked on wooden pallets matching user reference)
       const resinMeshes = [];
@@ -708,9 +708,9 @@
         };
       });
 
-      // Build PRD WH (Production Warehouse & Curing Area) in Row 2, Column 2 at x = -15, z = +12 (Reference Image Layout)
+      // Build PRD WH (Production Warehouse & Curing Area) in Row 2, Column 2 at x = -10, z = +12 (Reference Image Layout)
       const prdWhGroup = new THREE.Group();
-      prdWhGroup.position.set(-15, 0.1, 12);
+      prdWhGroup.position.set(-10, 0.1, 12);
 
       // Pair of hollow bright yellow floor demarcation boxes facing Central Transit Corridor at world z = +5.2 (local z = -6.8)
       // Left yellow box (Infeed from Printing / Laminate)
@@ -840,7 +840,7 @@
       for (let row = 0; row < 3; row++) {
         const zPos = -13 + row * 9;
         const fgRackGroup = new THREE.Group();
-        fgRackGroup.position.set(77, 0.1, zPos);
+        fgRackGroup.position.set(54, 0.1, zPos);
 
         const rackStruct = createIndustrialRackUnit(11.5, 3.6, 5.0, 0x1d4ed8, 0xf97316);
         fgRackGroup.add(rackStruct);
@@ -877,8 +877,8 @@
 
         // Lower deck slots for live FG order storage
         sceneObjects.fgRackSlots.push(
-          new THREE.Vector3(74.2, 0.95, zPos),
-          new THREE.Vector3(79.8, 0.95, zPos)
+          new THREE.Vector3(51.2, 0.95, zPos),
+          new THREE.Vector3(56.8, 0.95, zPos)
         );
       }
 
@@ -890,27 +890,27 @@
       const stallBorderMat = new THREE.MeshLambertMaterial({ color: 0xfacc15 });
       const stallWhiteMat  = new THREE.MeshLambertMaterial({ color: 0xf8fafc });
 
-      // Staging / Parking box border lines around truck at x = 104, z = -4
+      // Staging / Parking box border lines around truck at x = 81, z = -4
       const lineN = new THREE.Mesh(new THREE.BoxGeometry(8.2, 0.03, 0.22), stallBorderMat);
-      lineN.position.set(104, 0.13, -12);
+      lineN.position.set(81, 0.13, -12);
       truckYardGroup.add(lineN);
 
       const lineS = new THREE.Mesh(new THREE.BoxGeometry(8.2, 0.03, 0.22), stallBorderMat);
-      lineS.position.set(104, 0.13, 8);
+      lineS.position.set(81, 0.13, 8);
       truckYardGroup.add(lineS);
 
       const lineE = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.03, 20.2), stallBorderMat);
-      lineE.position.set(108.1, 0.13, -2);
+      lineE.position.set(85.1, 0.13, -2);
       truckYardGroup.add(lineE);
 
       const lineW = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.03, 20.2), stallBorderMat);
-      lineW.position.set(99.9, 0.13, -2);
+      lineW.position.set(76.9, 0.13, -2);
       truckYardGroup.add(lineW);
 
       // Yellow wheel stop curbs on concrete behind truck rear
       [-2.2, 2.2].forEach(function (offset) {
         const curb = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.22, 0.35), new THREE.MeshLambertMaterial({ color: 0xfacc15 }));
-        curb.position.set(104 + offset, 0.11, -11.6);
+        curb.position.set(81 + offset, 0.11, -11.6);
         truckYardGroup.add(curb);
       });
 
@@ -1003,19 +1003,19 @@
       }
 
       // 3 Exterior Perimeter Spots (Northwest, Northeast, and South)
-      createPerimeterTreeCluster(-88, -33, 0.2);   // Spot 1: Northwest exterior (behind RM WH)
-      createPerimeterTreeCluster( 88, -33, -0.4);  // Spot 2: Northeast exterior (behind Warehouse FG)
+      createPerimeterTreeCluster(-65, -33, 0.2);   // Spot 1: Northwest exterior (behind RM WH)
+      createPerimeterTreeCluster( 65, -33, -0.4);  // Spot 2: Northeast exterior (behind Warehouse FG)
       createPerimeterTreeCluster(  0,  35, 1.1);   // Spot 3: South exterior (front perimeter garden)
 
       // Container Truck parked on level concrete floor (Direct forklift loading)
       const truck = createContainerTruckMesh();
-      truck.position.set(104, 0.12, -4);
+      truck.position.set(81, 0.12, -4);
       scene.add(truck);
       sceneObjects.containerTruck = truck;
 
       const truckLabel = registerLabel3D(
         'Container Truck (Loading Yard)',
-        new THREE.Vector3(104, 7.2, -4),
+        new THREE.Vector3(81, 7.2, -4),
         'tag-zone',
         'ZONE_FG'
       );
@@ -1024,7 +1024,7 @@
 
       registerLabel3D(
         'Truck Loading Yard',
-        new THREE.Vector3(104, 9.4, -4),
+        new THREE.Vector3(81, 9.4, -4),
         'tag-zone',
         'ZONE_FG'
       );
@@ -1032,21 +1032,21 @@
       // Material Handling Fleet placed along dedicated Central Transit Corridor lanes
       // Westbound North Lane (z = -1.8) for RM Forklift; Eastbound South Lane (z = +1.8) for Hand Pallet Truck
       sceneObjects.rmForklift = createForkliftMesh(0xf59e0b);
-      sceneObjects.rmForklift.position.set(-68, 0.15, -1.8);
+      sceneObjects.rmForklift.position.set(-45, 0.15, -1.8);
       sceneObjects.rmForklift.rotation.y = Math.PI; // facing West
       scene.add(sceneObjects.rmForklift);
 
       sceneObjects.fgForklift = createForkliftMesh(0x10b981);
-      sceneObjects.fgForklift.position.set(64, 0.15, 1.8);
+      sceneObjects.fgForklift.position.set(45, 0.15, 1.8);
       sceneObjects.fgForklift.rotation.y = 0; // facing East
       scene.add(sceneObjects.fgForklift);
 
       sceneObjects.deliveryForklift = createForkliftMesh(0x3b82f6);
-      sceneObjects.deliveryForklift.position.set(86, 0.15, -4);
+      sceneObjects.deliveryForklift.position.set(63, 0.15, -4);
       scene.add(sceneObjects.deliveryForklift);
 
       sceneObjects.handPalletTruck = createHandPalletTruckMesh();
-      sceneObjects.handPalletTruck.position.set(-15, 0.15, 1.8);
+      sceneObjects.handPalletTruck.position.set(-10, 0.15, 1.8);
       sceneObjects.handPalletTruck.rotation.y = 0; // facing East
       scene.add(sceneObjects.handPalletTruck);
 
