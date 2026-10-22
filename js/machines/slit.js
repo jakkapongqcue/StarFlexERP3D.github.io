@@ -2,7 +2,7 @@
    StarFlexERP 3D - Machine: High-Speed Duplex Slitter Rewinder (ST_SLIT)
    - Based on Official Industrial Reference (media_1792685873259 & media_1792686467592)
    - Rear / Input Side: Large Master Laminated Hygiene Roll (wide, large diameter)
-   - Front / Output Side: Dual Rewind Shafts holding 2 Shorter Slit Hygiene Rolls
+   - Front / Output Side: Dual Stationary Shafts holding 2 Rotating Shorter Slit Rolls
    - Top Overhead Canopy Bridge with Glowing Digital LED Speed Display:
      "Running Speed 004 m/min" + "STARFLEX VENUS III SLITTER"
    - Left Column: Dark Contrast Panel with "INTELLIGENT DIVIDING AND CUTTING"
@@ -232,48 +232,51 @@ function buildSlitMachine(st, rollersOut, reciprocatorsOut, extraWorkersOut) {
   mGroup.add(taskLight);
 
   // =========================================================================
-  // 4. OUTPUT SIDE (FRONT): DUAL REWIND SHAFTS & 2 SHORTER SLIT ROLLS
-  // (User Request: "ภาพี่เห็นคือภาพฝั่ง output จะมีลักษณะเป็นม้วนสั้น 2 ม้วน จากม้วนใหญ่ที่อยู่อีกฝั่ง")
+  // 4. OUTPUT SIDE (FRONT): STATIONARY SHAFTS & ROTATING FILM ROLLS
+  // (User Request: "แก้ไขการหมุนด้วย มัวน film ต้องหมุน ไม่ใช่แกน")
   // =========================================================================
   const rollRadius = 0.38;
   const rollWidth = 0.78; // Short roll width (~0.8m)
   const shaftLength = 3.9;
 
-  // (a) UPPER REWIND SHAFT (Cantilevered segmented friction shaft at y = 2.35, z = 0.42)
-  const upperShaftGroup = new THREE.Group();
-  upperShaftGroup.position.set(0.0, 2.35, 0.42);
-  upperShaftGroup.rotation.z = Math.PI / 2;
-
-  // Segmented friction shaft core
+  // (a) UPPER STATIONARY REWIND SHAFT (Fixed between side frames, stationary)
   const uShaftCore = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, shaftLength, 16), chromeMat);
-  upperShaftGroup.add(uShaftCore);
+  uShaftCore.rotation.z = Math.PI / 2;
+  uShaftCore.position.set(0.0, 2.35, 0.42);
+  mGroup.add(uShaftCore);
 
-  // Friction rings along shaft
-  for (let sy = -1.8; sy <= 1.8; sy += 0.18) {
-    const ring = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.11, 0.06, 16), chromeMat);
-    ring.position.y = sy;
-    upperShaftGroup.add(ring);
+  // Friction rings along upper shaft (skip where Roll 1 sits: x = 0.65, w = 0.78)
+  for (let sx = -1.8; sx <= 1.8; sx += 0.18) {
+    if (sx >= 0.65 - rollWidth / 2 && sx <= 0.65 + rollWidth / 2) continue;
+    const ring = new THREE.Mesh(new THREE.CylinderGeometry(0.105, 0.105, 0.06, 16), chromeMat);
+    ring.rotation.z = Math.PI / 2;
+    ring.position.set(sx, 2.35, 0.42);
+    mGroup.add(ring);
   }
 
-  // ROLL 1 (ม้วนสั้นที่ 1): Mounted on Upper Shaft at center-right (local y = -0.65)
+  // UPPER ROLL 1 (ม้วนสั้นที่ 1): Rotating film roll around X axis
+  const roll1Group = new THREE.Group();
+  roll1Group.position.set(0.65, 2.35, 0.42);
+  roll1Group.rotation.order = 'ZYX';
+  roll1Group.rotation.z = Math.PI / 2;
+
   const roll1Mesh = tagSelectable(new THREE.Mesh(
-    new THREE.CylinderGeometry(rollRadius, rollRadius, rollWidth, 24),
+    new THREE.CylinderGeometry(rollRadius, rollRadius, rollWidth, 26),
     rollMaterials
   ));
-  roll1Mesh.position.y = -0.65;
-  upperShaftGroup.add(roll1Mesh);
+  roll1Group.add(roll1Mesh);
 
-  // Chrome chuck collars locking Roll 1
-  [-0.65 - rollWidth / 2 - 0.03, -0.65 + rollWidth / 2 + 0.03].forEach(function (cy) {
-    const collar = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.18, 0.05, 16), chromeMat);
+  // Core chuck collars on roll ends
+  [-rollWidth / 2 - 0.02, rollWidth / 2 + 0.02].forEach(function (cy) {
+    const collar = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.16, 0.04, 16), chromeMat);
     collar.position.y = cy;
-    upperShaftGroup.add(collar);
+    roll1Group.add(collar);
   });
 
-  rollersOut.push(upperShaftGroup);
-  mGroup.add(upperShaftGroup);
+  rollersOut.push(roll1Group);
+  mGroup.add(roll1Group);
 
-  // Upper lay-on rubber roller riding on top of Roll 1
+  // Upper lay-on rubber roller riding on top of Roll 1 (stationary bracket)
   const uLayonArm = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.08, 0.45), darkSteel);
   uLayonArm.position.set(0.65, 2.82, 0.35);
   mGroup.add(uLayonArm);
@@ -282,36 +285,41 @@ function buildSlitMachine(st, rollersOut, reciprocatorsOut, extraWorkersOut) {
   uLayonRoller.position.set(0.65, 2.82, 0.48);
   mGroup.add(uLayonRoller);
 
-  // (b) LOWER REWIND SHAFT (Cantilevered segmented friction shaft at y = 1.25, z = 0.65)
-  const lowerShaftGroup = new THREE.Group();
-  lowerShaftGroup.position.set(0.0, 1.25, 0.65);
-  lowerShaftGroup.rotation.z = Math.PI / 2;
-
+  // (b) LOWER STATIONARY REWIND SHAFT (Fixed between side frames, stationary)
   const lShaftCore = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, shaftLength, 16), chromeMat);
-  lowerShaftGroup.add(lShaftCore);
+  lShaftCore.rotation.z = Math.PI / 2;
+  lShaftCore.position.set(0.0, 1.25, 0.65);
+  mGroup.add(lShaftCore);
 
-  for (let sy = -1.8; sy <= 1.8; sy += 0.18) {
-    const ring = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.11, 0.06, 16), chromeMat);
-    ring.position.y = sy;
-    lowerShaftGroup.add(ring);
+  // Friction rings along lower shaft (skip where Roll 2 sits: x = -0.65, w = 0.78)
+  for (let sx = -1.8; sx <= 1.8; sx += 0.18) {
+    if (sx >= -0.65 - rollWidth / 2 && sx <= -0.65 + rollWidth / 2) continue;
+    const ring = new THREE.Mesh(new THREE.CylinderGeometry(0.105, 0.105, 0.06, 16), chromeMat);
+    ring.rotation.z = Math.PI / 2;
+    ring.position.set(sx, 1.25, 0.65);
+    mGroup.add(ring);
   }
 
-  // ROLL 2 (ม้วนสั้นที่ 2): Staggered Duplex position at center-left (local y = +0.65)
+  // LOWER ROLL 2 (ม้วนสั้นที่ 2): Rotating film roll around X axis
+  const roll2Group = new THREE.Group();
+  roll2Group.position.set(-0.65, 1.25, 0.65);
+  roll2Group.rotation.order = 'ZYX';
+  roll2Group.rotation.z = Math.PI / 2;
+
   const roll2Mesh = tagSelectable(new THREE.Mesh(
-    new THREE.CylinderGeometry(rollRadius, rollRadius, rollWidth, 24),
+    new THREE.CylinderGeometry(rollRadius, rollRadius, rollWidth, 26),
     rollMaterials
   ));
-  roll2Mesh.position.y = 0.65;
-  lowerShaftGroup.add(roll2Mesh);
+  roll2Group.add(roll2Mesh);
 
-  [-0.65 - rollWidth / 2 - 0.03, -0.65 + rollWidth / 2 + 0.03].forEach(function (cy) {
-    const collar = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.18, 0.05, 16), chromeMat);
-    collar.position.y = -cy;
-    lowerShaftGroup.add(collar);
+  [-rollWidth / 2 - 0.02, rollWidth / 2 + 0.02].forEach(function (cy) {
+    const collar = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.16, 0.04, 16), chromeMat);
+    collar.position.y = cy;
+    roll2Group.add(collar);
   });
 
-  rollersOut.push(lowerShaftGroup);
-  mGroup.add(lowerShaftGroup);
+  rollersOut.push(roll2Group);
+  mGroup.add(roll2Group);
 
   // Lower lay-on rubber roller riding on bottom of Roll 2
   const lLayonArm = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.08, 0.45), darkSteel);
@@ -322,7 +330,7 @@ function buildSlitMachine(st, rollersOut, reciprocatorsOut, extraWorkersOut) {
   lLayonRoller.position.set(-0.65, 0.78, 0.70);
   mGroup.add(lLayonRoller);
 
-  // Tension idler guide rollers between shafts
+  // Tension idler guide rollers between shafts (stationary)
   [1.75, 2.05].forEach(function (gy) {
     const idler = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.09, 3.8, 16), rubberMat);
     idler.rotation.z = Math.PI / 2;
@@ -348,12 +356,12 @@ function buildSlitMachine(st, rollersOut, reciprocatorsOut, extraWorkersOut) {
 
   // =========================================================================
   // 6. INPUT SIDE (REAR / OPPOSITE SIDE): LARGE MASTER ROLL
-  // (User Request: "จากม้วนใหญ่ที่อยู่อีกฝั่ง")
+  // (User Request: "จากม้วนใหญ่ที่อยู่อีกฝั่ง" - ONLY roll rotates, arms & shaft stationary)
   // =========================================================================
   const masterRadius = 0.65;
   const masterWidth = 2.40;
 
-  // Unwind cantilevered side support arms extending rearward
+  // Unwind cantilevered side support arms extending rearward (stationary)
   [-1.48, 1.48].forEach(function (ux) {
     const arm = new THREE.Mesh(new THREE.BoxGeometry(0.24, 1.10, 1.40), whiteSteel);
     arm.position.set(ux, 1.35, -1.25);
@@ -366,9 +374,16 @@ function buildSlitMachine(st, rollersOut, reciprocatorsOut, extraWorkersOut) {
     mGroup.add(brakeDrum);
   });
 
-  // LARGE MASTER UNWIND ROLL
+  // Stationary core shaft through master roll
+  const masterCore = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.15, masterWidth + 0.45, 18), darkSteel);
+  masterCore.rotation.z = Math.PI / 2;
+  masterCore.position.set(0.0, 1.65, -1.55);
+  mGroup.add(masterCore);
+
+  // LARGE MASTER UNWIND ROLL (ONLY the film body rotates around X)
   const masterRollGroup = new THREE.Group();
   masterRollGroup.position.set(0.0, 1.65, -1.55);
+  masterRollGroup.rotation.order = 'ZYX';
   masterRollGroup.rotation.z = Math.PI / 2;
 
   const masterRollBody = tagSelectable(new THREE.Mesh(
@@ -377,11 +392,7 @@ function buildSlitMachine(st, rollersOut, reciprocatorsOut, extraWorkersOut) {
   ));
   masterRollGroup.add(masterRollBody);
 
-  // Extended heavy steel core shaft
-  const masterCore = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.15, masterWidth + 0.45, 18), darkSteel);
-  masterRollGroup.add(masterCore);
-
-  // Steel core chuck discs
+  // Chuck discs on roll end faces
   [-masterWidth / 2 - 0.02, masterWidth / 2 + 0.02].forEach(function (cy) {
     const disc = new THREE.Mesh(new THREE.CylinderGeometry(0.26, 0.26, 0.06, 18), chromeMat);
     disc.position.y = cy;
