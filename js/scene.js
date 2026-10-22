@@ -1079,8 +1079,12 @@
         camControl.lastY = ev.clientY;
 
         if (camControl.isPanning) {
-          camControl.desiredTarget.x -= dx * 0.14;
-          camControl.desiredTarget.z -= dy * 0.14;
+          const theta = camControl.spherical.theta;
+          const panSpeed = (camControl.spherical.radius / 118) * 0.14;
+          const sinT = Math.sin(theta);
+          const cosT = Math.cos(theta);
+          camControl.desiredTarget.x -= (cosT * dx - sinT * dy) * panSpeed;
+          camControl.desiredTarget.z -= (-sinT * dx - cosT * dy) * panSpeed;
         } else {
           camControl.desiredSpherical.theta -= dx * 0.0065;
           camControl.desiredSpherical.phi = Math.max(
