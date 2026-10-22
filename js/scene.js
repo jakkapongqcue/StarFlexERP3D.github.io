@@ -793,8 +793,8 @@
 
       scene.add(prdWhGroup);
 
-      // Build Zone 3 (Warehouse FG) Multi-Tier Industrial Storage Racks & Delivery Dock (Image 3 & 4 style)
-      for (let row = 0; row < 3; row++) {
+      // Build Zone 3 (Warehouse FG) Multi-Tier Industrial Storage Racks & Delivery Dock (4 Rows matching Reference Image media_1792688947829)
+      for (let row = 0; row < 4; row++) {
         const zPos = -13 + row * 9;
         const fgRackGroup = new THREE.Group();
         fgRackGroup.position.set(54, 0.0, zPos);
@@ -802,33 +802,53 @@
         const rackStruct = createIndustrialRackUnit(11.5, 3.6, 5.0, 0x1d4ed8, 0xf97316);
         fgRackGroup.add(rackStruct);
 
-        // Middle & Top Shelves populated with Burgundy Drums & Kraft Boxes (Reference Image)
-        // Level 2 (y = 2.40):
-        const drum1 = createBurgundyRackDrum();
-        drum1.position.set(-3.6, 2.48, -0.6);
-        fgRackGroup.add(drum1);
-        const drum2 = createBurgundyRackDrum();
-        drum2.position.set(-2.2, 2.48, -0.6);
-        fgRackGroup.add(drum2);
+        // Authentic Finished Goods Pallet Loads matching factory reference photo (media_1792688947829)
+        // Red Pallets + Stretch Wrap Film + Real FG Product Types:
+        // Type 1: Stacked Corrugated Boxes with Mango / Starflex Labels
+        // Type 2: Horizontal Finished Film Rolls with Wooden Chocks
+        // Type 3: Vertical Multi-Tier Slit Roll Columns
 
-        const box1 = createKraftRackBox();
-        box1.position.set(0.4, 2.48, 0);
-        fgRackGroup.add(box1);
-        const box2 = createKraftRackBox();
-        box2.position.set(2.2, 2.48, 0);
-        fgRackGroup.add(box2);
+        // Level 2 (y = 2.48):
+        let l2Left, l2Right;
+        if (row === 0) {
+          l2Left = createFgHorizontalRollsPallet();
+          l2Right = createFgShrinkWrappedBoxPallet('mango', 2);
+        } else if (row === 1) {
+          l2Left = createFgVerticalRollsPallet();
+          l2Right = createFgHorizontalRollsPallet();
+        } else if (row === 2) {
+          l2Left = createFgShrinkWrappedBoxPallet('mango', 3);
+          l2Right = createFgVerticalRollsPallet();
+        } else {
+          // Row 3 (New 4th Row!)
+          l2Left = createFgHorizontalRollsPallet();
+          l2Right = createFgShrinkWrappedBoxPallet('starflex', 2);
+        }
+        l2Left.position.set(-2.85, 2.48, 0);
+        l2Right.position.set(2.85, 2.48, 0);
+        fgRackGroup.add(l2Left);
+        fgRackGroup.add(l2Right);
 
-        // Level 3 (y = 3.90):
-        const topBox1 = createKraftRackBox();
-        topBox1.position.set(-3.0, 3.98, 0);
-        fgRackGroup.add(topBox1);
-
-        const topDrum1 = createBurgundyRackDrum();
-        topDrum1.position.set(1.2, 3.98, -0.6);
-        fgRackGroup.add(topDrum1);
-        const topDrum2 = createBurgundyRackDrum();
-        topDrum2.position.set(2.6, 3.98, -0.6);
-        fgRackGroup.add(topDrum2);
+        // Level 3 (y = 3.98):
+        let l3Left, l3Right;
+        if (row === 0) {
+          l3Left = createFgVerticalRollsPallet();
+          l3Right = createFgShrinkWrappedBoxPallet('starflex', 2);
+        } else if (row === 1) {
+          l3Left = createFgShrinkWrappedBoxPallet('mango', 2);
+          l3Right = createFgVerticalRollsPallet();
+        } else if (row === 2) {
+          l3Left = createFgHorizontalRollsPallet();
+          l3Right = createFgShrinkWrappedBoxPallet('starflex', 2);
+        } else {
+          // Row 3 (New 4th Row!)
+          l3Left = createFgShrinkWrappedBoxPallet('mango', 2);
+          l3Right = createFgHorizontalRollsPallet();
+        }
+        l3Left.position.set(-2.85, 3.98, 0);
+        l3Right.position.set(2.85, 3.98, 0);
+        fgRackGroup.add(l3Left);
+        fgRackGroup.add(l3Right);
 
         scene.add(fgRackGroup);
 
