@@ -330,7 +330,13 @@
       // Starflex Trailer Side Logo Texture
       const logoTexture = getStarflexTruckLogoTexture();
       const logoSideMat = logoTexture
-        ? new THREE.MeshLambertMaterial({ map: logoTexture, roughness: 0.6 })
+        ? new THREE.MeshLambertMaterial({
+            map: logoTexture,
+            roughness: 0.6,
+            polygonOffset: true,
+            polygonOffsetFactor: -2,
+            polygonOffsetUnits: -2
+          })
         : boxWhiteMat;
 
       // 1. Cargo Floor / Bed Deck
@@ -372,14 +378,14 @@
 
       // 5. Container Right Wall (East Wall facing Yard & Camera at x = +2.81)
       // Solid White Wall branded with the High-Res STARFLEX Logo and lower blue stripe!
-      const rightWallMesh = new THREE.Mesh(new THREE.PlaneGeometry(13.5, 4.72), logoSideMat);
-      rightWallMesh.position.set(2.81, 3.75, 1.1);
+      const rightWallMesh = new THREE.Mesh(new THREE.PlaneGeometry(13.56, 4.74), logoSideMat);
+      rightWallMesh.position.set(2.82, 3.75, 1.1);
       rightWallMesh.rotation.y = Math.PI / 2; // Facing East
       truck.add(rightWallMesh);
 
-      // Backing thickness slab for East wall
-      const rightWallBacking = new THREE.Mesh(new THREE.BoxGeometry(0.18, 4.74, 13.56), boxWhiteMat);
-      rightWallBacking.position.set(2.72, 3.75, 1.1);
+      // Backing thickness slab for East wall (recessed behind logo plane to eliminate Z-fighting)
+      const rightWallBacking = new THREE.Mesh(new THREE.BoxGeometry(0.14, 4.74, 13.56), boxWhiteMat);
+      rightWallBacking.position.set(2.70, 3.75, 1.1);
       truck.add(rightWallBacking);
 
       // 6. Container Left Wall (West Wall facing Forklift loading at x = -2.81)
