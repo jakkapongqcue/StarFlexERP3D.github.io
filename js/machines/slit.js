@@ -1,23 +1,18 @@
 /* =========================================================================
    StarFlexERP 3D - Machine: High-Speed Duplex Slitter Rewinder (ST_SLIT)
-   - Authentically modeled after factory photograph (media_1792684717063_6b26d993.jpg)
-   - Features:
-     1. Heavy Industrial Portal Frame with Left/Right Columns & Overhead Canopy
-     2. Red Digital LED Marquee Display: "Running Speed 004 m/min"
-     3. Left Column Vertical Blue Typography: "INTELLIGENT DIVIDING AND CUTTING"
-     4. Dual Differential Friction Rewind Shafts (Upper & Lower Duplex Rewind)
-        with metallic segmented friction collar rings & active winding slit rolls
-     5. Golden-Yellow Articulated Cantilever Swing Arm System & Black Drag Chain
-     6. Rubber Lay-On / Contact Rollers pressing against winding film
-     7. Emergency Stop Sub-Panel & Articulated Touch HMI Console Screen
-     8. Foreground Square Pallet with 3 Tiers of Slit Rolls & Cardboard Interlayers
+   - Matches Real Factory Photo (media_1792685158811_232e01a9.jpg)
+   - Unwind Side (Left / -X): 1 Large Master Film Roll (Laminated Hygiene Roll)
+   - Middle Slitting Unit: Black guide rollers, rotary slitting knives &
+     distinctive Safety Yellow swing arm with drag chain
+   - Output Side (Right / +X): 2 Short Slit Rolls (Duplex Upper & Lower Shafts)
+     with segmented chrome friction rings & split film ribbons
+   - Overhead Bridge: White arch with red digital LED "Running Speed 320 m/min"
+   - Foreground: Square pallet with 3 tiers of rolls & cardboard interlayers
    ========================================================================= */
 
-let _cachedSlitterLedTexture = null;
-let _cachedSlitterBrandTexture = null;
-
-function getSlitterSpeedLedTexture() {
-  if (_cachedSlitterLedTexture) return _cachedSlitterLedTexture;
+let _cachedSlitLedTexture = null;
+function getSlitLedDisplayTexture() {
+  if (_cachedSlitLedTexture) return _cachedSlitLedTexture;
   if (typeof document === 'undefined') return null;
 
   const canvas = document.createElement('canvas');
@@ -26,104 +21,44 @@ function getSlitterSpeedLedTexture() {
   const ctx = canvas.getContext('2d');
   if (!ctx) return null;
 
-  // Dark matte bezel enclosure
-  ctx.fillStyle = '#0a0a0c';
+  // Dark matte display screen background
+  ctx.fillStyle = '#090d16';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  // Subtle inner display glass border
-  ctx.strokeStyle = '#27272a';
-  ctx.lineWidth = 4;
-  ctx.strokeRect(4, 4, canvas.width - 8, canvas.height - 8);
-
-  // Background subtle grid of unlit LED dots
-  ctx.fillStyle = '#1c1917';
-  for (let x = 16; x < canvas.width - 16; x += 8) {
-    for (let y = 16; y < canvas.height - 16; y += 8) {
-      ctx.fillRect(x, y, 2, 2);
+  // Subtle LED matrix grid background pattern
+  ctx.fillStyle = '#141d2e';
+  for (let x = 6; x < canvas.width; x += 10) {
+    for (let y = 6; y < canvas.height; y += 10) {
+      ctx.fillRect(x, y, 3, 3);
     }
   }
 
-  // Glowing Red LED Text: "Running Speed 004 m/min"
-  ctx.save();
-  ctx.shadowColor = '#ef4444';
+  // Glowing red digital LED lettering matching real factory photo ("Running Speed 004 m/min")
+  ctx.fillStyle = '#ef4444';
+  ctx.font = 'bold 36px "Courier New", Consolas, monospace';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.shadowColor = '#dc2626';
   ctx.shadowBlur = 12;
-  ctx.fillStyle = '#f87171';
-  ctx.font = 'bold 36px "Consolas", "Courier New", monospace';
-  ctx.textBaseline = 'middle';
-  ctx.textAlign = 'center';
-  ctx.fillText('Running Speed 004 m/min', canvas.width / 2, canvas.height / 2);
-
-  // Core bright neon overlay
-  ctx.shadowBlur = 0;
-  ctx.fillStyle = '#fecaca';
-  ctx.fillText('Running Speed 004 m/min', canvas.width / 2, canvas.height / 2);
-  ctx.restore();
+  ctx.fillText('Running Speed 320 m/min', canvas.width / 2, canvas.height / 2);
 
   const texture = new THREE.CanvasTexture(canvas);
   texture.anisotropy = 4;
-  _cachedSlitterLedTexture = texture;
-  return texture;
-}
-
-function getSlitterSideBrandingTexture() {
-  if (_cachedSlitterBrandTexture) return _cachedSlitterBrandTexture;
-  if (typeof document === 'undefined') return null;
-
-  const canvas = document.createElement('canvas');
-  canvas.width = 256;
-  canvas.height = 1024;
-  const ctx = canvas.getContext('2d');
-  if (!ctx) return null;
-
-  // Dark charcoal background panel
-  ctx.fillStyle = '#1e293b';
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-  // Subtle metallic texture lines
-  ctx.strokeStyle = '#334155';
-  ctx.lineWidth = 2;
-  for (let y = 30; y < canvas.height; y += 40) {
-    ctx.beginPath();
-    ctx.moveTo(10, y);
-    ctx.lineTo(canvas.width - 10, y);
-    ctx.stroke();
-  }
-
-  // Vertical Blue Cyan Branding: "INTELLIGENT DIVIDING AND CUTTING"
-  ctx.save();
-  ctx.translate(canvas.width / 2, canvas.height / 2);
-  ctx.rotate(-Math.PI / 2); // Rotate to read vertically along the column
-
-  ctx.shadowColor = '#0284c7';
-  ctx.shadowBlur = 8;
-  ctx.fillStyle = '#38bdf8';
-  ctx.font = '900 36px "Montserrat", "Segoe UI", sans-serif';
-  ctx.textBaseline = 'middle';
-  ctx.textAlign = 'center';
-  ctx.fillText('INTELLIGENT DIVIDING AND CUTTING', 0, 0);
-
-  ctx.restore();
-
-  const texture = new THREE.CanvasTexture(canvas);
-  texture.anisotropy = 4;
-  _cachedSlitterBrandTexture = texture;
+  _cachedSlitLedTexture = texture;
   return texture;
 }
 
 function buildSlitMachine(st, rollersOut, reciprocatorsOut, extraWorkersOut) {
   const mGroup = new THREE.Group();
-
-  // Core Industrial Materials matching Reference Photo
-  const whiteSteel = new THREE.MeshLambertMaterial({ color: 0xf1f5f9 }); // Light grey-white machine frame
-  const darkSteel = new THREE.MeshLambertMaterial({ color: 0x1e293b }); // Heavy structural charcoal
-  const charcoalMat = new THREE.MeshLambertMaterial({ color: 0x334155 }); // Dark slate accent
-  const slateMat = new THREE.MeshLambertMaterial({ color: 0x64748b }); // Mid grey trim
-  const chromeMat = new THREE.MeshStandardMaterial({ color: 0xf1f5f9, metalness: 0.85, roughness: 0.20 }); // Polished chrome friction rings
-  const chromeDarkMat = new THREE.MeshStandardMaterial({ color: 0x64748b, metalness: 0.70, roughness: 0.35 }); // Alternate friction ring collars
-  const rubberMat = new THREE.MeshLambertMaterial({ color: 0x0f172a, roughness: 0.90 }); // Black rubber lay-on rollers
-  const yellowArmMat = new THREE.MeshLambertMaterial({ color: 0xeab308 }); // Golden-yellow articulated swing arm
-  const yellowAccMat = new THREE.MeshLambertMaterial({ color: 0xfacc15 }); // Bright yellow adjustment handwheel
-  const redKnobMat = new THREE.MeshLambertMaterial({ color: 0xef4444 }); // Red E-Stop mushroom button
+  const whiteSteel = new THREE.MeshLambertMaterial({ color: 0xf1f5f9 });
+  const darkSteel = new THREE.MeshLambertMaterial({ color: 0x1e293b });
+  const charcoalMat = new THREE.MeshLambertMaterial({ color: 0x334155 });
+  const slateMat = new THREE.MeshLambertMaterial({ color: 0x64748b });
+  const chromeMat = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, metalness: 0.82, roughness: 0.18 });
+  const darkChromeMat = new THREE.MeshStandardMaterial({ color: 0x64748b, metalness: 0.75, roughness: 0.35 });
+  const safetyYellowMat = new THREE.MeshLambertMaterial({ color: 0xfacc15 });
+  const redButtonMat = new THREE.MeshLambertMaterial({ color: 0xdc2626 });
+  const cyanBadgeMat = new THREE.MeshLambertMaterial({ color: 0x0284c7 });
 
   function tagSelectable(mesh) {
     mesh.userData.selectKey = st.id;
@@ -134,295 +69,18 @@ function buildSlitMachine(st, rollersOut, reciprocatorsOut, extraWorkersOut) {
   }
 
   // =========================================================================
-  // 1. HEAVY PORTAL FRAMEWORK (Gantry Structure matching Reference Photo)
+  // 1. UNWIND SIDE (LEFT / -X): 1 LARGE MASTER ROLL (ม้วนใหญ่จากฝั่ง Unwind)
+  // Matching Laminated Hygiene Roll Output (wide master web before slitting)
   // =========================================================================
-  const portalW = 4.4; // Width across X
-  const portalH = 3.6; // Height from ground
-  const portalD = 2.4; // Depth across Z
-  const frontZ = 0.55;  // Output rewind opening sits towards +Z (facing user/aisle)
+  const masterRadius = 1.25;
+  const masterWidth = 2.70;
+  const masterX = -3.70;
+  const masterY = 1.85;
+  const masterZ = -0.70;
 
-  // (a) Heavy Structural Floor Base Rails & Leveling Pads
-  const baseRailL = new THREE.Mesh(new THREE.BoxGeometry(0.80, 0.16, portalD + 0.6), whiteSteel);
-  baseRailL.position.set(-portalW / 2 + 0.35, 0.08, frontZ - portalD / 2 + 0.3);
-  mGroup.add(baseRailL);
-
-  const baseRailR = new THREE.Mesh(new THREE.BoxGeometry(0.80, 0.16, portalD + 0.6), whiteSteel);
-  baseRailR.position.set(portalW / 2 - 0.35, 0.08, frontZ - portalD / 2 + 0.3);
-  mGroup.add(baseRailR);
-
-  // Chrome sliding rods across front base (matching Photo!)
-  [-0.04, 0.08].forEach(function (zOff) {
-    const slideBar = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, portalW - 0.8, 14), chromeMat);
-    slideBar.rotation.z = Math.PI / 2;
-    slideBar.position.set(0, 0.12, frontZ + 0.15 + zOff);
-    mGroup.add(slideBar);
-  });
-
-  // (b) Left Portal Column (White heavy body with dark outer side branding panel)
-  const colW = 0.72;
-  const colD = 1.95;
-  const colH = portalH - 0.55;
-  const leftColX = -portalW / 2 + colW / 2;
-
-  const leftCol = tagSelectable(new THREE.Mesh(new THREE.BoxGeometry(colW, colH, colD), whiteSteel));
-  leftCol.position.set(leftColX, colH / 2 + 0.16, frontZ - colD / 2);
-  mGroup.add(leftCol);
-
-  // Dark slate-grey outer side panel with "INTELLIGENT DIVIDING AND CUTTING" branding
-  const brandTex = getSlitterSideBrandingTexture();
-  const brandMat = brandTex
-    ? new THREE.MeshLambertMaterial({ map: brandTex })
-    : darkSteel;
-  const brandPanel = new THREE.Mesh(new THREE.PlaneGeometry(colD - 0.1, colH - 0.3), brandMat);
-  brandPanel.position.set(leftColX - colW / 2 - 0.015, colH / 2 + 0.16, frontZ - colD / 2);
-  brandPanel.rotation.y = -Math.PI / 2; // Facing -X
-  mGroup.add(brandPanel);
-
-  // Emergency Stop / Local Control Box on front of Left Column (matching photo)
-  const eBox = new THREE.Mesh(new THREE.BoxGeometry(0.36, 0.22, 0.08), yellowArmMat);
-  eBox.position.set(leftColX + 0.08, 2.75, frontZ + 0.02);
-  mGroup.add(eBox);
-
-  const eBtn = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.045, 0.04, 12), redKnobMat);
-  eBtn.rotation.x = Math.PI / 2;
-  eBtn.position.set(leftColX + 0.16, 2.75, frontZ + 0.07);
-  mGroup.add(eBtn);
-
-  // (c) Right Portal Column (White heavy body + HMI console screen)
-  const rightColX = portalW / 2 - colW / 2;
-  const rightCol = tagSelectable(new THREE.Mesh(new THREE.BoxGeometry(colW, colH, colD), whiteSteel));
-  rightCol.position.set(rightColX, colH / 2 + 0.16, frontZ - colD / 2);
-  mGroup.add(rightCol);
-
-  // Right Operator Touch HMI Screen Console (matching photo)
-  const hmiArm = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.65, 0.12), darkSteel);
-  hmiArm.position.set(rightColX + 0.45, 2.2, frontZ - 0.2);
-  mGroup.add(hmiArm);
-
-  const hmiScreenBox = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.42, 0.08), darkSteel);
-  hmiScreenBox.position.set(rightColX + 0.45, 2.45, frontZ + 0.1);
-  hmiScreenBox.rotation.y = -0.22;
-  mGroup.add(hmiScreenBox);
-
-  const hmiScreenFace = new THREE.Mesh(new THREE.PlaneGeometry(0.48, 0.34), new THREE.MeshBasicMaterial({ color: 0x059669 }));
-  hmiScreenFace.position.set(rightColX + 0.45, 2.45, frontZ + 0.145);
-  hmiScreenFace.rotation.y = -0.22;
-  mGroup.add(hmiScreenFace);
-
-  // (d) Overhead Canopy Bridge (spanning across top of left and right columns)
-  const canopyW = portalW + 0.25;
-  const canopyH = 0.58;
-  const canopyD = colD + 0.35;
-  const canopyY = portalH - canopyH / 2;
-
-  const topCanopy = tagSelectable(new THREE.Mesh(new THREE.BoxGeometry(canopyW, canopyH, canopyD), whiteSteel));
-  topCanopy.position.set(0, canopyY, frontZ - colD / 2);
-  mGroup.add(topCanopy);
-
-  // Stepped front fascia
-  const topFascia = new THREE.Mesh(new THREE.BoxGeometry(canopyW - 0.3, canopyH - 0.08, 0.14), whiteSteel);
-  topFascia.position.set(0, canopyY, frontZ + 0.12);
-  mGroup.add(topFascia);
-
-  // (e) RED DIGITAL LED SPEED DISPLAY: "Running Speed 004 m/min" (Image Signature!)
-  const ledTex = getSlitterSpeedLedTexture();
-  const ledMat = ledTex
-    ? new THREE.MeshBasicMaterial({ map: ledTex })
-    : new THREE.MeshBasicMaterial({ color: 0xef4444 });
-
-  const ledBoxHousing = new THREE.Mesh(new THREE.BoxGeometry(2.1, 0.34, 0.06), darkSteel);
-  ledBoxHousing.position.set(0.15, canopyY, frontZ + 0.20);
-  mGroup.add(ledBoxHousing);
-
-  const ledDisplayPlane = new THREE.Mesh(new THREE.PlaneGeometry(2.0, 0.30), ledMat);
-  ledDisplayPlane.position.set(0.15, canopyY, frontZ + 0.235);
-  mGroup.add(ledDisplayPlane);
-
-  // Fluorescent LED lighting tube recessed under canopy
-  const lightFixt = new THREE.Mesh(new THREE.BoxGeometry(portalW - 1.2, 0.06, 0.12), chromeMat);
-  lightFixt.position.set(0, portalH - canopyH - 0.03, frontZ - 0.45);
-  mGroup.add(lightFixt);
-
-  const lightTube = new THREE.Mesh(new THREE.BoxGeometry(portalW - 1.4, 0.02, 0.06), new THREE.MeshBasicMaterial({ color: 0xffffff }));
-  lightTube.position.set(0, portalH - canopyH - 0.065, frontZ - 0.45);
-  mGroup.add(lightTube);
-
-  // =========================================================================
-  // 2. DUPLEX REWIND OUTPUT SECTION (Upper & Lower Differential Shafts)
-  // =========================================================================
-  const shaftSpan = portalW - colW - 0.3; // ~3.4m span across output opening
-  const shaftCenterX = (leftColX + colW / 2 + rightColX - colW / 2) / 2; // ~0.0
-  const shaftZ = frontZ - 0.35;
-
-  // Function to build segmented differential friction shaft with slip rings
-  function createDifferentialFrictionShaft(yLevel) {
-    const shaftGrp = new THREE.Group();
-    shaftGrp.position.set(shaftCenterX, yLevel, shaftZ);
-    shaftGrp.rotation.z = Math.PI / 2;
-
-    // Core chrome shaft
-    const coreCyl = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.11, shaftSpan, 18), chromeMat);
-    shaftGrp.add(coreCyl);
-
-    // Segmented differential friction collar rings along the shaft length (Image Signature!)
-    const ringSpacing = 0.10;
-    const halfSpan = shaftSpan / 2 - 0.15;
-    for (let sy = -halfSpan; sy <= halfSpan; sy += ringSpacing) {
-      const ringMat = (Math.abs(Math.sin(sy * 15)) > 0.45) ? chromeMat : chromeDarkMat;
-      const ring = new THREE.Mesh(new THREE.CylinderGeometry(0.132, 0.132, 0.055, 16), ringMat);
-      ring.position.y = sy;
-      shaftGrp.add(ring);
-    }
-    mGroup.add(shaftGrp);
-    return shaftGrp;
-  }
-
-  // (a) UPPER REWIND SHAFT & WOUND SLIT FILM ROLL (y = 2.45)
-  const upperShaft = createDifferentialFrictionShaft(2.45);
-  rollersOut.push(upperShaft);
-
-  // Active winding slit Hygiene roll on Upper Shaft (offset to right, x = +0.55, matching photo!)
-  const rollWidth = 0.65;
-  const upperRollRadius = 0.42;
-  const upperSlitRoll = createActiveFilmRollAssembly(
-    upperRollRadius,
-    rollWidth,
-    0xbe185d,
-    0xfacc15,
-    0x1e293b,
-    getHygieneFilmTexture(),
-    0xfbcfe8
-  );
-  tagSelectable(upperSlitRoll.bodyMesh);
-  upperSlitRoll.group.position.set(0.55, 2.45, shaftZ);
-  mGroup.add(upperSlitRoll.group);
-  rollersOut.push(upperSlitRoll.group);
-
-  // Upper Black Rubber Lay-on Roller pressing against winding roll
-  const upperLayonGrp = new THREE.Group();
-  upperLayonGrp.position.set(shaftCenterX, 2.75, shaftZ - 0.22);
-  upperLayonGrp.rotation.z = Math.PI / 2;
-  const upperLayon = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.09, shaftSpan - 0.4, 16), rubberMat);
-  upperLayonGrp.add(upperLayon);
-  mGroup.add(upperLayonGrp);
-  rollersOut.push(upperLayonGrp);
-
-  // (b) LOWER REWIND SHAFT & WOUND SLIT FILM ROLL (y = 1.30)
-  const lowerShaft = createDifferentialFrictionShaft(1.30);
-  rollersOut.push(lowerShaft);
-
-  // Active winding slit Hygiene roll on Lower Shaft (staggered to left, x = -0.55, matching photo!)
-  const lowerRollRadius = 0.38;
-  const lowerSlitRoll = createActiveFilmRollAssembly(
-    lowerRollRadius,
-    rollWidth,
-    0xbe185d,
-    0xfacc15,
-    0x1e293b,
-    getHygieneFilmTexture(),
-    0xfbcfe8
-  );
-  tagSelectable(lowerSlitRoll.bodyMesh);
-  lowerSlitRoll.group.position.set(-0.55, 1.30, shaftZ);
-  mGroup.add(lowerSlitRoll.group);
-  rollersOut.push(lowerSlitRoll.group);
-
-  // Lower Black Rubber Lay-on Roller pressing against lower roll
-  const lowerLayonGrp = new THREE.Group();
-  lowerLayonGrp.position.set(shaftCenterX, 1.58, shaftZ - 0.22);
-  lowerLayonGrp.rotation.z = Math.PI / 2;
-  const lowerLayon = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.09, shaftSpan - 0.4, 16), rubberMat);
-  lowerLayonGrp.add(lowerLayon);
-  mGroup.add(lowerLayonGrp);
-  rollersOut.push(lowerLayonGrp);
-
-  // =========================================================================
-  // 3. GOLDEN-YELLOW ARTICULATED CANTILEVER SWING ARM & DRAG CHAIN
-  // (Distinctive yellow lifting mechanism on left side of shafts matching photo!)
-  // =========================================================================
-  const armX = leftColX + colW / 2 + 0.12;
-
-  // Main vertical yellow arm bracket
-  const armVertical = new THREE.Mesh(new THREE.BoxGeometry(0.14, 1.85, 0.32), yellowArmMat);
-  armVertical.position.set(armX, 1.85, shaftZ);
-  mGroup.add(armVertical);
-
-  // Upper cantilever arm reach
-  const armUpper = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.28, 0.52), yellowArmMat);
-  armUpper.position.set(armX, 2.45, shaftZ + 0.18);
-  mGroup.add(armUpper);
-
-  // Lower cantilever arm reach
-  const armLower = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.28, 0.52), yellowArmMat);
-  armLower.position.set(armX, 1.30, shaftZ + 0.18);
-  mGroup.add(armLower);
-
-  // Golden-yellow adjustment handwheel / lock knob
-  const handwheel = new THREE.Mesh(new THREE.CylinderGeometry(0.13, 0.13, 0.07, 16), yellowAccMat);
-  handwheel.rotation.z = Math.PI / 2;
-  handwheel.position.set(armX + 0.09, 1.85, shaftZ + 0.12);
-  mGroup.add(handwheel);
-
-  // Chrome hydraulic/pneumatic assist cylinder
-  const cylBarrel = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 1.15, 12), chromeMat);
-  cylBarrel.position.set(armX - 0.08, 1.85, shaftZ - 0.12);
-  mGroup.add(cylBarrel);
-
-  // Black Vertical Drag-Chain / Cable Carrier (รางกระดูกงูร้อยสายไฟ matching photo!)
-  for (let cy = 0.55; cy <= 2.85; cy += 0.15) {
-    const chainLink = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.10, 0.14), darkSteel);
-    chainLink.position.set(armX - 0.16, cy, shaftZ);
-    mGroup.add(chainLink);
-  }
-
-  // =========================================================================
-  // 4. INTERMEDIATE WEB PATH & SLITTING SECTION
-  // =========================================================================
-  // Web guide roller at rear top
-  const webGuideRear = new THREE.Mesh(new THREE.CylinderGeometry(0.10, 0.10, shaftSpan, 16), chromeMat);
-  webGuideRear.rotation.z = Math.PI / 2;
-  webGuideRear.position.set(shaftCenterX, 2.10, frontZ - 1.2);
-  mGroup.add(webGuideRear);
-
-  // Center grooved slitting blade shaft with circular cutting discs
-  const knifeShaft = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.12, shaftSpan, 16), darkSteel);
-  knifeShaft.rotation.z = Math.PI / 2;
-  knifeShaft.position.set(shaftCenterX, 1.85, frontZ - 0.95);
-  mGroup.add(knifeShaft);
-
-  // 6 circular rotary slitting razor knives
-  [-1.0, -0.6, -0.2, 0.2, 0.6, 1.0].forEach(function (kx) {
-    const knife = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.24, 0.03, 16), chromeMat);
-    knife.rotation.z = Math.PI / 2;
-    knife.position.set(kx, 1.85, frontZ - 0.95);
-    mGroup.add(knife);
-  });
-
-  // Tense printed film web spans feeding into upper and lower rolls
-  const webMat = new THREE.MeshLambertMaterial({
-    map: getHygieneFilmTexture(),
-    side: THREE.DoubleSide
-  });
-
-  // Web to Upper Roll
-  const upperWeb = new THREE.Mesh(new THREE.PlaneGeometry(0.65, 0.85), webMat);
-  upperWeb.position.set(0.55, 2.15, shaftZ - 0.20);
-  upperWeb.rotation.x = Math.PI / 3.8;
-  mGroup.add(upperWeb);
-
-  // Web to Lower Roll
-  const lowerWeb = new THREE.Mesh(new THREE.PlaneGeometry(0.65, 0.75), webMat);
-  lowerWeb.position.set(-0.55, 1.55, shaftZ - 0.20);
-  lowerWeb.rotation.x = -Math.PI / 4.2;
-  mGroup.add(lowerWeb);
-
-  // =========================================================================
-  // 5. MASTER UNWIND SECTION (Rear / Infeed Side at -Z)
-  // =========================================================================
-  const unwindZ = frontZ - portalD + 0.2; // -1.65
   const masterRollObj = createActiveFilmRollAssembly(
-    1.15,
-    2.6,
+    masterRadius,
+    masterWidth,
     0xbe185d,
     0xfacc15,
     0x1e293b,
@@ -430,25 +88,254 @@ function buildSlitMachine(st, rollersOut, reciprocatorsOut, extraWorkersOut) {
     0xfbcfe8
   );
   tagSelectable(masterRollObj.bodyMesh);
-  masterRollObj.group.position.set(0.0, 1.65, unwindZ);
+  masterRollObj.group.position.set(masterX, masterY, masterZ);
   mGroup.add(masterRollObj.group);
   rollersOut.push(masterRollObj.group);
 
-  // Unwind dual side support stands
-  [-1.6, 1.6].forEach(function (ux) {
-    const uStand = new THREE.Mesh(new THREE.BoxGeometry(0.26, 1.65, 0.32), darkSteel);
-    uStand.position.set(ux, 0.825, unwindZ);
-    mGroup.add(uStand);
+  // Heavy-duty Unwind Stanchion Arms with pneumatic disc brake
+  [-2.25, 0.85].forEach(function (zArm) {
+    const standArm = new THREE.Mesh(new THREE.BoxGeometry(0.28, 2.3, 0.30), charcoalMat);
+    standArm.position.set(masterX, 1.15, zArm);
+    mGroup.add(standArm);
 
-    const brakeDisc = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.35, 0.06, 16), chromeMat);
-    brakeDisc.rotation.z = Math.PI / 2;
-    brakeDisc.position.set(ux + (ux > 0 ? 0.16 : -0.16), 1.65, unwindZ);
-    mGroup.add(brakeDisc);
+    // Brake caliper & spindle chuck
+    const chuck = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.28, 0.14, 16), chromeMat);
+    chuck.rotation.x = Math.PI / 2;
+    chuck.position.set(masterX, masterY, zArm + (zArm > 0 ? -0.16 : 0.16));
+    mGroup.add(chuck);
+  });
+
+  // Full-width Master Film Web traveling into slitter entrance
+  const masterWebIn = createFilmWebSpan(masterX + 0.3, masterY - 0.2, -1.6, 1.70, masterZ, masterWidth - 0.1, 0xbe185d, 0.92);
+  mGroup.add(masterWebIn);
+
+  // =========================================================================
+  // 2. MAIN SLITTER REWINDER ARCHITECTURE (Matching Factory Photo)
+  // Overhead White Bridge, Side Towers & Digital LED Speed Banner
+  // =========================================================================
+  const zSpanCenter = -0.70;
+  const zSpanWidth = 2.90;
+
+  // (a) Left Machine Frame Upright Cabinet (Charcoal body + White front bezel)
+  const leftTower = tagSelectable(new THREE.Mesh(new THREE.BoxGeometry(0.65, 3.8, zSpanWidth + 0.3), charcoalMat));
+  leftTower.position.set(-1.40, 1.90, zSpanCenter);
+  mGroup.add(leftTower);
+
+  const leftBezel = new THREE.Mesh(new THREE.BoxGeometry(0.08, 3.8, zSpanWidth + 0.32), whiteSteel);
+  leftBezel.position.set(-1.05, 1.90, zSpanCenter);
+  mGroup.add(leftBezel);
+
+  // Cyan vertical branding badge ("INTELLIGENT DIVIDING AND CUTTING")
+  const brandStripe = new THREE.Mesh(new THREE.BoxGeometry(0.10, 2.2, 0.14), cyanBadgeMat);
+  brandStripe.position.set(-1.03, 1.95, zSpanCenter + 0.95);
+  mGroup.add(brandStripe);
+
+  // (b) Right Machine Frame Upright Tower (White Steel)
+  const rightTower = tagSelectable(new THREE.Mesh(new THREE.BoxGeometry(0.65, 3.8, zSpanWidth + 0.3), whiteSteel));
+  rightTower.position.set(2.45, 1.90, zSpanCenter);
+  mGroup.add(rightTower);
+
+  // (c) Heavy-Duty Overhead Bridge (Arch connecting left & right towers)
+  const bridgeWidth = 3.90; // spans from x = -1.40 to +2.50
+  const bridgeBeam = tagSelectable(new THREE.Mesh(new THREE.BoxGeometry(bridgeWidth, 0.62, zSpanWidth + 0.35), whiteSteel));
+  bridgeBeam.position.set(0.52, 3.65, zSpanCenter);
+  mGroup.add(bridgeBeam);
+
+  // Chamfered top roof cap
+  const bridgeRoof = new THREE.Mesh(new THREE.BoxGeometry(bridgeWidth - 0.3, 0.22, zSpanWidth + 0.2), whiteSteel);
+  bridgeRoof.position.set(0.52, 4.02, zSpanCenter);
+  mGroup.add(bridgeRoof);
+
+  // Digital LED Speed Banner on top front face (Matching Photo: "Running Speed 004 m/min")
+  const ledTex = getSlitLedDisplayTexture();
+  const ledDisplayMat = ledTex
+    ? new THREE.MeshBasicMaterial({ map: ledTex })
+    : new THREE.MeshBasicMaterial({ color: 0x090d16 });
+
+  const ledBezel = new THREE.Mesh(new THREE.BoxGeometry(2.1, 0.44, 0.08), darkSteel);
+  ledBezel.position.set(0.55, 3.65, zSpanCenter + (zSpanWidth + 0.35) / 2 + 0.03);
+  mGroup.add(ledBezel);
+
+  const ledScreen = new THREE.Mesh(new THREE.PlaneGeometry(2.0, 0.36), ledDisplayMat);
+  ledScreen.position.set(0.55, 3.65, zSpanCenter + (zSpanWidth + 0.35) / 2 + 0.075);
+  mGroup.add(ledScreen);
+
+  // Under-bridge task lighting strip
+  const lightBar = new THREE.Mesh(new THREE.BoxGeometry(bridgeWidth - 0.8, 0.04, 0.12), new THREE.MeshBasicMaterial({ color: 0xffffff }));
+  lightBar.position.set(0.52, 3.32, zSpanCenter);
+  mGroup.add(lightBar);
+
+  // (d) Distinctive Safety Yellow Swing Arm on Left Side (Signature from Photo!)
+  const yellowArmGroup = new THREE.Group();
+  yellowArmGroup.position.set(0.20, 1.85, zSpanCenter + (zSpanWidth / 2) + 0.08);
+
+  // Main vertical yellow arm bracket
+  const yellowBeam = new THREE.Mesh(new THREE.BoxGeometry(0.18, 1.70, 0.24), safetyYellowMat);
+  yellowBeam.position.set(0, 0, 0);
+  yellowArmGroup.add(yellowBeam);
+
+  // Diagonal support bracket
+  const diagKnuckle = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.80, 0.18), safetyYellowMat);
+  diagKnuckle.position.set(-0.24, -0.42, 0);
+  diagKnuckle.rotation.z = Math.PI / 4;
+  yellowArmGroup.add(diagKnuckle);
+
+  // Black drag chain / cable carrier running along the yellow arm
+  const dragChain = new THREE.Mesh(new THREE.BoxGeometry(0.08, 1.65, 0.10), darkSteel);
+  dragChain.position.set(0.12, 0, 0);
+  yellowArmGroup.add(dragChain);
+
+  // Emergency Stop button & switch box on the arm
+  const eStopBox = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.22, 0.12), darkSteel);
+  eStopBox.position.set(-0.10, 0.65, 0.10);
+  yellowArmGroup.add(eStopBox);
+
+  const eStopBtn = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.05, 12), redButtonMat);
+  eStopBtn.rotation.x = Math.PI / 2;
+  eStopBtn.position.set(-0.10, 0.68, 0.18);
+  yellowArmGroup.add(eStopBtn);
+
+  mGroup.add(yellowArmGroup);
+
+  // =========================================================================
+  // 3. INTERNAL GUIDE ROLLERS & ROTARY SLITTING KNIVES (Web Splitting Center)
+  // =========================================================================
+  const rollerZLen = 2.70;
+  // Black rubber guide rollers spanning along Z
+  [-0.60, 0.15, 0.90].forEach(function (rx, idx) {
+    const rShaftGrp = new THREE.Group();
+    rShaftGrp.rotation.x = Math.PI / 2;
+    rShaftGrp.position.set(rx, idx === 1 ? 1.60 : 1.95, zSpanCenter);
+
+    const rShaft = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.16, rollerZLen, 16), darkSteel);
+    rShaftGrp.add(rShaft);
+
+    // Rotary slitting shear knives at center (x = 0.15)
+    if (idx === 1) {
+      // Slitting knife collars at cut lines
+      [-0.70].forEach(function (ky) {
+        const blade = new THREE.Mesh(new THREE.CylinderGeometry(0.32, 0.32, 0.08, 16), chromeMat);
+        blade.position.y = ky;
+        rShaftGrp.add(blade);
+      });
+    }
+
+    mGroup.add(rShaftGrp);
+    rollersOut.push(rShaftGrp);
   });
 
   // =========================================================================
-  // 6. FOREGROUND SQUARE PALLET WITH 3 TIERS OF SHORT ROLLS & CARDBOARD DIVIDERS
-  // (Maintained exactly as requested in previous requirement!)
+  // 4. OUTPUT REWIND SECTION (DUPLEX SHAFTS: 2 SHORT SLIT ROLLS)
+  // (ฝั่ง Output จะมีลักษณะเป็นม้วนสั้น 2 ม้วน จากม้วนใหญ่ที่อยู่อีกฝั่ง)
+  // =========================================================================
+  const rewindX = 1.75;
+  const shaftLength = 2.70;
+  const slitRollRadius = 0.62;
+  const slitRollWidth = 0.85; // Short slit roll (approx 1/3 of master width)
+
+  // Helper: Create a Segmented Chrome Differential Friction Shaft (เพลาแรงเสียดทานแบบปลอก)
+  function createFrictionShaftMesh(xPos, yPos) {
+    const shaftGrp = new THREE.Group();
+    shaftGrp.position.set(xPos, yPos, zSpanCenter);
+    shaftGrp.rotation.x = Math.PI / 2;
+
+    // Core chrome shaft
+    const coreShaft = new THREE.Mesh(new THREE.CylinderGeometry(0.13, 0.13, shaftLength, 16), chromeMat);
+    shaftGrp.add(coreShaft);
+
+    // Segmented differential friction collars (visible silver & dark rings seen in photo)
+    for (let sy = -shaftLength / 2 + 0.15; sy <= shaftLength / 2 - 0.15; sy += 0.16) {
+      const collar = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.15, 0.09, 14), (Math.round(sy * 10) % 2 === 0 ? chromeMat : darkChromeMat));
+      collar.position.y = sy;
+      shaftGrp.add(collar);
+    }
+
+    // End bearing hub & chucks
+    [-shaftLength / 2 - 0.06, shaftLength / 2 + 0.06].forEach(function (hy) {
+      const hub = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.22, 0.14, 16), chromeMat);
+      hub.position.y = hy;
+      shaftGrp.add(hub);
+    });
+
+    mGroup.add(shaftGrp);
+    return shaftGrp;
+  }
+
+  // (a) Top Rewind Friction Shaft (Upper Level: y = 2.50)
+  createFrictionShaftMesh(rewindX, 2.50);
+
+  // OUTPUT SHORT ROLL 1 (On Top Shaft, staggered toward the rear: z = -1.25)
+  const topSlitRoll = createActiveFilmRollAssembly(
+    slitRollRadius,
+    slitRollWidth,
+    0xbe185d,
+    0xfacc15,
+    0x1e293b,
+    getHygieneFilmTexture(),
+    0xfbcfe8
+  );
+  tagSelectable(topSlitRoll.bodyMesh);
+  topSlitRoll.group.position.set(rewindX, 2.50, zSpanCenter - 0.55); // z = -1.25
+  mGroup.add(topSlitRoll.group);
+  rollersOut.push(topSlitRoll.group);
+
+  // Upper Slit Film Web Ribbon: travelling from slitter knives up to the top short roll
+  const upperWebRibbon = createFilmWebSpan(
+    0.20, 1.65,
+    rewindX, 2.45,
+    zSpanCenter - 0.55,
+    slitRollWidth - 0.05,
+    0xbe185d,
+    0.92
+  );
+  mGroup.add(upperWebRibbon);
+
+  // (b) Bottom Rewind Friction Shaft (Lower Level: y = 1.45)
+  createFrictionShaftMesh(rewindX, 1.45);
+
+  // OUTPUT SHORT ROLL 2 (On Bottom Shaft, staggered toward the front: z = -0.15)
+  const bottomSlitRoll = createActiveFilmRollAssembly(
+    slitRollRadius,
+    slitRollWidth,
+    0xbe185d,
+    0xfacc15,
+    0x1e293b,
+    getHygieneFilmTexture(),
+    0xfbcfe8
+  );
+  tagSelectable(bottomSlitRoll.bodyMesh);
+  bottomSlitRoll.group.position.set(rewindX, 1.45, zSpanCenter + 0.55); // z = -0.15
+  mGroup.add(bottomSlitRoll.group);
+  rollersOut.push(bottomSlitRoll.group);
+
+  // Lower Slit Film Web Ribbon: travelling from slitter knives down to the bottom short roll
+  const lowerWebRibbon = createFilmWebSpan(
+    0.20, 1.65,
+    rewindX, 1.45,
+    zSpanCenter + 0.55,
+    slitRollWidth - 0.05,
+    0xbe185d,
+    0.92
+  );
+  mGroup.add(lowerWebRibbon);
+
+  // (c) Touchscreen HMI Operator Panel (Mounted on Right Tower)
+  const hmiArm = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.08, 0.08), chromeMat);
+  hmiArm.position.set(2.45, 2.15, zSpanCenter + zSpanWidth / 2 + 0.12);
+  mGroup.add(hmiArm);
+
+  const hmiConsole = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.38, 0.10), darkSteel);
+  hmiConsole.position.set(2.45, 2.25, zSpanCenter + zSpanWidth / 2 + 0.22);
+  hmiConsole.rotation.y = -0.15;
+  mGroup.add(hmiConsole);
+
+  const hmiScreen = new THREE.Mesh(new THREE.BoxGeometry(0.48, 0.30, 0.01), new THREE.MeshBasicMaterial({ color: 0x0284c7 }));
+  hmiScreen.position.set(2.45, 2.25, zSpanCenter + zSpanWidth / 2 + 0.275);
+  hmiScreen.rotation.y = -0.15;
+  mGroup.add(hmiScreen);
+
+  // =========================================================================
+  // 5. FOREGROUND SQUARE PALLET (3 Tiers of Rolls & Cardboard Interlayers)
   // =========================================================================
   const palletSize = 2.1;
   const palletDeckH = 0.08;
@@ -495,7 +382,7 @@ function buildSlitMachine(st, rollersOut, reciprocatorsOut, extraWorkersOut) {
     return sheet;
   }
 
-  // Shorter slit rolls
+  // Shorter slit rolls (adjusted height as requested)
   const rollRadius = 0.35;
   const rollHeight = 0.45; // Shorter roll height
   const rollGeo = new THREE.CylinderGeometry(rollRadius, rollRadius, rollHeight, 22);
@@ -517,6 +404,7 @@ function buildSlitMachine(st, rollersOut, reciprocatorsOut, extraWorkersOut) {
   let currentY = palletTotalH; // 0.16
 
   for (let tier = 0; tier < 3; tier++) {
+    // Cardboard interlayer sheet (placed on base pallet and between tiers)
     const sheetY = currentY + sheetThick / 2;
     createCardboardInterlayer(sheetY);
     currentY += sheetThick;
@@ -527,7 +415,7 @@ function buildSlitMachine(st, rollersOut, reciprocatorsOut, extraWorkersOut) {
       gridOffsets.forEach(function (oz, cIdx) {
         const roll = new THREE.Mesh(rollGeo, rollMaterials);
         roll.position.set(palX + ox, rollCenterY, palZ + oz);
-        roll.rotation.y = tier * 1.8 + rIdx * 2.2 + cIdx * 1.4;
+        roll.rotation.y = tier * 1.8 + rIdx * 2.2 + cIdx * 1.4; // Varied orientation
         roll.castShadow = true;
         roll.receiveShadow = true;
         mGroup.add(roll);
@@ -542,7 +430,9 @@ function buildSlitMachine(st, rollersOut, reciprocatorsOut, extraWorkersOut) {
     currentY += rollHeight;
   }
 
-  // 7. Blue Control Kiosk at Front-Left resting on floor
+  // =========================================================================
+  // 6. CONTROL KIOSK & SURROUNDINGS
+  // =========================================================================
   const slitKiosk = createBlueControlKioskMesh();
   slitKiosk.position.set(-2.9, 0.0, 2.05);
   mGroup.add(slitKiosk);
