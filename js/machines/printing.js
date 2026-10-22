@@ -35,6 +35,11 @@ function buildPrintingMachine(st, rollersOut, reciprocatorsOut, extraWorkersOut)
         redRailBack.position.set(0, 5.2, -1.68);
         mGroup.add(redRailBack);
 
+        // Heavy steel machine base chassis resting on the floor
+        const baseBed = new THREE.Mesh(new THREE.BoxGeometry(8.0, 0.42, 2.4), darkSteel);
+        baseBed.position.set(0, 0.21, -0.4);
+        mGroup.add(baseBed);
+
         [-3.2, -1.6, 0, 1.6, 3.2].forEach(function (ux) {
           const tower = tagSelectable(new THREE.Mesh(new THREE.BoxGeometry(1.15, 3.6, 2.4), whiteSteel));
           tower.position.set(ux, 2.2, -0.4);

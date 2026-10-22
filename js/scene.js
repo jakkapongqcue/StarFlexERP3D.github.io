@@ -189,66 +189,8 @@
     function buildFactoryScene() {
       scene.background = new THREE.Color(getCssVar('--scene-sky', '#e8eff7'));
 
-      const groundGeo = new THREE.PlaneGeometry(280, 140);
-      const groundMat = new THREE.MeshLambertMaterial({ color: getCssVar('--scene-ground', '#dde5ef') });
-      const groundMesh = new THREE.Mesh(groundGeo, groundMat);
-      groundMesh.rotation.x = -Math.PI / 2;
-      groundMesh.position.y = -0.15;
-      groundMesh.receiveShadow = true;
-      scene.add(groundMesh);
-      sceneObjects.floorGround = groundMesh;
-
-      const zoneColorVars = {
-        ZONE_RM:     { floor: '--zone-rm-floor',  border: '--zone-rm-border' },
-        ZONE_PRD:    { floor: '--zone-prd-floor', border: '--zone-prd-border' },
-        ZONE_PRD_WH: { floor: '--zone-prd-floor', border: '--zone-prd-border' },
-        ZONE_FG:     { floor: '--zone-fg-floor',  border: '--zone-fg-border' }
-      };
-
-      Object.keys(ZONES_CONFIG).forEach(function (zKey) {
-        const zCfg = ZONES_CONFIG[zKey];
-        const fMesh = new THREE.Mesh(
-          new THREE.BoxGeometry(zCfg.size[0], 0.2, zCfg.size[1]),
-          new THREE.MeshLambertMaterial({ color: getCssVar(zoneColorVars[zKey].floor, '#dbeafe') })
-        );
-        fMesh.position.set(zCfg.center[0], 0, zCfg.center[2]);
-        fMesh.receiveShadow = true;
-        fMesh.userData.selectKey = zKey;
-        scene.add(fMesh);
-        sceneObjects.zoneFloors[zKey] = fMesh;
-        sceneObjects.selectableMeshes.push(fMesh);
-
-        const edges = new THREE.EdgesGeometry(new THREE.BoxGeometry(zCfg.size[0] + 0.3, 0.35, zCfg.size[1] + 0.3));
-        const line = new THREE.LineSegments(
-          edges,
-          new THREE.LineBasicMaterial({ color: getCssVar(zoneColorVars[zKey].border, '#3b82f6') })
-        );
-        line.position.set(zCfg.center[0], 0.15, zCfg.center[2]);
-        scene.add(line);
-        sceneObjects.zoneBorders[zKey] = line;
-
-        const labelHtml = (zKey === 'ZONE_PRD_WH')
-          ? '<span class="mat-dot" style="background:#94a3b8;"></span>PRD WH'
-          : zCfg.name;
-        const labelY = (zKey === 'ZONE_PRD_WH') ? 4.8 : 8.8;
-        const labelZ = (zKey === 'ZONE_PRD_WH') ? 5.2 : (zCfg.center[2] - zCfg.size[1] / 2 + 2);
-        registerLabel3D(
-          labelHtml,
-          new THREE.Vector3(zCfg.center[0], labelY, labelZ),
-          'tag-zone',
-          zKey
-        );
-      });
-
-      // Central Transit Corridor across concrete floor at z = 0.0 (Dashed yellow center dividing line between East/West lanes)
-      for (let xDash = -63; xDash <= 65; xDash += 5.0) {
-        const dash = new THREE.Mesh(
-          new THREE.BoxGeometry(2.8, 0.03, 0.22),
-          new THREE.MeshLambertMaterial({ color: 0xfacc15 })
-        );
-        dash.position.set(xDash, 0.12, 0);
-        scene.add(dash);
-      }
+      // Build unified concrete industrial floor, flush zone slabs, safety demarcations & highway
+      buildFactoryFloorSystem(scene, ZONES_CONFIG, sceneObjects, getCssVar, registerLabel3D);
 
       /* =========================================================================
          BUILD ZONE 1: RM WH (4 SUB-WAREHOUSES MATCHING REFERENCE IMAGE)
@@ -267,32 +209,9 @@
       const bluePostMat = new THREE.MeshLambertMaterial({ color: 0x1d4ed8 });
       const orangeBeamMat = new THREE.MeshLambertMaterial({ color: 0xf97316 });
 
-      // Helper: Draw rectangular yellow border line on concrete floor
+      // Helper: Draw rectangular yellow border line on concrete floor using reusable floor module
       function addFloorRect(xMin, xMax, zMin, zMax) {
-        const w = xMax - xMin;
-        const d = zMax - zMin;
-        const xC = (xMin + xMax) / 2;
-        const zC = (zMin + zMax) / 2;
-        const thick = 0.22;
-        const h = 0.03;
-        const y = 0.13;
-
-        // North
-        const lN = new THREE.Mesh(new THREE.BoxGeometry(w, h, thick), rmLineMat);
-        lN.position.set(xC, y, zMin);
-        rmGroup.add(lN);
-        // South
-        const lS = new THREE.Mesh(new THREE.BoxGeometry(w, h, thick), rmLineMat);
-        lS.position.set(xC, y, zMax);
-        rmGroup.add(lS);
-        // West
-        const lW = new THREE.Mesh(new THREE.BoxGeometry(thick, h, d), rmLineMat);
-        lW.position.set(xMin, y, zC);
-        rmGroup.add(lW);
-        // East
-        const lE = new THREE.Mesh(new THREE.BoxGeometry(thick, h, d), rmLineMat);
-        lE.position.set(xMax, y, zC);
-        rmGroup.add(lE);
+        rmGroup.add(createFlatFloorRect(xMin, xMax, zMin, zMax, 0xfacc15, 0.22, 0.015));
       }
 
       // Yellow boundary boxes for the 4 quadrants (matching reference image)
@@ -302,15 +221,18 @@
       addFloorRect(-61, -47,   3, 20); // Resin & Film Storage (SE)
 
       // Center cross-aisle dividing lines
-      const eWLine1 = new THREE.Mesh(new THREE.BoxGeometry(33, 0.03, 0.16), rmLineMat);
-      eWLine1.position.set(-63, 0.13, -0.3);
+      const eWLine1 = new THREE.Mesh(new THREE.BoxGeometry(33, 0.01, 0.16), rmLineMat);
+      eWLine1.position.set(-63, 0.015, -0.3);
+      eWLine1.receiveShadow = true;
       rmGroup.add(eWLine1);
-      const eWLine2 = new THREE.Mesh(new THREE.BoxGeometry(33, 0.03, 0.16), rmLineMat);
-      eWLine2.position.set(-63, 0.13, 0.3);
+      const eWLine2 = new THREE.Mesh(new THREE.BoxGeometry(33, 0.01, 0.16), rmLineMat);
+      eWLine2.position.set(-63, 0.015, 0.3);
+      eWLine2.receiveShadow = true;
       rmGroup.add(eWLine2);
 
-      const nSLine = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.03, 40), rmLineMat);
-      nSLine.position.set(-63, 0.13, 0);
+      const nSLine = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.01, 40), rmLineMat);
+      nSLine.position.set(-63, 0.015, 0);
+      nSLine.receiveShadow = true;
       rmGroup.add(nSLine);
 
       // 4 Main 3D Floating Tags (matching reference image pills)
@@ -321,7 +243,7 @@
 
       // 1. CYLINDER WH (NW Quadrant: Selective rack + 8 vertical black cylinders)
       const cylRackGroup = new THREE.Group();
-      cylRackGroup.position.set(-72, 0.1, -11.5);
+      cylRackGroup.position.set(-72, 0.0, -11.5);
 
       // 4 Blue upright corner posts
       [[-3.8, -3.2], [3.8, -3.2], [-3.8, 3.2], [3.8, 3.2]].forEach(function (pt) {
@@ -373,7 +295,7 @@
 
       // 2. CHEMICAL WH (NE Quadrant: 4 dark drums + 2 green drums + 4 yellow/orange drums)
       const chemGroup = new THREE.Group();
-      chemGroup.position.set(-54, 0.1, -11.5);
+      chemGroup.position.set(-54, 0.0, -11.5);
 
       // (a) 4 Large Navy / Dark Slate Drums (2x2 grid at back-left: Base Ink & Solvent)
       const navyMat = new THREE.MeshLambertMaterial({ color: 0x1e293b });
@@ -436,7 +358,7 @@
 
       // 3. SUPPLIES USED WH (SW Quadrant: Industrial Rack Row with Paper Cores + Floor Box Stacks matching User Reference Image)
       const supGroup = new THREE.Group();
-      supGroup.position.set(-72, 0.1, 11.5);
+      supGroup.position.set(-72, 0.0, 11.5);
 
       // (a) Industrial Multi-Tier Storage Rack (1 Row of Racks on the Left side, local x = -3.2, z = 0.0)
       const supRack = new THREE.Group();
@@ -564,7 +486,7 @@
 
       // 4. RESIN & FILM STORAGE (SE Quadrant: Stacked resin sacks + 6 vertical standing film rolls)
       const rfGroup = new THREE.Group();
-      rfGroup.position.set(-54, 0.1, 11.5);
+      rfGroup.position.set(-54, 0.0, 11.5);
 
       // (a) Polymer Resin Bags (Realistic horizontal sacks stacked on wooden pallets matching user reference)
       const resinMeshes = [];
@@ -622,7 +544,7 @@
       // Build Zone 2: 7 PRD Process Stations in 2 Rows with dedicated Infeed & Outfeed bays (User Request)
       STATIONS_CONFIG.forEach(function (st) {
         const stGroup = new THREE.Group();
-        stGroup.position.set(st.pos[0], 0.1, st.pos[2]);
+        stGroup.position.set(st.pos[0], 0.0, st.pos[2]);
 
         const isRow1 = (st.pos[2] < 0);
 
@@ -665,7 +587,7 @@
           workerX = 0.8;
         }
         const worker = createWorkerMesh(workerColor, 0xfacc15);
-        worker.position.set(workerX, 0.35, workerZ);
+        worker.position.set(workerX, 0.0, workerZ);
         worker.rotation.y = isRow1 ? Math.PI : 0;
         stGroup.add(worker);
 
@@ -710,7 +632,7 @@
 
       // Build PRD WH (Production Warehouse & Curing Area) in Row 2, Column 2 at x = -10, z = +12 (Reference Image Layout)
       const prdWhGroup = new THREE.Group();
-      prdWhGroup.position.set(-10, 0.1, 12);
+      prdWhGroup.position.set(-10, 0.0, 12);
 
       // Pair of hollow bright yellow floor demarcation boxes facing Central Transit Corridor at world z = +5.2 (local z = -6.8)
       // Left yellow box (Infeed from Printing / Laminate)
@@ -723,17 +645,18 @@
 
       // Standing PRD WH Operator standing behind the yellow boxes facing the central corridor
       const prdWorker = createWorkerMesh(0xfacc15, 0xffffff);
-      prdWorker.position.set(0, 0.35, -4.8);
+      prdWorker.position.set(0, 0.0, -4.8);
       prdWorker.rotation.y = 0; // facing North towards corridor
       prdWhGroup.add(prdWorker);
 
-      // Bright Yellow Equipment Base Pad directly under the dual industrial racks (Matching Reference Image)
-      const prdPadGeo = new THREE.BoxGeometry(12.8, 0.04, 4.4);
+      // Bright Yellow Equipment Base Pad covering selective racks and curing roll rack row
+      const prdPadGeo = new THREE.BoxGeometry(14.8, 0.015, 5.6);
       const prdYellowPad = new THREE.Mesh(
         prdPadGeo,
         new THREE.MeshLambertMaterial({ color: 0xfacc15 })
       );
-      prdYellowPad.position.set(0, 0.02, 1.2);
+      prdYellowPad.position.set(0, 0.006, 2.25);
+      prdYellowPad.receiveShadow = true;
       prdYellowPad.userData.selectKey = 'ZONE_PRD_WH';
       prdWhGroup.add(prdYellowPad);
       sceneObjects.selectableMeshes.push(prdYellowPad);
@@ -763,14 +686,47 @@
         return grp;
       }
 
+      // Helper: Euro Pallet with Kraft Carton Boxes (Top Tier Storage)
+      function createEuroPalletWithBoxes() {
+        const grp = new THREE.Group();
+        const woodMat = new THREE.MeshLambertMaterial({ color: 0xd4a373 });
+        const pallet = new THREE.Mesh(new THREE.BoxGeometry(2.1, 0.14, 1.9), woodMat);
+        pallet.position.y = 0.07;
+        grp.add(pallet);
+        const kBox = createKraftRackBox();
+        kBox.position.set(0, 0.14, 0);
+        grp.add(kBox);
+        return grp;
+      }
+
+      // Helper: Euro Pallet with Standing Paper Cores (Top Tier Storage)
+      function createEuroPalletWithCores() {
+        const grp = new THREE.Group();
+        const woodMat = new THREE.MeshLambertMaterial({ color: 0xd4a373 });
+        const pallet = new THREE.Mesh(new THREE.BoxGeometry(2.1, 0.14, 1.9), woodMat);
+        pallet.position.y = 0.07;
+        grp.add(pallet);
+        const coreMat = new THREE.MeshLambertMaterial({ color: 0x94a3b8 });
+        const holeMat = new THREE.MeshLambertMaterial({ color: 0x0f172a });
+        [[-0.45, -0.4], [0.45, -0.4], [-0.45, 0.4], [0.45, 0.4]].forEach(function (cp) {
+          const core = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.24, 0.95, 14), coreMat);
+          core.position.set(cp[0], 0.14 + 0.475, cp[1]);
+          grp.add(core);
+          const hole = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.12, 0.02, 12), holeMat);
+          hole.position.set(cp[0], 0.14 + 0.96, cp[1]);
+          grp.add(hole);
+        });
+        return grp;
+      }
+
       // Dual Side-by-Side Selective Industrial Racks (Facing forward, matching Reference Image)
       // Rack 1 (Left Rack)
       const prdRack1 = createIndustrialRackUnit(5.2, 2.6, 3.8, 0x1d4ed8, 0xf97316, 2);
-      prdRack1.position.set(-3.2, 0.04, 1.2);
+      prdRack1.position.set(-3.2, 0.0, 1.0);
       prdRack1.rotation.y = 0;
       prdWhGroup.add(prdRack1);
 
-      // Rack 1 Lower Tier: Two pallets with Burgundy drums
+      // Rack 1 Lower Tier (y = 0.93): Two pallets with Burgundy drums
       const pal1L = createEuroPalletWithDrums(2);
       pal1L.position.set(-1.25, 0.93, 0);
       prdRack1.add(pal1L);
@@ -779,13 +735,22 @@
       pal1R.position.set(1.25, 0.93, 0);
       prdRack1.add(pal1R);
 
+      // Rack 1 Upper Tier (y = 2.73): Pallet with Boxes & Pallet with Cores (User Request 1)
+      const palTop1L = createEuroPalletWithBoxes();
+      palTop1L.position.set(-1.25, 2.73, 0);
+      prdRack1.add(palTop1L);
+
+      const palTop1R = createEuroPalletWithCores();
+      palTop1R.position.set(1.25, 2.73, 0);
+      prdRack1.add(palTop1R);
+
       // Rack 2 (Right Rack)
       const prdRack2 = createIndustrialRackUnit(5.2, 2.6, 3.8, 0x1d4ed8, 0xf97316, 2);
-      prdRack2.position.set(3.2, 0.04, 1.2);
+      prdRack2.position.set(3.2, 0.0, 1.0);
       prdRack2.rotation.y = 0;
       prdWhGroup.add(prdRack2);
 
-      // Rack 2 Lower Tier: Two pallets with Burgundy drums
+      // Rack 2 Lower Tier (y = 0.93): Two pallets with Burgundy drums
       const pal2L = createEuroPalletWithDrums(2);
       pal2L.position.set(-1.25, 0.93, 0);
       prdRack2.add(pal2L);
@@ -794,9 +759,18 @@
       pal2R.position.set(1.25, 0.93, 0);
       prdRack2.add(pal2R);
 
+      // Rack 2 Upper Tier (y = 2.73): Pallet with Drums & Pallet with Boxes (User Request 1)
+      const palTop2L = createEuroPalletWithDrums(2);
+      palTop2L.position.set(-1.25, 2.73, 0);
+      prdRack2.add(palTop2L);
+
+      const palTop2R = createEuroPalletWithBoxes();
+      palTop2R.position.set(1.25, 2.73, 0);
+      prdRack2.add(palTop2R);
+
       // Staging Roll Stand on Left with Flexible Packaging Printed Film Roll (Matching Reference Image)
       const rollStand = new THREE.Group();
-      rollStand.position.set(-7.2, 0.04, 1.2);
+      rollStand.position.set(-7.2, 0.0, 1.0);
 
       const standMat = new THREE.MeshLambertMaterial({ color: 0x1e293b });
       const standBase = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.28, 2.2), standMat);
@@ -834,13 +808,27 @@
       rollStand.add(prdRollShaft);
 
       prdWhGroup.add(rollStand);
+
+      // High-Bay Roll Curing Rack Row (Suspended horizontal master rolls)
+      const curingRackRow1 = createRollCuringRackRow({
+        baysCount: 4,
+        tiersCount: 4,
+        bayWidth: 2.6,
+        depth: 1.85,
+        height: 4.8,
+        uprightColor: 0x1d4ed8,
+        beamColor: 0xf97316
+      });
+      curingRackRow1.position.set(0, 0.0, 3.8);
+      prdWhGroup.add(curingRackRow1);
+
       scene.add(prdWhGroup);
 
       // Build Zone 3 (Warehouse FG) Multi-Tier Industrial Storage Racks & Delivery Dock (Image 3 & 4 style)
       for (let row = 0; row < 3; row++) {
         const zPos = -13 + row * 9;
         const fgRackGroup = new THREE.Group();
-        fgRackGroup.position.set(54, 0.1, zPos);
+        fgRackGroup.position.set(54, 0.0, zPos);
 
         const rackStruct = createIndustrialRackUnit(11.5, 3.6, 5.0, 0x1d4ed8, 0xf97316);
         fgRackGroup.add(rackStruct);
@@ -891,20 +879,24 @@
       const stallWhiteMat  = new THREE.MeshLambertMaterial({ color: 0xf8fafc });
 
       // Staging / Parking box border lines around truck at x = 81, z = -4
-      const lineN = new THREE.Mesh(new THREE.BoxGeometry(8.2, 0.03, 0.22), stallBorderMat);
-      lineN.position.set(81, 0.13, -12);
+      const lineN = new THREE.Mesh(new THREE.BoxGeometry(8.2, 0.01, 0.22), stallBorderMat);
+      lineN.position.set(81, 0.015, -12);
+      lineN.receiveShadow = true;
       truckYardGroup.add(lineN);
 
-      const lineS = new THREE.Mesh(new THREE.BoxGeometry(8.2, 0.03, 0.22), stallBorderMat);
-      lineS.position.set(81, 0.13, 8);
+      const lineS = new THREE.Mesh(new THREE.BoxGeometry(8.2, 0.01, 0.22), stallBorderMat);
+      lineS.position.set(81, 0.015, 8);
+      lineS.receiveShadow = true;
       truckYardGroup.add(lineS);
 
-      const lineE = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.03, 20.2), stallBorderMat);
-      lineE.position.set(85.1, 0.13, -2);
+      const lineE = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.01, 20.2), stallBorderMat);
+      lineE.position.set(85.1, 0.015, -2);
+      lineE.receiveShadow = true;
       truckYardGroup.add(lineE);
 
-      const lineW = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.03, 20.2), stallBorderMat);
-      lineW.position.set(76.9, 0.13, -2);
+      const lineW = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.01, 20.2), stallBorderMat);
+      lineW.position.set(76.9, 0.015, -2);
+      lineW.receiveShadow = true;
       truckYardGroup.add(lineW);
 
       // Yellow wheel stop curbs on concrete behind truck rear
@@ -1002,14 +994,13 @@
         scene.add(cluster);
       }
 
-      // 3 Exterior Perimeter Spots (Northwest, Northeast, and South)
+      // 2 Exterior Perimeter Spots (Northwest and Northeast) - Front (South) removed per user request
       createPerimeterTreeCluster(-65, -33, 0.2);   // Spot 1: Northwest exterior (behind RM WH)
       createPerimeterTreeCluster( 65, -33, -0.4);  // Spot 2: Northeast exterior (behind Warehouse FG)
-      createPerimeterTreeCluster(  0,  35, 1.1);   // Spot 3: South exterior (front perimeter garden)
 
       // Container Truck parked on level concrete floor (Direct forklift loading)
       const truck = createContainerTruckMesh();
-      truck.position.set(81, 0.12, -4);
+      truck.position.set(81, 0.0, -4);
       scene.add(truck);
       sceneObjects.containerTruck = truck;
 
@@ -1032,21 +1023,21 @@
       // Material Handling Fleet placed along dedicated Central Transit Corridor lanes
       // Westbound North Lane (z = -1.8) for RM Forklift; Eastbound South Lane (z = +1.8) for Hand Pallet Truck
       sceneObjects.rmForklift = createForkliftMesh(0xf59e0b);
-      sceneObjects.rmForklift.position.set(-45, 0.15, -1.8);
+      sceneObjects.rmForklift.position.set(-45, 0.0, -1.8);
       sceneObjects.rmForklift.rotation.y = Math.PI; // facing West
       scene.add(sceneObjects.rmForklift);
 
       sceneObjects.fgForklift = createForkliftMesh(0x10b981);
-      sceneObjects.fgForklift.position.set(45, 0.15, 1.8);
+      sceneObjects.fgForklift.position.set(45, 0.0, 1.8);
       sceneObjects.fgForklift.rotation.y = 0; // facing East
       scene.add(sceneObjects.fgForklift);
 
       sceneObjects.deliveryForklift = createForkliftMesh(0x3b82f6);
-      sceneObjects.deliveryForklift.position.set(63, 0.15, -4);
+      sceneObjects.deliveryForklift.position.set(63, 0.0, -4);
       scene.add(sceneObjects.deliveryForklift);
 
       sceneObjects.handPalletTruck = createHandPalletTruckMesh();
-      sceneObjects.handPalletTruck.position.set(-10, 0.15, 1.8);
+      sceneObjects.handPalletTruck.position.set(-10, 0.0, 1.8);
       sceneObjects.handPalletTruck.rotation.y = 0; // facing East
       scene.add(sceneObjects.handPalletTruck);
 

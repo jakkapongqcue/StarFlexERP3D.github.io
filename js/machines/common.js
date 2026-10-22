@@ -143,7 +143,7 @@
       const halfSpan = rollWidth / 2 + 0.16;
       [zCenter - halfSpan, zCenter + halfSpan].forEach(function (zArm) {
         const post = new THREE.Mesh(new THREE.BoxGeometry(0.32, height, 0.24), standMat);
-        post.position.set(xPos, 0.35 + height / 2, zArm);
+        post.position.set(xPos, height / 2, zArm);
         grp.add(post);
 
         const bearingCap = new THREE.Mesh(
@@ -151,7 +151,7 @@
           new THREE.MeshLambertMaterial({ color: 0xf59e0b })
         );
         bearingCap.rotation.x = Math.PI / 2;
-        bearingCap.position.set(xPos, 0.35 + height - 0.18, zArm);
+        bearingCap.position.set(xPos, height - 0.18, zArm);
         grp.add(bearingCap);
       });
       return grp;

@@ -36,47 +36,47 @@ function buildBagMachine(st, rollersOut, reciprocatorsOut, extraWorkersOut) {
           // Unwind roll matching Slit Hygiene Roll output (Hygiene Pattern + Blush Pink Faces)
           const uRoll = createActiveFilmRollAssembly(0.85, 1.55, 0xbe185d, 0xfacc15, 0x1e293b, getHygieneFilmTexture(), 0xfbcfe8);
           tagSelectable(uRoll.bodyMesh);
-          uRoll.group.position.set(-4.3, 1.35, zLane);
+          uRoll.group.position.set(-4.3, 1.00, zLane);
           mGroup.add(uRoll.group);
           rollersOut.push(uRoll.group);
           sceneObjects.dynamicRollRefs.bagUnwindRolls.push(uRoll);
 
-          // Coral-pink stepped forming housing
+          // Coral-pink stepped forming housing resting on floor
           const pinkBox = tagSelectable(new THREE.Mesh(new THREE.BoxGeometry(2.1, 1.65, 1.65), pinkChamberMat));
-          pinkBox.position.set(-2.3, 1.18, zLane);
+          pinkBox.position.set(-2.3, 0.83, zLane);
           mGroup.add(pinkBox);
           const pinkTop = new THREE.Mesh(new THREE.BoxGeometry(1.3, 0.42, 1.15), pinkChamberMat);
-          pinkTop.position.set(-2.3, 2.2, zLane);
+          pinkTop.position.set(-2.3, 1.85, zLane);
           mGroup.add(pinkTop);
 
           // Pair of dark vertical sealing bars with glowing orange top strips
           [-0.75, -0.05].forEach(function (sx) {
             const barGroup = new THREE.Group();
-            barGroup.position.set(sx, 1.25, zLane);
+            barGroup.position.set(sx, 0.90, zLane);
             const barBody = new THREE.Mesh(new THREE.BoxGeometry(0.38, 1.5, 1.65), darkSteel);
             barGroup.add(barBody);
             const orangeStrip = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.12, 1.45), orangeStripMat);
             orangeStrip.position.y = 0.80;
             barGroup.add(orangeStrip);
             mGroup.add(barGroup);
-            reciprocatorsOut.push({ mesh: barGroup, baseY: 1.25 });
+            reciprocatorsOut.push({ mesh: barGroup, baseY: 0.90 });
           });
 
-          // Grey flat outfeed table
+          // Grey flat outfeed table resting on floor
           const tableBase = new THREE.Mesh(new THREE.BoxGeometry(2.6, 0.75, 1.35), darkSteel);
-          tableBase.position.set(1.85, 0.72, zLane);
+          tableBase.position.set(1.85, 0.38, zLane);
           mGroup.add(tableBase);
           const tableTop = tagSelectable(new THREE.Mesh(new THREE.BoxGeometry(2.8, 0.18, 1.55), tableGreyMat));
-          tableTop.position.set(1.85, 1.18, zLane);
+          tableTop.position.set(1.85, 0.83, zLane);
           mGroup.add(tableTop);
 
           // Outfeed guide rails
           const railMat = new THREE.MeshLambertMaterial({ color: 0x64748b });
           const railBack = new THREE.Mesh(new THREE.BoxGeometry(2.8, 0.08, 0.04), railMat);
-          railBack.position.set(1.85, 1.31, zLane - 0.65);
+          railBack.position.set(1.85, 0.96, zLane - 0.65);
           mGroup.add(railBack);
           const railFront = new THREE.Mesh(new THREE.BoxGeometry(2.8, 0.08, 0.04), railMat);
-          railFront.position.set(1.85, 1.31, zLane + 0.65);
+          railFront.position.set(1.85, 0.96, zLane + 0.65);
           mGroup.add(railFront);
 
           // FINISHED HYGIENE REFILL POUCHES COMING OUT OF BAG MAKING MACHINE:
@@ -88,7 +88,7 @@ function buildBagMachine(st, rollersOut, reciprocatorsOut, extraWorkersOut) {
               height: 0.58,
               depth: 0.085
             });
-            pouch.position.set(px, 1.27, zLane + (pIdx % 2 === 0 ? 0.08 : -0.08));
+            pouch.position.set(px, 0.92, zLane + (pIdx % 2 === 0 ? 0.08 : -0.08));
             pouch.rotation.y = (pIdx % 2 === 0 ? 0.05 : -0.05);
             pouch.rotation.z = -0.05;
             mGroup.add(pouch);
@@ -96,7 +96,7 @@ function buildBagMachine(st, rollersOut, reciprocatorsOut, extraWorkersOut) {
 
           // Outfeed collection carton box at right end of each conveyor
           const endBox = new THREE.Mesh(new THREE.BoxGeometry(1.15, 0.75, 1.25), cartonBeigeMat);
-          endBox.position.set(3.9, 0.72, zLane);
+          endBox.position.set(3.9, 0.38, zLane);
           mGroup.add(endBox);
 
           // Finished Hygiene pouches stacked inside the carton box at end of conveyor
@@ -107,27 +107,27 @@ function buildBagMachine(st, rollersOut, reciprocatorsOut, extraWorkersOut) {
               height: 0.52,
               depth: 0.08
             });
-            boxPouch.position.set(3.72 + row * 0.16, 0.96, zLane);
+            boxPouch.position.set(3.72 + row * 0.16, 0.61, zLane);
             boxPouch.rotation.z = -0.16;
             mGroup.add(boxPouch);
           }
         });
 
-        // 3 Beige Carton Boxes along front-left edge
+        // 3 Beige Carton Boxes along front-left edge resting on floor
         [-3.8, -2.5, -1.2].forEach(function (bx) {
           const fBox = new THREE.Mesh(new THREE.BoxGeometry(1.05, 0.82, 1.05), cartonBeigeMat);
-          fBox.position.set(bx, 0.76, 2.45);
+          fBox.position.set(bx, 0.41, 2.45);
           mGroup.add(fBox);
         });
 
-        // Blue Control Kiosk at front-right
+        // Blue Control Kiosk at front-right resting on floor
         const bagKiosk = createBlueControlKioskMesh();
-        bagKiosk.position.set(2.35, 0.35, 2.45);
+        bagKiosk.position.set(2.35, 0.0, 2.45);
         mGroup.add(bagKiosk);
 
-        // Second operator (pink shirt, yellow hat) standing cleanly in the gap between the two conveyors
+        // Second operator (pink shirt, yellow hat) standing on floor
         const pinkWorker = createWorkerMesh(0xf472b6, 0xfacc15);
-        pinkWorker.position.set(0.85, 0.35, -0.65);
+        pinkWorker.position.set(0.85, 0.0, -0.65);
         pinkWorker.rotation.y = Math.PI / 2;
         mGroup.add(pinkWorker);
         extraWorkersOut.push(pinkWorker);

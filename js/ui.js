@@ -638,7 +638,7 @@
       sceneObjects.handPalletTruck.rotation.y = 0;
       mountCargoOnVehicle(sceneObjects.handPalletTruck, null, []);
 
-      sceneObjects.containerTruck.position.set(81, 0.12, -4);
+      sceneObjects.containerTruck.position.set(81, 0.0, -4);
       if (sceneObjects.containerTruck.userData.setDoorOpenRatio) {
         sceneObjects.containerTruck.userData.setDoorOpenRatio(1.0);
       }

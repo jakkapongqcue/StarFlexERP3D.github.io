@@ -578,10 +578,10 @@
         stepId: 'STEP_DELIVERED',
         vehicleKey: 'deliveryForklift',
         waypoints: [
-          new THREE.Vector3(fgRackTarget.x, 0.15, fgRackTarget.z + 2.6),
-          new THREE.Vector3(63, 0.15, fgRackTarget.z + 2.6),
-          new THREE.Vector3(63, 0.15, -4),
-          new THREE.Vector3(75, 0.15, -4)
+          new THREE.Vector3(fgRackTarget.x, 0.0, fgRackTarget.z + 2.6),
+          new THREE.Vector3(63, 0.0, fgRackTarget.z + 2.6),
+          new THREE.Vector3(63, 0.0, -4),
+          new THREE.Vector3(75, 0.0, -4)
         ],
         speed: 22,
         cargoKey: finalWipKeyForFg,
@@ -981,7 +981,7 @@
         if (cd.truckCycleTimer > 17.5) {
           cd.truckCycleTimer = 0;
           cd.truckDeparted = false;
-          sceneObjects.containerTruck.position.set(81, 0.12, -4);
+          sceneObjects.containerTruck.position.set(81, 0.0, -4);
       if (sceneObjects.containerTruck.userData.setDoorOpenRatio) {
         sceneObjects.containerTruck.userData.setDoorOpenRatio(1.0);
       }

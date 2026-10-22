@@ -19,11 +19,11 @@
         const outX = (st.hptDock ? st.hptDock[0] : (st.pos[0] + 2.4));
         const outZ = (st.hptDock ? st.hptDock[2] : dockZ);
         return [
-          new THREE.Vector3(outX, 0.15, outZ),
-          new THREE.Vector3(outX, 0.15, laneZ),
-          new THREE.Vector3(-63.0, 0.15, laneZ),
-          new THREE.Vector3(-63.0, 0.15, rmDock[2]),
-          new THREE.Vector3(rmDock[0], 0.15, rmDock[2])
+          new THREE.Vector3(outX, 0.0, outZ),
+          new THREE.Vector3(outX, 0.0, laneZ),
+          new THREE.Vector3(-63.0, 0.0, laneZ),
+          new THREE.Vector3(-63.0, 0.0, rmDock[2]),
+          new THREE.Vector3(rmDock[0], 0.0, rmDock[2])
         ];
       }
 
@@ -31,11 +31,11 @@
       const inX = (st.flDock ? st.flDock[0] : (st.pos[0] - 2.4));
       const inZ = (st.flDock ? st.flDock[2] : dockZ);
       return [
-        new THREE.Vector3(rmDock[0], 0.15, rmDock[2]),
-        new THREE.Vector3(-63.0, 0.15, rmDock[2]),
-        new THREE.Vector3(-63.0, 0.15, laneZ),
-        new THREE.Vector3(inX, 0.15, laneZ),
-        new THREE.Vector3(inX, 0.15, inZ)
+        new THREE.Vector3(rmDock[0], 0.0, rmDock[2]),
+        new THREE.Vector3(-63.0, 0.0, rmDock[2]),
+        new THREE.Vector3(-63.0, 0.0, laneZ),
+        new THREE.Vector3(inX, 0.0, laneZ),
+        new THREE.Vector3(inX, 0.0, inZ)
       ];
     }
 
@@ -65,10 +65,10 @@
 
       const laneZ = 1.8; // Dedicated Eastbound South lane for Hand Pallet Truck
       return [
-        new THREE.Vector3(originX, 0.15, originZ),
-        new THREE.Vector3(originX, 0.15, laneZ),
-        new THREE.Vector3(destX, 0.15, laneZ),
-        new THREE.Vector3(destX, 0.15, destZ)
+        new THREE.Vector3(originX, 0.0, originZ),
+        new THREE.Vector3(originX, 0.0, laneZ),
+        new THREE.Vector3(destX, 0.0, laneZ),
+        new THREE.Vector3(destX, 0.0, destZ)
       ];
     }
 
@@ -82,11 +82,11 @@
       }
       const laneZ = 1.8; // Eastbound South lane heading to Warehouse FG
       return [
-        new THREE.Vector3(outX, 0.15, outZ),
-        new THREE.Vector3(outX, 0.15, laneZ),
-        new THREE.Vector3(47.0, 0.15, laneZ),
-        new THREE.Vector3(47.0, 0.15, fgSlotVec3.z + 2.5),
-        new THREE.Vector3(fgSlotVec3.x, 0.15, fgSlotVec3.z + 2.5)
+        new THREE.Vector3(outX, 0.0, outZ),
+        new THREE.Vector3(outX, 0.0, laneZ),
+        new THREE.Vector3(47.0, 0.0, laneZ),
+        new THREE.Vector3(47.0, 0.0, fgSlotVec3.z + 2.5),
+        new THREE.Vector3(fgSlotVec3.x, 0.0, fgSlotVec3.z + 2.5)
       ];
     }
 
@@ -117,7 +117,7 @@
 
     function buildConcurrentRmWaypoints(mission) {
       if (!mission) {
-        return [new THREE.Vector3(-45, 0.15, -1.8), new THREE.Vector3(-45, 0.15, -1.8)];
+        return [new THREE.Vector3(-45, 0.0, -1.8), new THREE.Vector3(-45, 0.0, -1.8)];
       }
       const st = STATION_MAP[mission.toStation];
       const mat = MATERIAL_CATALOG[mission.fromKey] || MATERIAL_CATALOG.RESIN;
@@ -128,21 +128,21 @@
       const laneZ = -1.8; // Dedicated Westbound North lane for RM Forklift
 
       return [
-        new THREE.Vector3(pickX, 0.15, pickZ),
-        new THREE.Vector3(-63.0, 0.15, pickZ),
-        new THREE.Vector3(-63.0, 0.15, laneZ),
-        new THREE.Vector3(targetX, 0.15, laneZ),
-        new THREE.Vector3(targetX, 0.15, targetZ),
-        new THREE.Vector3(targetX, 0.15, laneZ),
-        new THREE.Vector3(-63.0, 0.15, laneZ),
-        new THREE.Vector3(-63.0, 0.15, pickZ),
-        new THREE.Vector3(pickX, 0.15, pickZ)
+        new THREE.Vector3(pickX, 0.0, pickZ),
+        new THREE.Vector3(-63.0, 0.0, pickZ),
+        new THREE.Vector3(-63.0, 0.0, laneZ),
+        new THREE.Vector3(targetX, 0.0, laneZ),
+        new THREE.Vector3(targetX, 0.0, targetZ),
+        new THREE.Vector3(targetX, 0.0, laneZ),
+        new THREE.Vector3(-63.0, 0.0, laneZ),
+        new THREE.Vector3(-63.0, 0.0, pickZ),
+        new THREE.Vector3(pickX, 0.0, pickZ)
       ];
     }
 
     function buildConcurrentHptWaypoints(mission) {
       if (!mission) {
-        return [new THREE.Vector3(-10, 0.15, 1.8), new THREE.Vector3(-10, 0.15, 1.8)];
+        return [new THREE.Vector3(-10, 0.0, 1.8), new THREE.Vector3(-10, 0.0, 1.8)];
       }
       let fromX = -7.6, fromZ = -5.2, toX = 12.4, toZ = 5.2;
       if (mission.fromStation && STATION_MAP[mission.fromStation]) {
@@ -164,13 +164,13 @@
       const laneZ = 1.8; // Dedicated Eastbound South lane for Hand Pallet Truck
 
       return [
-        new THREE.Vector3(fromX, 0.15, fromZ),
-        new THREE.Vector3(fromX, 0.15, laneZ),
-        new THREE.Vector3(toX, 0.15, laneZ),
-        new THREE.Vector3(toX, 0.15, toZ),
-        new THREE.Vector3(toX, 0.15, laneZ),
-        new THREE.Vector3(fromX, 0.15, laneZ),
-        new THREE.Vector3(fromX, 0.15, fromZ)
+        new THREE.Vector3(fromX, 0.0, fromZ),
+        new THREE.Vector3(fromX, 0.0, laneZ),
+        new THREE.Vector3(toX, 0.0, laneZ),
+        new THREE.Vector3(toX, 0.0, toZ),
+        new THREE.Vector3(toX, 0.0, laneZ),
+        new THREE.Vector3(fromX, 0.0, laneZ),
+        new THREE.Vector3(fromX, 0.0, fromZ)
       ];
     }
 
@@ -180,22 +180,22 @@
       const pickX = isSpout ? 32.4 : 12.4;
       const pickZ = -5.2;
       return [
-        new THREE.Vector3(pickX, 0.15, pickZ),
-        new THREE.Vector3(pickX, 0.15, 1.8),
-        new THREE.Vector3(51, 0.15, 1.8),
-        new THREE.Vector3(51, 0.15, -10.0),
-        new THREE.Vector3(51, 0.15, 1.8),
-        new THREE.Vector3(pickX, 0.15, 1.8),
-        new THREE.Vector3(pickX, 0.15, pickZ)
+        new THREE.Vector3(pickX, 0.0, pickZ),
+        new THREE.Vector3(pickX, 0.0, 1.8),
+        new THREE.Vector3(51, 0.0, 1.8),
+        new THREE.Vector3(51, 0.0, -10.0),
+        new THREE.Vector3(51, 0.0, 1.8),
+        new THREE.Vector3(pickX, 0.0, 1.8),
+        new THREE.Vector3(pickX, 0.0, pickZ)
       ];
     }
 
     function buildConcurrentDeliveryWaypoints() {
       return [
-        new THREE.Vector3(53, 0.15, -10.0),
-        new THREE.Vector3(65, 0.15, -4.0),
-        new THREE.Vector3(75, 0.15, -4.0),
-        new THREE.Vector3(65, 0.15, -4.0),
-        new THREE.Vector3(53, 0.15, -10.0)
+        new THREE.Vector3(53, 0.0, -10.0),
+        new THREE.Vector3(65, 0.0, -4.0),
+        new THREE.Vector3(75, 0.0, -4.0),
+        new THREE.Vector3(65, 0.0, -4.0),
+        new THREE.Vector3(53, 0.0, -10.0)
       ];
     }

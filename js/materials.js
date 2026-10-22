@@ -1201,3 +1201,261 @@ function createPalletBaseMesh() {
       }
       return grp;
     }
+
+    /* =========================================================================
+       GREEN PACKAGING FILM ROLL TEXTURE GENERATOR (Matching Factory Photo)
+       ========================================================================= */
+    let _cachedGreenRollTexture = null;
+    function getGreenPackagingRollTexture() {
+      if (_cachedGreenRollTexture) return _cachedGreenRollTexture;
+      if (typeof document === 'undefined') return null;
+      const canvas = document.createElement('canvas');
+      canvas.width = 512;
+      canvas.height = 256;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return null;
+
+      // Vibrant Emerald Green background (matching factory photo Image 2)
+      ctx.fillStyle = '#15803d';
+      ctx.fillRect(0, 0, 512, 256);
+
+      // Deep green wavy graphic background ribbons
+      ctx.fillStyle = '#166534';
+      ctx.beginPath();
+      ctx.moveTo(0, 40);
+      ctx.bezierCurveTo(150, 90, 350, 10, 512, 60);
+      ctx.lineTo(512, 160);
+      ctx.bezierCurveTo(350, 110, 150, 190, 0, 140);
+      ctx.closePath();
+      ctx.fill();
+
+      // White graphic panels & brand logos (matching "USA" / green packaging in photo)
+      for (let b = 0; b < 3; b++) {
+        const bx = 40 + b * 170;
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.ellipse(bx + 45, 95, 38, 24, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#15803d';
+        ctx.font = 'bold 18px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('USA', bx + 45, 95);
+
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(bx + 15, 135, 60, 10);
+      }
+
+      // Silver foil edge lines
+      ctx.fillStyle = '#e2e8f0';
+      ctx.fillRect(0, 0, 512, 12);
+      ctx.fillRect(0, 244, 512, 12);
+
+      const texture = new THREE.CanvasTexture(canvas);
+      texture.wrapS = THREE.RepeatWrapping;
+      texture.wrapT = THREE.RepeatWrapping;
+      _cachedGreenRollTexture = texture;
+      return texture;
+    }
+
+    /* =========================================================================
+       HIGH-BAY ROLL CURING RACK ROW (Matching Factory Photo Image 2)
+       - Blue vertical columns with diagonal truss lacing
+       - Safety Orange horizontal stringers & cantilever cradle saddles
+       - Multi-tier suspended master rolls on central steel mandrels
+       - Variety of authentic film patterns (Green packaging, Hygiene, Silver foil, Violet)
+       - White ERP lot tracking barcode labels on rolls
+       ========================================================================= */
+    function createRollCuringRackRow(options) {
+      options = options || {};
+      const baysCount = options.baysCount || 4;
+      const tiersCount = options.tiersCount || 4;
+      const bayWidth = options.bayWidth || 2.5;
+      const depth = options.depth || 1.9;
+      const height = options.height || 4.8;
+      const uprightColor = options.uprightColor || 0x1d4ed8; // Royal Blue
+      const beamColor = options.beamColor || 0xf97316; // Safety Orange
+      const cradleColor = options.cradleColor || 0xea580c; // Deep Orange Cradle Arms
+
+      const totalWidth = baysCount * bayWidth;
+      const halfW = totalWidth / 2;
+      const halfD = depth / 2;
+
+      const rackGroup = new THREE.Group();
+
+      const uprightMat = new THREE.MeshLambertMaterial({ color: uprightColor });
+      const beamMat = new THREE.MeshLambertMaterial({ color: beamColor });
+      const cradleMat = new THREE.MeshLambertMaterial({ color: cradleColor });
+      const braceMat = new THREE.MeshLambertMaterial({ color: 0x60a5fa });
+      const shaftMat = new THREE.MeshStandardMaterial({ color: 0x334155, metalness: 0.8, roughness: 0.25 });
+      const coreHoleMat = new THREE.MeshLambertMaterial({ color: 0x0f172a });
+      const labelMat = new THREE.MeshLambertMaterial({ color: 0xf8fafc });
+
+      // Roll Materials
+      const greenRollTex = getGreenPackagingRollTexture();
+      const greenRollMat = greenRollTex ? new THREE.MeshStandardMaterial({
+        map: greenRollTex,
+        roughness: 0.28,
+        metalness: 0.12
+      }) : new THREE.MeshLambertMaterial({ color: 0x15803d });
+
+      const hygieneRollTex = getHygieneFilmTexture();
+      const hygieneRollMat = hygieneRollTex ? new THREE.MeshStandardMaterial({
+        map: hygieneRollTex,
+        roughness: 0.28,
+        metalness: 0.12
+      }) : new THREE.MeshLambertMaterial({ color: 0xbe185d });
+
+      const silverFoilMat = new THREE.MeshStandardMaterial({
+        color: 0xe2e8f0,
+        metalness: 0.88,
+        roughness: 0.18
+      });
+      const purpleRollMat = new THREE.MeshStandardMaterial({
+        color: 0x7c3aed,
+        roughness: 0.32,
+        metalness: 0.15
+      });
+
+      const facePinkMat = new THREE.MeshLambertMaterial({ color: 0xfbcfe8 });
+      const faceGreenMat = new THREE.MeshLambertMaterial({ color: 0x86efac });
+      const faceDarkMat = new THREE.MeshLambertMaterial({ color: 0x334155 });
+
+      // 1. Upright Truss Frames (baysCount + 1 frames)
+      for (let f = 0; f <= baysCount; f++) {
+        const fx = -halfW + f * bayWidth;
+
+        // Front & Back vertical columns
+        [-halfD, halfD].forEach(function (fz) {
+          const col = new THREE.Mesh(new THREE.BoxGeometry(0.18, height, 0.18), uprightMat);
+          col.position.set(fx, height / 2, fz);
+          col.receiveShadow = true;
+          rackGroup.add(col);
+
+          // Footplate at base
+          const foot = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.02, 0.28), cradleMat);
+          foot.position.set(fx, 0.01, fz);
+          rackGroup.add(foot);
+        });
+
+        // Diagonal truss lacing between front and rear column
+        const diagCount = 5;
+        for (let dg = 0; dg < diagCount; dg++) {
+          const y1 = (dg / diagCount) * height;
+          const y2 = ((dg + 1) / diagCount) * height;
+          const midY = (y1 + y2) / 2;
+          const diagLen = Math.sqrt(depth * depth + ((y2 - y1) * (y2 - y1)));
+          const diagBar = new THREE.Mesh(new THREE.BoxGeometry(0.06, diagLen, 0.04), braceMat);
+          diagBar.position.set(fx, midY, 0);
+          diagBar.rotation.x = Math.atan2(depth, y2 - y1) * (dg % 2 === 0 ? 1 : -1);
+          rackGroup.add(diagBar);
+        }
+      }
+
+      // 2. Horizontal Safety Orange Stringer Beams linking all frames
+      [0.15, height - 0.15].forEach(function (yBeam) {
+        [-halfD, halfD].forEach(function (fz) {
+          const hBeam = new THREE.Mesh(new THREE.BoxGeometry(totalWidth, 0.14, 0.08), beamMat);
+          hBeam.position.set(0, yBeam, fz);
+          rackGroup.add(hBeam);
+        });
+      });
+
+      // 3. Tiers & Cantilever Cradle Saddles
+      const tierHeights = [];
+      const startY = 0.85;
+      const stepY = (height - startY - 0.35) / (tiersCount - 1);
+      for (let t = 0; t < tiersCount; t++) {
+        tierHeights.push(startY + t * stepY);
+      }
+
+      // Populate cradle arms and horizontal curing rolls
+      for (let b = 0; b < baysCount; b++) {
+        const bayCenterX = -halfW + (b + 0.5) * bayWidth;
+
+        tierHeights.forEach(function (yTier, tIdx) {
+          const leftColX = -halfW + b * bayWidth;
+          const rightColX = -halfW + (b + 1) * bayWidth;
+
+          // Orange Cantilever Cradle Brackets extending into bay from columns
+          [leftColX, rightColX].forEach(function (colX, armIdx) {
+            const armDir = (armIdx === 0) ? 1 : -1;
+            // Horizontal bracket projection
+            const arm = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.12, 0.12), cradleMat);
+            arm.position.set(colX + armDir * 0.175, yTier, 0);
+            rackGroup.add(arm);
+
+            // Saddle / U-notch support
+            const saddle = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.16, 0.16), cradleMat);
+            saddle.position.set(colX + armDir * 0.28, yTier + 0.08, 0);
+            rackGroup.add(saddle);
+          });
+
+          // 4. Large Suspended Master Film Roll (Populate ~85% of slots)
+          // Leave 1-2 slots empty across the rack so the orange cradle mechanism is clearly visible!
+          const isSlotEmpty = (b === 1 && tIdx === 3) || (b === 3 && tIdx === 0);
+          if (!isSlotEmpty) {
+            const rollGroup = new THREE.Group();
+            rollGroup.position.set(bayCenterX, yTier + 0.12, 0);
+
+            // Steel central mandrel / shaft resting in the orange saddles
+            const shaftLen = bayWidth - 0.08;
+            const shaft = new THREE.Mesh(new THREE.CylinderGeometry(0.065, 0.065, shaftLen, 14), shaftMat);
+            shaft.rotation.z = Math.PI / 2;
+            rollGroup.add(shaft);
+
+            // Core chuck collars
+            [-0.92, 0.92].forEach(function (cx) {
+              const chuck = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.12, 0.06, 12), cradleMat);
+              chuck.rotation.z = Math.PI / 2;
+              chuck.position.x = cx;
+              rollGroup.add(chuck);
+            });
+
+            // Determine roll body appearance based on bay/tier
+            const patternIdx = (b * 3 + tIdx) % 5;
+            let rollBodyMat, rollEndMat;
+            if (patternIdx === 0 || patternIdx === 3) {
+              rollBodyMat = greenRollMat; // Vibrant Green printed roll (Image 2 signature!)
+              rollEndMat = faceGreenMat;
+            } else if (patternIdx === 1) {
+              rollBodyMat = hygieneRollMat; // Hygiene pink printed roll
+              rollEndMat = facePinkMat;
+            } else if (patternIdx === 2) {
+              rollBodyMat = silverFoilMat; // Silver aluminum foil roll
+              rollEndMat = faceDarkMat;
+            } else {
+              rollBodyMat = purpleRollMat; // Violet printed barrier roll
+              rollEndMat = facePinkMat;
+            }
+
+            const rollRadius = 0.44 + ((b + tIdx) % 3) * 0.04; // 0.44m to 0.52m (realistic ~1m diameter master rolls)
+            const rollWidth = 1.68;
+            const rollBody = new THREE.Mesh(
+              new THREE.CylinderGeometry(rollRadius, rollRadius, rollWidth, 24),
+              [rollBodyMat, rollEndMat, rollEndMat]
+            );
+            rollBody.rotation.z = Math.PI / 2;
+            rollGroup.add(rollBody);
+
+            // Core paper hole
+            [-rollWidth / 2 - 0.002, rollWidth / 2 + 0.002].forEach(function (hx) {
+              const coreHole = new THREE.Mesh(new THREE.CylinderGeometry(0.10, 0.10, 0.01, 14), coreHoleMat);
+              coreHole.rotation.z = Math.PI / 2;
+              coreHole.position.x = hx;
+              rollGroup.add(coreHole);
+            });
+
+            // White ERP Lot Tracking Barcode Label taped on outer surface (Image 2 signature!)
+            const labelMesh = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.005, 0.16), labelMat);
+            labelMesh.position.set(0, rollRadius + 0.003, 0);
+            rollGroup.add(labelMesh);
+
+            rackGroup.add(rollGroup);
+          }
+        });
+      }
+
+      return rackGroup;
+    }

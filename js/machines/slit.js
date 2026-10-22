@@ -34,17 +34,17 @@ function buildSlitMachine(st, rollersOut, reciprocatorsOut, extraWorkersOut) {
         rollersOut.push(masterRollObj.group);
 
         [-2.25, 0.85].forEach(function (zArm) {
-          const standArm = new THREE.Mesh(new THREE.BoxGeometry(0.25, 1.9, 0.25), charcoalMat);
-          standArm.position.set(-3.7, 1.15, zArm);
+          const standArm = new THREE.Mesh(new THREE.BoxGeometry(0.25, 2.2, 0.25), charcoalMat);
+          standArm.position.set(-3.7, 1.10, zArm);
           mGroup.add(standArm);
         });
 
-        // 2. Center Dark-Charcoal Parallel Side Walls
-        const backWall = tagSelectable(new THREE.Mesh(new THREE.BoxGeometry(5.2, 2.1, 0.32), charcoalMat));
+        // 2. Center Dark-Charcoal Parallel Side Walls resting on floor
+        const backWall = tagSelectable(new THREE.Mesh(new THREE.BoxGeometry(5.2, 2.7, 0.32), charcoalMat));
         backWall.position.set(0.0, 1.35, -2.15);
         mGroup.add(backWall);
 
-        const frontWall = tagSelectable(new THREE.Mesh(new THREE.BoxGeometry(5.2, 2.1, 0.32), charcoalMat));
+        const frontWall = tagSelectable(new THREE.Mesh(new THREE.BoxGeometry(5.2, 2.7, 0.32), charcoalMat));
         frontWall.position.set(0.0, 1.35, 0.75);
         mGroup.add(frontWall);
 
@@ -81,9 +81,9 @@ function buildSlitMachine(st, rollersOut, reciprocatorsOut, extraWorkersOut) {
           rollersOut.push(sRoll.group);
         });
 
-        // 4. Foreground Pallet with 3 Upright Slit Hygiene Rolls (front-right, clear of worker)
+        // 4. Foreground Pallet with 3 Upright Slit Hygiene Rolls (front-right, resting on floor)
         const slitPallet = new THREE.Mesh(new THREE.BoxGeometry(2.3, 0.2, 1.3), new THREE.MeshLambertMaterial({ color: 0xfde68a }));
-        slitPallet.position.set(2.2, 0.45, 2.55);
+        slitPallet.position.set(2.2, 0.10, 2.55);
         mGroup.add(slitPallet);
         const upRollSideMat = new THREE.MeshStandardMaterial({
           map: getHygieneFilmTexture(),
@@ -96,13 +96,13 @@ function buildSlitMachine(st, rollersOut, reciprocatorsOut, extraWorkersOut) {
             new THREE.CylinderGeometry(0.36, 0.36, 1.05, 20),
             [upRollSideMat, upRollFaceMat, upRollFaceMat]
           );
-          upRoll.position.set(2.2 + ox, 1.05, 2.55);
+          upRoll.position.set(2.2 + ox, 0.725, 2.55);
           mGroup.add(upRoll);
         });
 
-        // 5. Blue Control Kiosk at Front-Left (clear of worker)
+        // 5. Blue Control Kiosk at Front-Left resting on floor
         const slitKiosk = createBlueControlKioskMesh();
-        slitKiosk.position.set(-2.9, 0.35, 2.05);
+        slitKiosk.position.set(-2.9, 0.0, 2.05);
         mGroup.add(slitKiosk);
 
   return mGroup;

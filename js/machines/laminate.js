@@ -33,6 +33,11 @@ function buildLaminateMachine(st, rollersOut, reciprocatorsOut, extraWorkersOut)
         blueFascia.position.set(0, 4.0, -0.4);
         mGroup.add(blueFascia);
 
+        // Heavy steel machine base chassis resting on the floor
+        const baseBed = new THREE.Mesh(new THREE.BoxGeometry(8.2, 0.42, 2.8), darkSteel);
+        baseBed.position.set(0, 0.21, -0.4);
+        mGroup.add(baseBed);
+
         [-3.2, 0.2, 3.1].forEach(function (ux) {
           const unit = tagSelectable(new THREE.Mesh(new THREE.BoxGeometry(1.75, 2.7, 2.8), whiteSteel));
           unit.position.set(ux, 1.75, -0.4);

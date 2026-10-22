@@ -181,188 +181,376 @@
       return hpt;
     }
 
-    /* Realistic Side-Door Container Truck (รถบรรทุกตู้เปิดข้างสำหรับโหลดพาเลท) */
+    /* =========================================================================
+       Realistic Modern Logistics Box Truck (Stylized Starflex Logistics Truck)
+       - Visual Style: Matches User Reference (media_1792665338934_60c5fff2.png)
+       - Cab: Royal Blue (#1d4ed8), Stepped Aero Roof Spoiler, Dark Tint Glass Visor,
+              Charcoal Bumper (#111827) with Yellow Rectangular Headlights (#fde047)
+       - Cargo Box: Crisp White Body (#ffffff), Royal Blue Lower Accent Stripe (#1d4ed8),
+                    High-Res Official STARFLEX Logo (img/Starflex_loog.png)
+       - Axles & Wheels: 1 Front Steering Axle + 2 Tandem Rear Axles (Matching Photo!)
+       - Simulation: Animated side loading doors & loadedPalletsGroup for forklift loading,
+                     rolling wheels on departure
+       ========================================================================= */
+    let _cachedStarflexTruckTexture = null;
+
+    function getStarflexTruckLogoTexture() {
+      if (_cachedStarflexTruckTexture) return _cachedStarflexTruckTexture;
+      if (typeof document === 'undefined') return null;
+
+      const canvas = document.createElement('canvas');
+      canvas.width = 1024;
+      canvas.height = 384;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return null;
+
+      function renderBaseTrailerWall() {
+        // 1. Crisp white cargo trailer base
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // 2. Royal Blue lower accent band (matching cab #1d4ed8)
+        const stripeH = 50;
+        ctx.fillStyle = '#1d4ed8';
+        ctx.fillRect(0, canvas.height - stripeH, canvas.width, stripeH);
+
+        // Thin cyan accent pinstripe above the blue band
+        ctx.fillStyle = '#38bdf8';
+        ctx.fillRect(0, canvas.height - stripeH - 3, canvas.width, 3);
+
+        // 3. Subtle horizontal panel seams across the trailer wall
+        ctx.strokeStyle = '#e2e8f0';
+        ctx.lineWidth = 1.5;
+        for (let y = 52; y < canvas.height - stripeH - 12; y += 64) {
+          ctx.beginPath();
+          ctx.moveTo(0, y);
+          ctx.lineTo(canvas.width, y);
+          ctx.stroke();
+        }
+      }
+
+      renderBaseTrailerWall();
+
+      // 4. Instant Vector Fallback: Starflex Ribbon & Bold Typography
+      function drawVectorStarflexFallback() {
+        ctx.save();
+        const icX = 145;
+        const icY = 145;
+        const r = 58;
+
+        // Top cyan ribbon
+        ctx.fillStyle = '#06b6d4';
+        ctx.beginPath();
+        ctx.moveTo(icX, icY - r);
+        ctx.lineTo(icX + r * 0.86, icY - r * 0.5);
+        ctx.lineTo(icX + r * 0.45, icY - r * 0.25);
+        ctx.lineTo(icX, icY - r * 0.5);
+        ctx.closePath();
+        ctx.fill();
+
+        // Mid light blue ribbon
+        ctx.fillStyle = '#0284c7';
+        ctx.beginPath();
+        ctx.moveTo(icX - r * 0.86, icY - r * 0.5);
+        ctx.lineTo(icX, icY);
+        ctx.lineTo(icX - r * 0.45, icY + r * 0.25);
+        ctx.lineTo(icX - r * 0.86, icY);
+        ctx.closePath();
+        ctx.fill();
+
+        // Bottom royal blue ribbon
+        ctx.fillStyle = '#1d4ed8';
+        ctx.beginPath();
+        ctx.moveTo(icX, icY + r);
+        ctx.lineTo(icX + r * 0.86, icY + r * 0.5);
+        ctx.lineTo(icX + r * 0.45, icY + r * 0.25);
+        ctx.lineTo(icX, icY + r * 0.5);
+        ctx.closePath();
+        ctx.fill();
+
+        // Bold STARFLEX lettering
+        ctx.fillStyle = '#334155';
+        ctx.font = 'bold 84px "Montserrat", "Segoe UI", "Arial Black", sans-serif';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('STARFLEX', icX + 105, icY - 4);
+        ctx.restore();
+      }
+      drawVectorStarflexFallback();
+
+      const texture = new THREE.CanvasTexture(canvas);
+      texture.anisotropy = 8;
+      _cachedStarflexTruckTexture = texture;
+
+      // 5. Load High-Resolution Official PNG Logo from img/Starflex_loog.png
+      if (typeof Image !== 'undefined') {
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.onload = function () {
+          renderBaseTrailerWall();
+          const stripeH = 50;
+          const padX = 70;
+          const maxW = canvas.width - padX * 2;
+          const maxH = canvas.height - stripeH - 60;
+          const aspect = img.width / img.height;
+          let drawW = maxW;
+          let drawH = drawW / aspect;
+          if (drawH > maxH) {
+            drawH = maxH;
+            drawW = drawH * aspect;
+          }
+          const drawX = (canvas.width - drawW) / 2;
+          const drawY = (canvas.height - stripeH - drawH) / 2 + 6;
+          ctx.drawImage(img, drawX, drawY, drawW, drawH);
+          texture.needsUpdate = true;
+        };
+        img.src = 'img/Starflex_loog.png';
+      }
+
+      return texture;
+    }
+
     function createContainerTruckMesh() {
       const truck = new THREE.Group();
-      const cabMat = new THREE.MeshLambertMaterial({ color: 0xf8fafc });
-      const containerMat = new THREE.MeshLambertMaterial({ color: 0x1d4ed8 });
-      const chassisMat = new THREE.MeshLambertMaterial({ color: 0x1e293b });
-      const glassMat = new THREE.MeshLambertMaterial({ color: 0x38bdf8 });
-      const floorMat = new THREE.MeshLambertMaterial({ color: 0x334155 });
-      const chromeMat = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, metalness: 0.8, roughness: 0.2 });
+
+      // Materials matching the Reference 3D Model (media_1792665338934)
+      const cabMat = new THREE.MeshLambertMaterial({ color: 0x1d4ed8 }); // Royal Blue
+      const bumperMat = new THREE.MeshLambertMaterial({ color: 0x111827 }); // Charcoal bumper
+      const headlightMat = new THREE.MeshBasicMaterial({ color: 0xfef08a }); // Bright yellow headlights
+      const darkGlassMat = new THREE.MeshLambertMaterial({ color: 0x0f172a, roughness: 0.2 }); // Dark tinted visor
+      const boxWhiteMat = new THREE.MeshLambertMaterial({ color: 0xf8fafc, roughness: 0.6 }); // Crisp white trailer
+      const boxStripeMat = new THREE.MeshLambertMaterial({ color: 0x1d4ed8 }); // Royal blue lower trim
+      const chassisMat = new THREE.MeshLambertMaterial({ color: 0x1e293b }); // Chassis rails
+      const wheelMat = new THREE.MeshLambertMaterial({ color: 0x0f172a, roughness: 0.9 }); // Dark tires
+      const rimMat = new THREE.MeshLambertMaterial({ color: 0x475569 }); // Hub rims
+      const chromeMat = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, metalness: 0.85, roughness: 0.2 });
+      const floorMat = new THREE.MeshLambertMaterial({ color: 0x334155 }); // Ribbed steel deck
       const hazardYellow = new THREE.MeshLambertMaterial({ color: 0xfacc15 });
       const hazardBlack = new THREE.MeshLambertMaterial({ color: 0x0f172a });
 
-      // 1. Container Floor / Bed (Thick industrial steel deck)
-      const bed = new THREE.Mesh(new THREE.BoxGeometry(5.9, 0.26, 12.8), floorMat);
-      bed.position.set(0, 1.33, 1.5);
+      // Starflex Trailer Side Logo Texture
+      const logoTexture = getStarflexTruckLogoTexture();
+      const logoSideMat = logoTexture
+        ? new THREE.MeshLambertMaterial({ map: logoTexture, roughness: 0.6 })
+        : boxWhiteMat;
+
+      // 1. Cargo Floor / Bed Deck
+      const bed = new THREE.Mesh(new THREE.BoxGeometry(5.6, 0.28, 13.6), floorMat);
+      bed.position.set(0, 1.32, 1.1);
       truck.add(bed);
 
-      // 2. Container Roof (Container Blue with exterior reinforcement ribs)
-      const roof = new THREE.Mesh(new THREE.BoxGeometry(5.9, 0.22, 12.8), containerMat);
-      roof.position.set(0, 6.09, 1.5);
+      // 2. Cargo Roof (White with subtle roof trim)
+      const roof = new THREE.Mesh(new THREE.BoxGeometry(5.62, 0.24, 13.62), boxWhiteMat);
+      roof.position.set(0, 6.18, 1.1);
       truck.add(roof);
 
-      for (let rz = -4.0; rz <= 7.0; rz += 1.8) {
-        const rib = new THREE.Mesh(new THREE.BoxGeometry(5.94, 0.08, 0.16), chassisMat);
-        rib.position.set(0, 6.22, rz);
-        truck.add(rib);
-      }
-
-      // 3. Container Front Wall (behind Cab)
-      const frontWall = new THREE.Mesh(new THREE.BoxGeometry(5.9, 4.6, 0.22), containerMat);
-      frontWall.position.set(0, 3.70, 7.8);
+      // 3. Cargo Front Wall (behind Cab at z = 7.8)
+      const frontWall = new THREE.Mesh(new THREE.BoxGeometry(5.6, 4.74, 0.22), boxWhiteMat);
+      frontWall.position.set(0, 3.75, 7.8);
       truck.add(frontWall);
 
-      // 4. Container Rear Wall (Tailgate) with chrome vertical locking rods
-      const rearWall = new THREE.Mesh(new THREE.BoxGeometry(5.9, 4.6, 0.22), containerMat);
-      rearWall.position.set(0, 3.70, -4.8);
+      // 4. Cargo Rear Wall (Tailgate at z = -5.6)
+      const rearWall = new THREE.Mesh(new THREE.BoxGeometry(5.6, 4.74, 0.22), boxWhiteMat);
+      rearWall.position.set(0, 3.75, -5.6);
       truck.add(rearWall);
 
-      [-1.1, 1.1].forEach(function (rx) {
-        const lockBar = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 4.4, 10), chromeMat);
-        lockBar.position.set(rx, 3.70, -4.95);
+      // Chrome vertical rear lock bars
+      [-1.2, 1.2].forEach(function (rx) {
+        const lockBar = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 4.5, 10), chromeMat);
+        lockBar.position.set(rx, 3.75, -5.75);
         truck.add(lockBar);
       });
 
-      // 5. Container Right Wall (East / Non-door side: Solid Blue Wall)
-      const rightWall = new THREE.Mesh(new THREE.BoxGeometry(0.22, 4.6, 12.8), containerMat);
-      rightWall.position.set(2.85, 3.70, 1.5);
-      truck.add(rightWall);
+      // Rear tail lamp clusters (Red & Amber)
+      [-2.1, 2.1].forEach(function (tx) {
+        const tailRed = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.25, 0.08), new THREE.MeshBasicMaterial({ color: 0xef4444 }));
+        tailRed.position.set(tx, 1.25, -5.73);
+        truck.add(tailRed);
+        const tailAmber = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.20, 0.08), new THREE.MeshBasicMaterial({ color: 0xf59e0b }));
+        tailAmber.position.set(tx + (tx > 0 ? 0.35 : -0.35), 1.25, -5.73);
+        truck.add(tailAmber);
+      });
 
-      // 6. Container Left Wall (West / Door side facing Forklift)
-      // Wide Side Loading Opening spans 7.6m (from z = -3.4 to z = 4.2)
-      // (a) Rear fixed wall panel (z = -4.8 to z = -3.4, length 1.4)
-      const leftWallRear = new THREE.Mesh(new THREE.BoxGeometry(0.22, 4.6, 1.4), containerMat);
-      leftWallRear.position.set(-2.85, 3.70, -4.1);
+      // 5. Container Right Wall (East Wall facing Yard & Camera at x = +2.81)
+      // Solid White Wall branded with the High-Res STARFLEX Logo and lower blue stripe!
+      const rightWallMesh = new THREE.Mesh(new THREE.PlaneGeometry(13.5, 4.72), logoSideMat);
+      rightWallMesh.position.set(2.81, 3.75, 1.1);
+      rightWallMesh.rotation.y = Math.PI / 2; // Facing East
+      truck.add(rightWallMesh);
+
+      // Backing thickness slab for East wall
+      const rightWallBacking = new THREE.Mesh(new THREE.BoxGeometry(0.18, 4.74, 13.56), boxWhiteMat);
+      rightWallBacking.position.set(2.72, 3.75, 1.1);
+      truck.add(rightWallBacking);
+
+      // 6. Container Left Wall (West Wall facing Forklift loading at x = -2.81)
+      // Features Wide Side Opening for forklift pallet loading + animated folding doors
+      // (a) Rear fixed panel (z = -5.6 to z = -3.4, len 2.2)
+      const leftWallRear = new THREE.Mesh(new THREE.BoxGeometry(0.20, 4.74, 2.2), boxWhiteMat);
+      leftWallRear.position.set(-2.81, 3.75, -4.5);
       truck.add(leftWallRear);
 
-      // (b) Front fixed wall panel (z = 4.2 to z = 7.8, length 3.6)
-      const leftWallFront = new THREE.Mesh(new THREE.BoxGeometry(0.22, 4.6, 3.6), containerMat);
-      leftWallFront.position.set(-2.85, 3.70, 6.0);
+      const rearBlueSkirt = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.52, 2.2), boxStripeMat);
+      rearBlueSkirt.position.set(-2.81, 1.58, -4.5);
+      truck.add(rearBlueSkirt);
+
+      // (b) Front fixed panel (z = 4.0 to z = 7.8, len 3.8)
+      const leftWallFront = new THREE.Mesh(new THREE.BoxGeometry(0.20, 4.74, 3.8), boxWhiteMat);
+      leftWallFront.position.set(-2.81, 3.75, 5.9);
       truck.add(leftWallFront);
 
-      // (c) Top Door Lintel / Header above opening (span 7.64m)
-      const doorLintel = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.38, 7.64), containerMat);
-      doorLintel.position.set(-2.85, 5.86, 0.4);
+      const frontBlueSkirt = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.52, 3.8), boxStripeMat);
+      frontBlueSkirt.position.set(-2.81, 1.58, 5.9);
+      truck.add(frontBlueSkirt);
+
+      // (c) Top Door Header / Lintel (span 7.4m)
+      const doorLintel = new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.38, 7.44), boxWhiteMat);
+      doorLintel.position.set(-2.81, 5.99, 0.3);
       truck.add(doorLintel);
 
-      // (d) Bottom Door Sill / Threshold (span 7.64m)
-      const doorSill = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.22, 7.64), chassisMat);
-      doorSill.position.set(-2.85, 1.34, 0.4);
+      // (d) Bottom Door Sill (span 7.4m)
+      const doorSill = new THREE.Mesh(new THREE.BoxGeometry(0.30, 0.22, 7.44), chassisMat);
+      doorSill.position.set(-2.81, 1.33, 0.3);
       truck.add(doorSill);
 
-      // Alternating yellow/black hazard safety stripes along door sill
+      // Alternating yellow/black hazard safety threshold
       for (let sIdx = 0; sIdx < 14; sIdx++) {
         const stripe = new THREE.Mesh(
-          new THREE.BoxGeometry(0.34, 0.04, 0.45),
+          new THREE.BoxGeometry(0.32, 0.04, 0.44),
           sIdx % 2 === 0 ? hazardYellow : hazardBlack
         );
-        stripe.position.set(-2.85, 1.46, -3.15 + sIdx * 0.54);
+        stripe.position.set(-2.81, 1.45, -3.15 + sIdx * 0.53);
         truck.add(stripe);
       }
 
-      // 7. Double Open Side Doors (ประตูตู้เปิดข้างสำหรับโหลดพาเลท)
-      // (A) Rear Door Wing (Hinged at z = -3.4)
+      // 7. Double Animated Side Doors (Opening for forklift pallet loading)
       const doorPivotRear = new THREE.Group();
-      doorPivotRear.position.set(-2.95, 3.68, -3.4);
+      doorPivotRear.position.set(-2.91, 3.73, -3.4);
       truck.add(doorPivotRear);
 
       const doorLeafRear = new THREE.Group();
-      const doorMeshRear = new THREE.Mesh(new THREE.BoxGeometry(0.10, 4.15, 3.8), containerMat);
-      doorMeshRear.position.set(0, 0, 1.9);
+      const doorMeshRear = new THREE.Mesh(new THREE.BoxGeometry(0.10, 4.25, 3.7), boxWhiteMat);
+      doorMeshRear.position.set(0, 0, 1.85);
       doorLeafRear.add(doorMeshRear);
 
-      const lockBarRear = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 3.9, 10), chromeMat);
-      lockBarRear.position.set(-0.08, 0, 1.9);
-      doorLeafRear.add(lockBarRear);
+      const doorSkirtRear = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.48, 3.7), boxStripeMat);
+      doorSkirtRear.position.set(0, -1.88, 1.85);
+      doorLeafRear.add(doorSkirtRear);
 
+      const lockBarRear = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 4.0, 10), chromeMat);
+      lockBarRear.position.set(-0.08, 0, 1.85);
+      doorLeafRear.add(lockBarRear);
       doorPivotRear.add(doorLeafRear);
 
-      // (B) Front Door Wing (Hinged at z = 4.2)
       const doorPivotFront = new THREE.Group();
-      doorPivotFront.position.set(-2.95, 3.68, 4.2);
+      doorPivotFront.position.set(-2.91, 3.73, 4.0);
       truck.add(doorPivotFront);
 
       const doorLeafFront = new THREE.Group();
-      const doorMeshFront = new THREE.Mesh(new THREE.BoxGeometry(0.10, 4.15, 3.8), containerMat);
-      doorMeshFront.position.set(0, 0, -1.9);
+      const doorMeshFront = new THREE.Mesh(new THREE.BoxGeometry(0.10, 4.25, 3.7), boxWhiteMat);
+      doorMeshFront.position.set(0, 0, -1.85);
       doorLeafFront.add(doorMeshFront);
 
-      const lockBarFront = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 3.9, 10), chromeMat);
-      lockBarFront.position.set(-0.08, 0, -1.9);
-      doorLeafFront.add(lockBarFront);
+      const doorSkirtFront = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.48, 3.7), boxStripeMat);
+      doorSkirtFront.position.set(0, -1.88, -1.85);
+      doorLeafFront.add(doorSkirtFront);
 
+      const lockBarFront = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 4.0, 10), chromeMat);
+      lockBarFront.position.set(-0.08, 0, -1.85);
+      doorLeafFront.add(lockBarFront);
       doorPivotFront.add(doorLeafFront);
 
-      // Set side doors wide open (~105 degrees) so interior cargo bay is completely open for loading
       function setDoorOpenRatio(ratio) {
         const maxAngle = Math.PI * 0.58;
         doorPivotRear.rotation.y = -ratio * maxAngle;
         doorPivotFront.rotation.y = ratio * maxAngle;
       }
-      setDoorOpenRatio(1.0); // Default WIDE OPEN for forklift cargo loading!
+      setDoorOpenRatio(1.0); // Default open for loading
 
       truck.userData.doorPivotRear = doorPivotRear;
       truck.userData.doorPivotFront = doorPivotFront;
       truck.userData.setDoorOpenRatio = setDoorOpenRatio;
 
-      // 8. Interior Cargo Bay Details
-      // Ceiling cargo dome lights
+      // 8. Interior Cargo Bay
       [-1.5, 1.5, 4.5].forEach(function (lz) {
         const lamp = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.06, 0.8), new THREE.MeshBasicMaterial({ color: 0xfef08a }));
-        lamp.position.set(0, 5.96, lz);
+        lamp.position.set(0, 6.05, lz);
         truck.add(lamp);
       });
 
-      // Staged cargo boxes already stacked inside the truck near right wall
+      // Staged kraft carton boxes inside
       const deepCargo1 = createKraftRackBox();
-      deepCargo1.position.set(1.4, 1.95, -2.5);
+      deepCargo1.position.set(1.3, 1.95, -2.5);
       truck.add(deepCargo1);
 
       const deepCargo2 = createKraftRackBox();
-      deepCargo2.position.set(1.4, 1.95, 4.2);
+      deepCargo2.position.set(1.3, 1.95, 4.0);
       truck.add(deepCargo2);
 
-      // 9. Truck Cab
-      const cab = new THREE.Mesh(new THREE.BoxGeometry(5.2, 4.2, 4.0), cabMat);
-      cab.position.set(0, 3.1, 10.4);
-      truck.add(cab);
+      // 9. Modern Royal Blue Truck Cab (Matching Reference Image media_1792665338934)
+      const cabGroup = new THREE.Group();
+      cabGroup.position.set(0, 0, 9.4);
 
-      const windshield = new THREE.Mesh(new THREE.BoxGeometry(4.6, 1.5, 0.2), glassMat);
-      windshield.position.set(0, 4.0, 12.42);
-      truck.add(windshield);
+      // (a) Main Lower Cab Body
+      const cabBody = new THREE.Mesh(new THREE.BoxGeometry(5.1, 3.8, 3.2), cabMat);
+      cabBody.position.set(0, 2.70, 0);
+      cabGroup.add(cabBody);
 
-      [-2.61, 2.61].forEach(function (wx) {
-        const sideWindow = new THREE.Mesh(new THREE.BoxGeometry(0.04, 1.4, 2.0), glassMat);
-        sideWindow.position.set(wx, 3.9, 10.8);
-        truck.add(sideWindow);
+      // (b) Stepped Aero Roof Spoiler (Wind Deflector on Cab Roof per Photo!)
+      const aeroRoof = new THREE.Mesh(new THREE.BoxGeometry(4.2, 1.18, 2.4), cabMat);
+      aeroRoof.position.set(0, 5.10, -0.2);
+      cabGroup.add(aeroRoof);
+
+      // (c) Charcoal Front Bumper
+      const bumper = new THREE.Mesh(new THREE.BoxGeometry(5.2, 0.72, 0.55), bumperMat);
+      bumper.position.set(0, 0.65, 1.55);
+      cabGroup.add(bumper);
+
+      // (d) Yellow Rectangular Headlights (Corner mounted above bumper)
+      [-1.85, 1.85].forEach(function (hx) {
+        const headlight = new THREE.Mesh(new THREE.BoxGeometry(0.65, 0.38, 0.08), headlightMat);
+        headlight.position.set(hx, 1.25, 1.62);
+        cabGroup.add(headlight);
       });
 
-      [-1.8, 1.8].forEach(function (hx) {
-        const headlight = new THREE.Mesh(new THREE.BoxGeometry(0.65, 0.42, 0.12), new THREE.MeshBasicMaterial({ color: 0xfef08a }));
-        headlight.position.set(hx, 1.8, 12.42);
-        truck.add(headlight);
+      // (e) Front Windshield (Dark Visor Tint Glass)
+      const windshield = new THREE.Mesh(new THREE.BoxGeometry(4.5, 1.35, 0.12), darkGlassMat);
+      windshield.position.set(0, 3.65, 1.62);
+      cabGroup.add(windshield);
+
+      // (f) Side Windows (Driver & Passenger Dark Tint Glass)
+      [-2.57, 2.57].forEach(function (wx) {
+        const sideWindow = new THREE.Mesh(new THREE.BoxGeometry(0.08, 1.25, 1.6), darkGlassMat);
+        sideWindow.position.set(wx, 3.65, 0.2);
+        cabGroup.add(sideWindow);
       });
 
-      const grille = new THREE.Mesh(new THREE.BoxGeometry(2.4, 1.1, 0.14), chassisMat);
-      grille.position.set(0, 1.8, 12.42);
-      truck.add(grille);
+      truck.add(cabGroup);
 
-      // 10. Chassis & Wheels
-      const chassisBeams = new THREE.Mesh(new THREE.BoxGeometry(3.2, 0.45, 17.5), chassisMat);
-      chassisBeams.position.set(0, 1.1, 2.8);
+      // 10. Chassis & Tandem Wheels (Matching Reference Image 2 Rear Axles + 1 Front Axle)
+      const chassisBeams = new THREE.Mesh(new THREE.BoxGeometry(3.2, 0.45, 18.4), chassisMat);
+      chassisBeams.position.set(0, 1.05, 2.6);
       truck.add(chassisBeams);
 
-      const fuelTank = new THREE.Mesh(new THREE.CylinderGeometry(0.48, 0.48, 2.4, 14), chromeMat);
+      // Fuel Tank & Battery Box
+      const fuelTank = new THREE.Mesh(new THREE.CylinderGeometry(0.46, 0.46, 2.6, 14), chromeMat);
       fuelTank.rotation.z = Math.PI / 2;
-      fuelTank.position.set(2.4, 1.1, -1.0);
+      fuelTank.position.set(2.35, 1.05, -0.6);
       truck.add(fuelTank);
 
+      const battBox = new THREE.Mesh(new THREE.BoxGeometry(0.85, 0.65, 1.2), chassisMat);
+      battBox.position.set(-2.25, 1.05, -0.6);
+      truck.add(battBox);
+
+      // 6 Wheels: 1 Front Steering Axle + 2 Tandem Rear Axles (Per Reference Photo!)
+      // Front axle at z = 9.4
+      // Rear axle 1 at z = -2.2
+      // Rear axle 2 at z = -4.5
       const wheels = [];
-      [-3.2, 0.5, 6.2, 10.6].forEach(function (zPos) {
-        [-2.7, 2.7].forEach(function (xPos) {
-          const wh = new THREE.Mesh(new THREE.CylinderGeometry(0.92, 0.92, 0.62, 16), chassisMat);
+      const axlePositions = [-4.5, -2.2, 9.4];
+
+      axlePositions.forEach(function (zPos) {
+        [-2.65, 2.65].forEach(function (xPos) {
+          const wh = new THREE.Mesh(new THREE.CylinderGeometry(0.92, 0.92, 0.58, 20), chassisMat);
           wh.rotation.z = Math.PI / 2;
           wh.position.set(xPos, 0.92, zPos);
           truck.add(wh);
@@ -373,7 +561,7 @@
 
       // 11. Loaded Pallets Group (Positioned inside the open doorway on truck bed!)
       const loadedPalletsGroup = new THREE.Group();
-      loadedPalletsGroup.position.set(0, 1.46, -0.4);
+      loadedPalletsGroup.position.set(0, 1.46, 0.4);
       truck.add(loadedPalletsGroup);
       truck.userData.loadedPalletsGroup = loadedPalletsGroup;
 

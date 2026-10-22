@@ -9,7 +9,7 @@
        - Outfeed (Output, on the Right, x = +2.4): Hollow bright Safety Green (0x22c55e) outline box */
     function createDemarcatedStationBay(label, matKeysList, xPos, zPos, isRow1, hasInitialPallet) {
       const bayGroup = new THREE.Group();
-      bayGroup.position.set(xPos, 0.12, zPos);
+      bayGroup.position.set(xPos, 0.005, zPos);
 
       // Infeed (Input) = Bright Safety Yellow (0xfacc15); Outfeed (Output) = Bright Safety Green (0x22c55e)
       const isOutfeed = (label === 'OUTFEED');
@@ -18,33 +18,43 @@
       const w = 2.4;
       const d = 2.4;
       const thick = 0.10;
-      const h = 0.025;
+      const h = 0.015;
 
       const top = new THREE.Mesh(new THREE.BoxGeometry(w, h, thick), borderMat);
       top.position.set(0, h / 2, -d / 2 + thick / 2);
+      top.receiveShadow = true;
+      top.castShadow = false;
       bayGroup.add(top);
 
       const btm = new THREE.Mesh(new THREE.BoxGeometry(w, h, thick), borderMat);
       btm.position.set(0, h / 2, d / 2 - thick / 2);
+      btm.receiveShadow = true;
+      btm.castShadow = false;
       bayGroup.add(btm);
 
       const left = new THREE.Mesh(new THREE.BoxGeometry(thick, h, d - thick * 2), borderMat);
       left.position.set(-w / 2 + thick / 2, h / 2, 0);
+      left.receiveShadow = true;
+      left.castShadow = false;
       bayGroup.add(left);
 
       const right = new THREE.Mesh(new THREE.BoxGeometry(thick, h, d - thick * 2), borderMat);
       right.position.set(w / 2 - thick / 2, h / 2, 0);
+      right.receiveShadow = true;
+      right.castShadow = false;
       bayGroup.add(right);
 
       // Subtle translucent epoxy floor tint pad matching frame color (Yellow for Infeed, Green for Outfeed)
       const padMat = new THREE.MeshBasicMaterial({ color: frameColor, transparent: true, opacity: 0.16 });
-      const innerPad = new THREE.Mesh(new THREE.BoxGeometry(w - 0.2, 0.01, d - 0.2), padMat);
-      innerPad.position.set(0, 0.005, 0);
+      const innerPad = new THREE.Mesh(new THREE.BoxGeometry(w - 0.2, 0.005, d - 0.2), padMat);
+      innerPad.position.set(0, 0.002, 0);
+      innerPad.receiveShadow = true;
+      innerPad.castShadow = false;
       bayGroup.add(innerPad);
 
       // Dedicated cargo holder group inside the demarcated bay
       const cargoHolder = new THREE.Group();
-      cargoHolder.position.set(0, 0.03, 0);
+      cargoHolder.position.set(0, 0.008, 0);
       bayGroup.add(cargoHolder);
 
       bayGroup.userData.cargoHolder = cargoHolder;

@@ -21,15 +21,15 @@
       --danger-soft: rgba(220, 38, 38, 0.14);
       --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.08);
       --shadow-md: 0 8px 24px rgba(15, 23, 42, 0.12);
-      /* 3D Scene colors read by JS */
-      --scene-sky: #e8eff7;
-      --scene-ground: #e2e8f0;
-      --zone-rm-floor: #dce4ed;
-      --zone-rm-border: #94a3b8;
-      --zone-prd-floor: #e2e8f0;
-      --zone-prd-border: #94a3b8;
-      --zone-fg-floor: #dce4ed;
-      --zone-fg-border: #94a3b8;
+      /* 3D Scene colors read by JS (Industrial Concrete Floor Palette - Bright Clean Concrete) */
+      --scene-sky: #f1f5f9;
+      --scene-ground: #dce3ec;
+      --zone-rm-floor: #d2dbe5;
+      --zone-rm-border: #facc15;
+      --zone-prd-floor: #d8e0ea;
+      --zone-prd-border: #facc15;
+      --zone-fg-floor: #d2dbe5;
+      --zone-fg-border: #facc15;
     }
 
     @media (prefers-color-scheme: dark) {
@@ -47,13 +47,13 @@
         --accent-hover: #60a5fa;
         --accent-soft: rgba(59, 130, 246, 0.2);
         --scene-sky: #0b1120;
-        --scene-ground: #1e293b;
-        --zone-rm-floor: #172033;
-        --zone-rm-border: #475569;
-        --zone-prd-floor: #1e293b;
-        --zone-prd-border: #475569;
-        --zone-fg-floor: #172033;
-        --zone-fg-border: #475569;
+        --scene-ground: #1e2632;
+        --zone-rm-floor: #18202b;
+        --zone-rm-border: #eab308;
+        --zone-prd-floor: #1e2632;
+        --zone-prd-border: #eab308;
+        --zone-fg-floor: #18202b;
+        --zone-fg-border: #eab308;
       }
     }
 
@@ -71,13 +71,13 @@
       --accent-hover: #60a5fa;
       --accent-soft: rgba(59, 130, 246, 0.2);
       --scene-sky: #0b1120;
-      --scene-ground: #1e293b;
-      --zone-rm-floor: #172033;
-      --zone-rm-border: #475569;
-      --zone-prd-floor: #1e293b;
-      --zone-prd-border: #475569;
-      --zone-fg-floor: #172033;
-      --zone-fg-border: #475569;
+      --scene-ground: #1e2632;
+      --zone-rm-floor: #18202b;
+      --zone-rm-border: #eab308;
+      --zone-prd-floor: #1e2632;
+      --zone-prd-border: #eab308;
+      --zone-fg-floor: #18202b;
+      --zone-fg-border: #eab308;
     }
 
     * {
