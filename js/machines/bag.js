@@ -95,8 +95,8 @@ function buildBagMachine(st, rollersOut, reciprocatorsOut, extraWorkersOut) {
           });
 
           // Outfeed collection carton box at right end of each conveyor
-          const endBox = new THREE.Mesh(new THREE.BoxGeometry(1.15, 0.75, 1.25), cartonBeigeMat);
-          endBox.position.set(3.9, 0.38, zLane);
+          const endBox = createKraftCartonBox({ width: 1.15, height: 0.75, depth: 1.25, openTop: true });
+          endBox.position.set(3.9, 0.0, zLane);
           mGroup.add(endBox);
 
           // Finished Hygiene pouches stacked inside the carton box at end of conveyor
@@ -113,10 +113,10 @@ function buildBagMachine(st, rollersOut, reciprocatorsOut, extraWorkersOut) {
           }
         });
 
-        // 3 Beige Carton Boxes along front-left edge resting on floor
+        // 3 Kraft Corrugated Carton Boxes with white tape along front-left edge resting on floor
         [-3.8, -2.5, -1.2].forEach(function (bx) {
-          const fBox = new THREE.Mesh(new THREE.BoxGeometry(1.05, 0.82, 1.05), cartonBeigeMat);
-          fBox.position.set(bx, 0.41, 2.45);
+          const fBox = createKraftCartonBox(1.05, 0.82, 1.05, 'z');
+          fBox.position.set(bx, 0.0, 2.45);
           mGroup.add(fBox);
         });
 

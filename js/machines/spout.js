@@ -672,8 +672,8 @@ function buildSpoutMachine(st, rollersOut, reciprocatorsOut, extraWorkersOut) {
   // =========================================================================
   // Corrugated Cardboard Packing Carton Boxes on floor / table
   // Box 1: Open carton next to conveyor being filled with finished pouches
-  const packBox1 = new THREE.Mesh(new THREE.BoxGeometry(0.95, 0.72, 0.85), kraftBoxMat);
-  packBox1.position.set(convCenterX + convL / 2 + 0.35, 0.36, convCenterZ);
+  const packBox1 = createKraftCartonBox({ width: 0.95, height: 0.72, depth: 0.85, openTop: true });
+  packBox1.position.set(convCenterX + convL / 2 + 0.35, 0.0, convCenterZ);
   mGroup.add(packBox1);
 
   // Finished spouted pouches standing packed inside box
@@ -691,9 +691,9 @@ function buildSpoutMachine(st, rollersOut, reciprocatorsOut, extraWorkersOut) {
     mGroup.add(packedPouch);
   }
 
-  // Box 2: Larger staging box on floor beside the conveyor (seen in Image 1)
-  const floorBox = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.85, 1.1), kraftBoxMat);
-  floorBox.position.set(convCenterX + 0.55, 0.42, convCenterZ + convW / 2 + 0.75);
+  // Box 2: Larger staging box on floor beside the conveyor (matching reference image)
+  const floorBox = createKraftCartonBox(1.2, 0.85, 1.1, 'z');
+  floorBox.position.set(convCenterX + 0.55, 0.0, convCenterZ + convW / 2 + 0.75);
   mGroup.add(floorBox);
 
   return mGroup;

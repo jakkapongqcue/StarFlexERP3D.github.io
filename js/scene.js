@@ -437,28 +437,19 @@
 
       // (b) Stack of 3 Kraft Corrugated Cardboard Carton Boxes on the floor (matching reference image)
       // Placed directly on the concrete floor next to the rack: local x = 0.4, z = 0.0
-      const boxMat = new THREE.MeshLambertMaterial({ color: 0xd97706 });
-      const tapeMat = new THREE.MeshLambertMaterial({ color: 0xf8fafc });
       const boxMeshes = [];
       const bW = 2.4;
       const bD = 2.0;
       const bH = 0.52;
 
       for (let i = 0; i < 3; i++) {
-        const bGrp = new THREE.Group();
+        const bGrp = createKraftCartonBox(bW, bH, bD, 'z');
         bGrp.position.set(0.4, i * bH, 0);
-        const box = new THREE.Mesh(new THREE.BoxGeometry(bW, bH, bD), boxMat);
-        box.position.y = bH / 2;
-        bGrp.add(box);
-        // Clean white sealing tape across top face center
-        const tape = new THREE.Mesh(new THREE.BoxGeometry(0.48, 0.015, bD + 0.01), tapeMat);
-        tape.position.set(0, bH + 0.008, 0);
-        bGrp.add(tape);
         supGroup.add(bGrp);
         boxMeshes.push(bGrp);
       }
 
-      // (c) Stack of 2 White Boxes (Spout Caps / Fitment cartons) on the floor (matching reference image)
+      // (c) Stack of 2 Kraft Carton Boxes (Spout Caps / Fitment cartons) on the floor
       // Placed directly on the concrete floor to the right of cardboard boxes: local x = 3.0, z = 0.0
       const spoutMeshes = [];
       const sW = 1.8;
@@ -466,15 +457,8 @@
       const sH = 0.52;
 
       for (let j = 0; j < 2; j++) {
-        const sGrp = new THREE.Group();
+        const sGrp = createKraftCartonBox(sW, sH, sD, 'z');
         sGrp.position.set(3.0, j * sH, 0);
-        const sBox = new THREE.Mesh(new THREE.BoxGeometry(sW, sH, sD), whiteMat);
-        sBox.position.y = sH / 2;
-        sGrp.add(sBox);
-        // Subtle grey tape / seam line across top face center
-        const sTape = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.012, sD + 0.01), new THREE.MeshLambertMaterial({ color: 0xe2e8f0 }));
-        sTape.position.set(0, sH + 0.006, 0);
-        sGrp.add(sTape);
         supGroup.add(sGrp);
         spoutMeshes.push(sGrp);
       }

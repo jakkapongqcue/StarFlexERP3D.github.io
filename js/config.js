@@ -12,7 +12,7 @@
       LAMINATE_FILM:  { key: 'LAMINATE_FILM',  name: 'Laminate Film',         unit: 'kg',     initStock: 4200, color: '#8b5cf6', rmPos: [-48.2, 0, 13.8],rmDock: [-48.2, 0, 2.0]  },
       MIXED_INK:      { key: 'MIXED_INK',      name: 'Ready-to-use Ink',      unit: 'kg',     initStock: 180,  color: '#db2777', rmPos: [-51.2, 0, -8.2], rmDock: [-51.2, 0, -2.0] },
       PAPERCORE:      { key: 'PAPERCORE',      name: 'Papercore',             unit: 'pcs',    initStock: 1500, color: '#d97706', rmPos: [-75.2, 0, 11.5], rmDock: [-63, 0, 11.5] },
-      BOX:            { key: 'BOX',            name: 'Corrugated boxes',      unit: 'boxes',  initStock: 2000, color: '#b45309', rmPos: [-71.6, 0, 11.5], rmDock: [-63, 0, 11.5] },
+      BOX:            { key: 'BOX',            name: 'Corrugated boxes',      unit: 'boxes',  initStock: 2000, color: '#d4a373', rmPos: [-71.6, 0, 11.5], rmDock: [-63, 0, 11.5] },
       SPOUT:          { key: 'SPOUT',          name: 'Spout caps',            unit: 'pcs',    initStock: 50000,color: '#10b981', rmPos: [-68.8, 0, 11.5], rmDock: [-63, 0, 11.5] },
       /* WIP / FG transport items */
       PRINTING_ROLL:  { key: 'PRINTING_ROLL',  name: 'Printed Roll (Hygiene)', unit: 'kg',     initStock: 0,    color: '#be185d' },

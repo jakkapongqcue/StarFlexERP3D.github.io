@@ -111,21 +111,135 @@ function createPalletBaseMesh() {
       return drumGrp;
     }
 
+    /* =========================================================================
+       REUSABLE KRAFT CORRUGATED CARTON BOX COMPONENT (Matching User Reference Image)
+       Features:
+       - Natural Warm Kraft Cardboard body (0xd4a373)
+       - Crisp White Sealing Tape (0xf8fafc) running across the top face center
+       - Optional open-top mode for collection boxes with interior cavity
+       - Global material caching for zero redundant shader switches and low memory
+       - Supports both options object: { width, height, depth, tapeDir, openTop }
+         and positional parameters: (width, height, depth, tapeDir)
+       - Pivot at bottom center (Y = 0) so setting position.y = 0 places it flush on floor
+       ========================================================================= */
+    let _cachedKraftBoxMat = null;
+    let _cachedWhiteTapeMat = null;
+    let _cachedDarkInnerMat = null;
+
+    function getKraftBoxMaterial() {
+      if (!_cachedKraftBoxMat) {
+        _cachedKraftBoxMat = new THREE.MeshLambertMaterial({ color: 0xd4a373 });
+      }
+      return _cachedKraftBoxMat;
+    }
+
+    function getWhiteTapeMaterial() {
+      if (!_cachedWhiteTapeMat) {
+        _cachedWhiteTapeMat = new THREE.MeshLambertMaterial({ color: 0xf8fafc });
+      }
+      return _cachedWhiteTapeMat;
+    }
+
+    function getDarkInnerMaterial() {
+      if (!_cachedDarkInnerMat) {
+        _cachedDarkInnerMat = new THREE.MeshLambertMaterial({ color: 0xa87747 });
+      }
+      return _cachedDarkInnerMat;
+    }
+
+    function createKraftCartonBox(optionsOrW, height, depth, tapeDir) {
+      let w = 1.35, h = 0.90, d = 1.35, dir = 'z', tapeW = null, openTop = false, boxMat = null, tapeMat = null;
+
+      if (typeof optionsOrW === 'object' && optionsOrW !== null) {
+        w = optionsOrW.width !== undefined ? optionsOrW.width : 1.35;
+        h = optionsOrW.height !== undefined ? optionsOrW.height : 0.90;
+        d = optionsOrW.depth !== undefined ? optionsOrW.depth : 1.35;
+        dir = optionsOrW.tapeDir || 'z';
+        tapeW = optionsOrW.tapeWidth || null;
+        openTop = !!optionsOrW.openTop;
+        if (optionsOrW.color) {
+          boxMat = new THREE.MeshLambertMaterial({ color: optionsOrW.color });
+        }
+        if (optionsOrW.tapeColor) {
+          tapeMat = new THREE.MeshLambertMaterial({ color: optionsOrW.tapeColor });
+        }
+      } else if (typeof optionsOrW === 'number') {
+        w = optionsOrW;
+        h = height !== undefined ? height : 0.90;
+        d = depth !== undefined ? depth : 1.35;
+        dir = tapeDir || 'z';
+      }
+
+      const grp = new THREE.Group();
+      const bMat = boxMat || getKraftBoxMaterial();
+      const tMat = tapeMat || getWhiteTapeMaterial();
+
+      if (openTop) {
+        const wallThick = 0.05;
+        const btm = new THREE.Mesh(new THREE.BoxGeometry(w, wallThick, d), bMat);
+        btm.position.y = wallThick / 2;
+        btm.castShadow = true;
+        btm.receiveShadow = true;
+        grp.add(btm);
+
+        const fbGeo = new THREE.BoxGeometry(w, h - wallThick, wallThick);
+        const frontWall = new THREE.Mesh(fbGeo, bMat);
+        frontWall.position.set(0, wallThick + (h - wallThick) / 2, d / 2 - wallThick / 2);
+        frontWall.castShadow = true;
+        grp.add(frontWall);
+
+        const backWall = new THREE.Mesh(fbGeo, bMat);
+        backWall.position.set(0, wallThick + (h - wallThick) / 2, -d / 2 + wallThick / 2);
+        backWall.castShadow = true;
+        grp.add(backWall);
+
+        const lrGeo = new THREE.BoxGeometry(wallThick, h - wallThick, d - wallThick * 2);
+        const leftWall = new THREE.Mesh(lrGeo, bMat);
+        leftWall.position.set(-w / 2 + wallThick / 2, wallThick + (h - wallThick) / 2, 0);
+        leftWall.castShadow = true;
+        grp.add(leftWall);
+
+        const rightWall = new THREE.Mesh(lrGeo, bMat);
+        rightWall.position.set(w / 2 - wallThick / 2, wallThick + (h - wallThick) / 2, 0);
+        rightWall.castShadow = true;
+        grp.add(rightWall);
+
+        const innerLiner = new THREE.Mesh(new THREE.BoxGeometry(w - wallThick * 2, 0.005, d - wallThick * 2), getDarkInnerMaterial());
+        innerLiner.position.y = wallThick + 0.003;
+        grp.add(innerLiner);
+      } else {
+        const box = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), bMat);
+        box.position.y = h / 2;
+        box.castShadow = true;
+        box.receiveShadow = true;
+        grp.add(box);
+
+        const tThickness = 0.015;
+        let tGeo;
+        if (dir === 'x') {
+          const calcTapeW = tapeW || Math.max(0.18, Math.min(0.38, d * 0.24));
+          tGeo = new THREE.BoxGeometry(w + 0.01, tThickness, calcTapeW);
+        } else {
+          const calcTapeW = tapeW || Math.max(0.18, Math.min(0.38, w * 0.24));
+          tGeo = new THREE.BoxGeometry(calcTapeW, tThickness, d + 0.01);
+        }
+
+        const tape = new THREE.Mesh(tGeo, tMat);
+        tape.position.set(0, h + tThickness / 2, 0);
+        tape.castShadow = true;
+        grp.add(tape);
+
+        grp.userData.boxMesh = box;
+        grp.userData.tapeMesh = tape;
+      }
+
+      grp.userData.dimensions = { width: w, height: h, depth: d };
+      return grp;
+    }
+
     /* Helper: Create Kraft Corrugated Carton Box with White Center Tape (Reference Image) */
     function createKraftRackBox() {
-      const boxGrp = new THREE.Group();
-      const kraftMat = new THREE.MeshLambertMaterial({ color: 0xd4a373 });
-      const tapeMat  = new THREE.MeshLambertMaterial({ color: 0xf8fafc });
-
-      const box = new THREE.Mesh(new THREE.BoxGeometry(1.35, 0.90, 1.35), kraftMat);
-      box.position.y = 0.45;
-      boxGrp.add(box);
-
-      const tape = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.02, 1.36), tapeMat);
-      tape.position.set(0, 0.91, 0);
-      boxGrp.add(tape);
-
-      return boxGrp;
+      return createKraftCartonBox(1.35, 0.90, 1.35, 'z');
     }
 
     /* =========================================================================
@@ -1148,17 +1262,11 @@ function createPalletBaseMesh() {
           }
         }
       } else if (matKey === 'BOX' || matKey === 'FG_BAG_BOX' || matKey === 'FG_SPOUT_BOX') {
-        const boxColor = matKey === 'BOX' ? 0xb45309 : (matKey === 'FG_BAG_BOX' ? 0xd97706 : 0x059669);
-        const cartonMat = new THREE.MeshLambertMaterial({ color: boxColor });
-        const tapeMat = new THREE.MeshLambertMaterial({ color: 0xfef08a });
         for (let y = 0; y < 2; y++) {
           for (let x = -0.48; x <= 0.48; x += 0.96) {
-            const box = new THREE.Mesh(new THREE.BoxGeometry(0.88, 0.58, 1.35), cartonMat);
-            box.position.set(x, 0.56 + y * 0.60, 0);
-            grp.add(box);
-            const tape = new THREE.Mesh(new THREE.BoxGeometry(0.90, 0.04, 1.37), tapeMat);
-            tape.position.set(x, 0.85 + y * 0.60, 0);
-            grp.add(tape);
+            const b = createKraftCartonBox(0.88, 0.58, 1.35, 'z');
+            b.position.set(x, 0.27 + y * 0.60, 0);
+            grp.add(b);
           }
         }
         if (matKey === 'FG_BAG_BOX') {
@@ -1170,7 +1278,7 @@ function createPalletBaseMesh() {
                 height: 0.46,
                 depth: 0.075
               });
-              p.position.set(bx, 1.15, bz);
+              p.position.set(bx, 1.48, bz);
               p.rotation.z = -0.06;
               grp.add(p);
             });
@@ -1185,7 +1293,7 @@ function createPalletBaseMesh() {
                 height: 0.46,
                 depth: 0.075
               });
-              sp.position.set(bx, 1.15, bz);
+              sp.position.set(bx, 1.48, bz);
               sp.rotation.z = -0.06;
               grp.add(sp);
             });
