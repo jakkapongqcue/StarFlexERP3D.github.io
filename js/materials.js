@@ -238,6 +238,12 @@ function createPalletBaseMesh(palletColor) {
           label.position.set(0, h * 0.52, d / 2 + 0.003);
           grp.add(label);
           grp.userData.labelMesh = label;
+
+          // Side-facing label
+          const sideLabel = new THREE.Mesh(new THREE.PlaneGeometry(labelW, labelH), labelMat);
+          sideLabel.rotation.y = Math.PI / 2;
+          sideLabel.position.set(w / 2 + 0.003, h * 0.52, 0);
+          grp.add(sideLabel);
         }
 
         grp.userData.boxMesh = box;
@@ -1278,7 +1284,7 @@ function createPalletBaseMesh(palletColor) {
           width: 2.2,
           depth: 1.6,
           tiers: 2,
-          hasWrap: false
+          hasWrap: true
         });
         if (matKey === 'FG_BAG_BOX') {
           [-0.48, 0.48].forEach(function (bx) {
@@ -1828,6 +1834,13 @@ function createFgShrinkWrappedBoxPallet(labelType, tiersCount) {
           label.position.set(bx, curY + boxH * 0.52, bz + boxD / 2 + 0.003);
           grp.add(label);
         }
+        // Product label on side-facing side of box
+        if (bx > 0) {
+          const sideLabel = new THREE.Mesh(new THREE.PlaneGeometry(0.38, 0.22), labelMat);
+          sideLabel.rotation.y = Math.PI / 2;
+          sideLabel.position.set(bx + boxW / 2 + 0.003, curY + boxH * 0.52, bz);
+          grp.add(sideLabel);
+        }
       });
     });
   }
@@ -2018,6 +2031,13 @@ function createFgFloorStagedBoxPallet(variant) {
           label.position.set(bx, curY + boxH * 0.52, bz + boxD / 2 + 0.003);
           grp.add(label);
         }
+        if (bx > 0) {
+          const lMat = starflexMat;
+          const sideLabel = new THREE.Mesh(new THREE.PlaneGeometry(0.38, 0.22), lMat);
+          sideLabel.rotation.y = Math.PI / 2;
+          sideLabel.position.set(bx + boxW / 2 + 0.003, curY + boxH * 0.52, bz);
+          grp.add(sideLabel);
+        }
       });
     });
   }
@@ -2180,11 +2200,18 @@ function buildStandardBoxPalletLayers(parentGroup, baseHeight, options) {
         tape.position.set(bx, curY + boxH + 0.005, bz);
         parentGroup.add(tape);
 
-        // Front-facing label
+        // Front-facing label (facing +Z)
         if (bz > 0) {
           const label = new THREE.Mesh(new THREE.PlaneGeometry(0.36, 0.21), labelMat);
           label.position.set(bx, curY + boxH * 0.52, bz + boxD / 2 + 0.003);
           parentGroup.add(label);
+        }
+        // Side-facing label (facing +X)
+        if (bx > 0) {
+          const sideLabel = new THREE.Mesh(new THREE.PlaneGeometry(0.36, 0.21), labelMat);
+          sideLabel.rotation.y = Math.PI / 2;
+          sideLabel.position.set(bx + boxW / 2 + 0.003, curY + boxH * 0.52, bz);
+          parentGroup.add(sideLabel);
         }
       });
     });
@@ -2198,6 +2225,14 @@ function buildStandardBoxPalletLayers(parentGroup, baseHeight, options) {
     );
     wrapMesh.position.set(0, bHeight + totalH / 2, 0);
     parentGroup.add(wrapMesh);
+
+    // Subtle horizontal stretch-wrap ribbon seams
+    const seamMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.25 });
+    for (let sy = bHeight + 0.18; sy < bHeight + totalH; sy += 0.28) {
+      const seam = new THREE.Mesh(new THREE.BoxGeometry(palW - 0.04, 0.02, palD - 0.04), seamMat);
+      seam.position.set(0, sy, 0);
+      parentGroup.add(seam);
+    }
   }
 }
 

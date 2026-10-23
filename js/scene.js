@@ -423,7 +423,7 @@
       // (b) Standard Box Pallet for Production Supplies (media_1792732066355)
       // Placed directly on the concrete floor next to the rack: local x = 0.4, z = 0.0
       const boxMeshes = [];
-      const boxPallet1 = createStandardBoxPallet({ width: 2.2, depth: 1.6, tiers: 2, hasWrap: false });
+      const boxPallet1 = createStandardBoxPallet({ width: 2.2, depth: 1.6, tiers: 2, hasWrap: true });
       boxPallet1.position.set(0.4, 0.0, 0.0);
       supGroup.add(boxPallet1);
       boxMeshes.push(boxPallet1);
@@ -431,10 +431,18 @@
       // (c) Standard Box Pallet for Spout Caps / Fitment Cartons on the floor
       // Placed directly on the concrete floor to the right of cardboard boxes: local x = 3.0, z = 0.0
       const spoutMeshes = [];
-      const boxPallet2 = createStandardBoxPallet({ width: 2.0, depth: 1.6, tiers: 2, hasWrap: false });
+      const boxPallet2 = createStandardBoxPallet({ width: 2.0, depth: 1.6, tiers: 2, hasWrap: true });
       boxPallet2.position.set(3.0, 0.0, 0.0);
       supGroup.add(boxPallet2);
       spoutMeshes.push(boxPallet2);
+
+      // Loose Kraft carton boxes staged on floor near pallets (matching Bag workstation style)
+      [-1.8, -0.7].forEach(function (bx) {
+        const looseBox = createKraftCartonBox(1.0, 0.8, 1.0, 'z');
+        looseBox.position.set(bx, 0.0, 1.3);
+        supGroup.add(looseBox);
+        boxMeshes.push(looseBox);
+      });
       rmGroup.add(supGroup);
 
       sceneObjects.rmVisualGroups.PAPERCORE = { group: supGroup, pallets: coreMeshes };
