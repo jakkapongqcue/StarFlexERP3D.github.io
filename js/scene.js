@@ -194,25 +194,39 @@
       function redraw(titleText, statusText, subText) {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        // 1. Deep industrial plate background with metallic border
-        ctx.fillStyle = "#0f172a";
-        ctx.strokeStyle = "#334155";
-        ctx.lineWidth = 4;
-        drawCanvasRoundRect(ctx, 4, 4, canvas.width - 8, canvas.height - 8, 14);
+        // 1. Light Industrial Plate Background (Clean Crisp White with subtle metallic depth)
+        ctx.save();
+        ctx.shadowColor = "rgba(15, 23, 42, 0.16)";
+        ctx.shadowBlur = 10;
+        ctx.shadowOffsetY = 4;
+        ctx.fillStyle = "#ffffff";
+        drawCanvasRoundRect(ctx, 6, 6, canvas.width - 12, canvas.height - 12, 14);
         ctx.fill();
+        ctx.restore();
+
+        // Metallic outer border
+        ctx.strokeStyle = "#94a3b8";
+        ctx.lineWidth = 3;
+        drawCanvasRoundRect(ctx, 6, 6, canvas.width - 12, canvas.height - 12, 14);
+        ctx.stroke();
+
+        // Inner decorative border line
+        ctx.strokeStyle = "#e2e8f0";
+        ctx.lineWidth = 1.5;
+        drawCanvasRoundRect(ctx, 11, 11, canvas.width - 22, canvas.height - 22, 10);
         ctx.stroke();
 
         // 2. Corner industrial rivets / bolts
         const rivets = [
-          [16, 16], [canvas.width - 16, 16],
-          [16, canvas.height - 16], [canvas.width - 16, canvas.height - 16]
+          [20, 20], [canvas.width - 20, 20],
+          [20, canvas.height - 20], [canvas.width - 20, canvas.height - 20]
         ];
         rivets.forEach(function (pt) {
           ctx.fillStyle = "#64748b";
           ctx.beginPath();
-          ctx.arc(pt[0], pt[1], 3.5, 0, Math.PI * 2);
+          ctx.arc(pt[0], pt[1], 4, 0, Math.PI * 2);
           ctx.fill();
-          ctx.strokeStyle = "#94a3b8";
+          ctx.strokeStyle = "#cbd5e1";
           ctx.lineWidth = 1;
           ctx.beginPath();
           ctx.moveTo(pt[0] - 2.5, pt[1]);
@@ -221,33 +235,33 @@
         });
 
         // 3. Status LED Accent Stripe on the left edge
-        let statusColor = "#94a3b8";
-        if (statusText === "RUNNING") statusColor = "#22c55e";
-        else if (statusText === "DONE") statusColor = "#3b82f6";
-        else if (statusText === "WAITING" || statusText === "WAITING_INPUT") statusColor = "#f59e0b";
-        else if (statusText === "SKIPPED") statusColor = "#64748b";
+        let statusColor = "#64748b";
+        if (statusText === "RUNNING") statusColor = "#16a34a";
+        else if (statusText === "DONE") statusColor = "#2563eb";
+        else if (statusText === "WAITING" || statusText === "WAITING_INPUT") statusColor = "#d97706";
+        else if (statusText === "SKIPPED") statusColor = "#94a3b8";
         else if (opt.accentColor) statusColor = opt.accentColor;
 
         ctx.fillStyle = statusColor;
-        drawCanvasRoundRect(ctx, 14, 20, 8, canvas.height - 40, 4);
+        drawCanvasRoundRect(ctx, 16, 22, 9, canvas.height - 44, 4);
         ctx.fill();
 
-        // 4. Main Title
-        ctx.fillStyle = "#f8fafc";
+        // 4. Main Title (Dark bold text for maximum contrast on light background)
+        ctx.fillStyle = "#0f172a";
         ctx.font = "bold 32px \"Segoe UI\", -apple-system, sans-serif";
         ctx.textAlign = "left";
         ctx.textBaseline = "middle";
-        ctx.fillText(titleText, 34, 48);
+        ctx.fillText(titleText, 38, 50);
 
         // 5. Subtitle / Status Badge
         if (statusText) {
           ctx.fillStyle = statusColor;
           ctx.font = "bold 20px \"Segoe UI\", monospace";
-          ctx.fillText("● " + statusText, 36, 96);
+          ctx.fillText("● " + statusText, 40, 98);
         } else if (subText || opt.subText) {
-          ctx.fillStyle = "#94a3b8";
+          ctx.fillStyle = "#475569";
           ctx.font = "bold 18px \"Segoe UI\", sans-serif";
-          ctx.fillText((subText || opt.subText).toUpperCase(), 36, 96);
+          ctx.fillText((subText || opt.subText).toUpperCase(), 40, 98);
         }
 
         texture.needsUpdate = true;
@@ -288,7 +302,6 @@
       }
       return mesh;
     }
-
     function registerLabel3D(textHtml, worldPosVec3, cssClass, clickTargetKey) {
       const div = document.createElement('div');
       div.className = 'tag-3d ' + (cssClass || '');
@@ -719,16 +732,14 @@
         const outfeedBay = createDemarcatedStationBay('OUTFEED', st.outfeedMat || ['BLOWN_FILM'], 2.4, bayLocalZ, isRow1, false);
         stGroup.add(outfeedBay);
 
-        // Status Beacon Light
+        // Status Beacon Material (preserved for simulation status tracking without floating sphere mesh)
         const beaconMat = new THREE.MeshBasicMaterial({ color: 0x94a3b8 });
-        const beacon = new THREE.Mesh(new THREE.SphereGeometry(0.42, 12, 12), beaconMat);
-        beacon.position.set(5.8, 5.4, isRow1 ? -2.5 : 2.5);
-        stGroup.add(beacon);
+        // Floating grey sphere mesh removed per user request: status is clearly shown on Floor Plate
 
-        // Primary Station Worker placed centered behind the two yellow demarcation boxes facing the central corridor
+        // Primary Station Worker placed at machine control console (so they never stand on the floor plate)
         let workerColor = 0xfacc15;
         let workerX = 0;
-        let workerZ = isRow1 ? 4.8 : -4.8;
+        let workerZ = isRow1 ? 2.2 : -2.2;
         if (st.id === 'ST_SLIT') {
           workerColor = 0x10b981; // Green shirt worker matching Slit reference image
           workerX = -0.4;
@@ -745,7 +756,7 @@
 
         // Style 1: Industrial Floor Plate placed directly on the floor in front of each machine
         const isRow1Station = (st.row === 1);
-        const plateZ = isRow1Station ? -7.8 : 17.2;
+        const plateZ = isRow1Station ? -6.8 : 17.2;
         const plateMesh = createIndustrialFloorPlateMesh({
           text: st.stepNum + '. ' + st.name,
           status: 'IDLE',
