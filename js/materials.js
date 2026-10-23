@@ -1240,7 +1240,7 @@ function createPalletBaseMesh(palletColor) {
           grp.add(core);
         }
       } else if (matKey === 'SLIT_ROLL') {
-        // 4 Narrow Slit Hygiene Film Rolls (2x2) on pallet
+        // 4 Narrow Slit Hygiene Film Rolls laid flat horizontally on pallet
         const slitMat = new THREE.MeshStandardMaterial({
           map: getHygieneFilmTexture(),
           roughness: 0.28,
@@ -1248,19 +1248,29 @@ function createPalletBaseMesh(palletColor) {
         });
         const faceMat = new THREE.MeshLambertMaterial({ color: 0xfbcfe8 });
         const coreMat = new THREE.MeshLambertMaterial({ color: 0xd97706 }); // Papercore
-        const rollWidth = 0.44;
+        const rollH = 0.42;
+        const rollRadius = 0.44;
+        const baseY = 0.26;
+
+        // Cardboard base protector sheet on pallet deck
+        const sheet = new THREE.Mesh(new THREE.BoxGeometry(2.1, 0.015, 1.7), getKraftBoxMaterial());
+        sheet.position.set(0, baseY + 0.0075, 0);
+        grp.add(sheet);
+
         [-0.50, 0.50].forEach(function (rx) {
           [-0.45, 0.45].forEach(function (rz) {
             const roll = new THREE.Mesh(
-              new THREE.CylinderGeometry(0.48, 0.48, rollWidth, 20),
+              new THREE.CylinderGeometry(rollRadius, rollRadius, rollH, 24),
               [slitMat, faceMat, faceMat]
             );
-            roll.rotation.z = Math.PI / 2;
-            roll.position.set(rx, 0.74, rz);
+            roll.position.set(rx, baseY + 0.015 + rollH / 2, rz);
             grp.add(roll);
-            const core = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.16, rollWidth + 0.10, 12), coreMat);
-            core.rotation.z = Math.PI / 2;
-            core.position.set(rx, 0.74, rz);
+
+            const core = new THREE.Mesh(
+              new THREE.CylinderGeometry(0.14, 0.14, rollH + 0.01, 16),
+              coreMat
+            );
+            core.position.set(rx, baseY + 0.015 + rollH / 2, rz);
             grp.add(core);
           });
         });
