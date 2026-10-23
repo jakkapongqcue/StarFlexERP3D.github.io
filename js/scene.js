@@ -739,7 +739,7 @@
         // Primary Station Worker placed at machine control console (so they never stand on the floor plate)
         let workerColor = 0xfacc15;
         let workerX = 0;
-        let workerZ = isRow1 ? 2.2 : -2.2;
+        let workerZ = isRow1 ? 1.8 : -1.8;
         if (st.id === 'ST_SLIT') {
           workerColor = 0x10b981; // Green shirt worker matching Slit reference image
           workerX = -0.4;
@@ -754,15 +754,15 @@
 
         scene.add(stGroup);
 
-        // Style 1: Industrial Floor Plate placed directly on the floor in front of each machine
+        // Style 1: Industrial Floor Plate shifted up to -8.2 so it never touches the infeed/outfeed bays
         const isRow1Station = (st.row === 1);
-        const plateZ = isRow1Station ? -6.8 : 17.2;
+        const plateZ = isRow1Station ? -8.2 : 17.2;
         const plateMesh = createIndustrialFloorPlateMesh({
           text: st.stepNum + '. ' + st.name,
           status: 'IDLE',
           pos: [st.pos[0], 0.035, plateZ],
-          width: 5.8,
-          height: 1.65,
+          width: 5.2,
+          height: 1.5,
           targetKey: st.id
         });
 
