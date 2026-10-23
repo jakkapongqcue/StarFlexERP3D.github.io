@@ -239,11 +239,6 @@ function createPalletBaseMesh(palletColor) {
           grp.add(label);
           grp.userData.labelMesh = label;
 
-          // Side-facing label
-          const sideLabel = new THREE.Mesh(new THREE.PlaneGeometry(labelW, labelH), labelMat);
-          sideLabel.rotation.y = Math.PI / 2;
-          sideLabel.position.set(w / 2 + 0.003, h * 0.52, 0);
-          grp.add(sideLabel);
         }
 
         grp.userData.boxMesh = box;
@@ -1740,10 +1735,10 @@ function getStretchWrapMaterial() {
     _cachedStretchWrapMat = new THREE.MeshStandardMaterial({
       color: 0xffffff,
       transparent: true,
-      opacity: 0.36,
-      roughness: 0.12,
-      metalness: 0.08,
-      side: THREE.DoubleSide
+      opacity: 0.06,
+      roughness: 0.10,
+      metalness: 0.05,
+      depthWrite: false
     });
   }
   return _cachedStretchWrapMat;
@@ -1834,13 +1829,6 @@ function createFgShrinkWrappedBoxPallet(labelType, tiersCount) {
           label.position.set(bx, curY + boxH * 0.52, bz + boxD / 2 + 0.003);
           grp.add(label);
         }
-        // Product label on side-facing side of box
-        if (bx > 0) {
-          const sideLabel = new THREE.Mesh(new THREE.PlaneGeometry(0.38, 0.22), labelMat);
-          sideLabel.rotation.y = Math.PI / 2;
-          sideLabel.position.set(bx + boxW / 2 + 0.003, curY + boxH * 0.52, bz);
-          grp.add(sideLabel);
-        }
       });
     });
   }
@@ -1852,13 +1840,6 @@ function createFgShrinkWrappedBoxPallet(labelType, tiersCount) {
   wrapMesh.position.set(0, palH + totalStackH / 2, 0);
   grp.add(wrapMesh);
 
-  // Fine horizontal stretch-wrap ribbon seams
-  const seamMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.25 });
-  for (let sy = palH + 0.18; sy < palH + totalStackH; sy += 0.28) {
-    const seam = new THREE.Mesh(new THREE.BoxGeometry(palW - 0.06, 0.02, palD - 0.06), seamMat);
-    seam.position.set(0, sy, 0);
-    grp.add(seam);
-  }
 
   return grp;
 }
@@ -2031,13 +2012,6 @@ function createFgFloorStagedBoxPallet(variant) {
           label.position.set(bx, curY + boxH * 0.52, bz + boxD / 2 + 0.003);
           grp.add(label);
         }
-        if (bx > 0) {
-          const lMat = starflexMat;
-          const sideLabel = new THREE.Mesh(new THREE.PlaneGeometry(0.38, 0.22), lMat);
-          sideLabel.rotation.y = Math.PI / 2;
-          sideLabel.position.set(bx + boxW / 2 + 0.003, curY + boxH * 0.52, bz);
-          grp.add(sideLabel);
-        }
       });
     });
   }
@@ -2106,13 +2080,6 @@ function createFgFloorStagedBoxPallet(variant) {
   wrapMesh.position.set(0, palH + lowerH / 2, 0);
   grp.add(wrapMesh);
 
-  // Subtle stretch wrap horizontal ribbon seams
-  const seamMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.25 });
-  for (let sy = palH + 0.22; sy < palH + lowerH; sy += 0.32) {
-    const seam = new THREE.Mesh(new THREE.BoxGeometry(palW - 0.04, 0.02, palD - 0.04), seamMat);
-    seam.position.set(0, sy, 0);
-    grp.add(seam);
-  }
 
   return grp;
 }
@@ -2206,13 +2173,6 @@ function buildStandardBoxPalletLayers(parentGroup, baseHeight, options) {
           label.position.set(bx, curY + boxH * 0.52, bz + boxD / 2 + 0.003);
           parentGroup.add(label);
         }
-        // Side-facing label (facing +X)
-        if (bx > 0) {
-          const sideLabel = new THREE.Mesh(new THREE.PlaneGeometry(0.36, 0.21), labelMat);
-          sideLabel.rotation.y = Math.PI / 2;
-          sideLabel.position.set(bx + boxW / 2 + 0.003, curY + boxH * 0.52, bz);
-          parentGroup.add(sideLabel);
-        }
       });
     });
   }
@@ -2226,13 +2186,6 @@ function buildStandardBoxPalletLayers(parentGroup, baseHeight, options) {
     wrapMesh.position.set(0, bHeight + totalH / 2, 0);
     parentGroup.add(wrapMesh);
 
-    // Subtle horizontal stretch-wrap ribbon seams
-    const seamMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.25 });
-    for (let sy = bHeight + 0.18; sy < bHeight + totalH; sy += 0.28) {
-      const seam = new THREE.Mesh(new THREE.BoxGeometry(palW - 0.04, 0.02, palD - 0.04), seamMat);
-      seam.position.set(0, sy, 0);
-      parentGroup.add(seam);
-    }
   }
 }
 
