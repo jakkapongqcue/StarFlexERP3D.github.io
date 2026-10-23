@@ -357,7 +357,7 @@
         { target: 'ZONE_RM', label: 'RM WH' },
         { target: 'ZONE_PRD', label: 'PRD Line' },
         { target: 'ZONE_PRD_WH', label: 'PRD WH' },
-        { target: 'ZONE_FG', label: 'Warehouse FG & Dock' }
+        { target: 'ZONE_FG', label: 'FG WH & Yard' }
       ];
 
       const zoneChipsHtml = '<div class="bottom-bar-group">' +
@@ -547,7 +547,7 @@
           });
         }
       } else if (target === 'STEP_FG') {
-        titleEl.textContent = '8. Warehouse FG Racks';
+        titleEl.textContent = '8. FG WH & Yard Racks';
         badgeEl.textContent = 'Storage & QA';
         badgeEl.className = 'status-badge status-idle';
         contentEl.innerHTML =

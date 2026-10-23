@@ -86,7 +86,7 @@
       },
       ZONE_FG: {
         id: 'ZONE_FG',
-        name: 'Warehouse FG & Yard',
+        name: 'FG WH & Yard',
         role: 'Multi-tier FG pallet storage racks and open Truck Loading Yard for direct forklift loading.',
         handling: 'FG Forklift collects finished pallets into FG racks; Delivery Forklift loads pallets directly onto the Container Truck in the yard.',
         center: [64, 0, 0],
@@ -227,7 +227,7 @@
       { id: 'ST_SLIT',  label: '5. Slit' },
       { id: 'ST_BAG',   label: '6. Bag' },
       { id: 'ST_SPOUT', label: '7. Spout' },
-      { id: 'STEP_FG',  label: '8. Warehouse FG' },
+      { id: 'STEP_FG',  label: '8. FG WH & Yard' },
       { id: 'STEP_DELIVERED', label: '9. Delivered' }
     ];
 

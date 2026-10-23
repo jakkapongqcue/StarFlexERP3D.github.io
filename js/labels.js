@@ -45,7 +45,7 @@
       bannerEl.classList.remove('hidden');
 
       if (focusTarget === 'STEP_FG') {
-        titleEl.textContent = 'Process Focus: 8. Warehouse FG';
+        titleEl.textContent = 'Process Focus: 8. FG WH & Yard';
         badgeEl.textContent = 'STORAGE & QA';
         badgeEl.className = 'status-badge status-idle';
         inEl.textContent = 'Palletized finished pouches & rolls from PRD line';
@@ -119,12 +119,17 @@
         const isRunning = runtime && runtime.status === 'RUNNING';
         const isFocused = (appState.selectedTarget === st.id) || (appState.followFlow && appState.activeStepId === st.id);
 
-        stObj.headerTag.el.className = 'tag-3d tag-station' +
-          (isRunning ? ' active-station' : '') +
-          (isFocused ? ' focused-station' : '');
-        stObj.headerTag.el.innerHTML =
-          st.stepNum + '. ' + st.name + ' <span style="opacity:0.8;">(' +
-          (isSkipped ? 'SKIPPED' : (runtime ? runtime.status : 'IDLE')) + ')</span>';
+        const statusStr = isSkipped ? 'SKIPPED' : (runtime ? runtime.status : 'IDLE');
+        if (stObj.floorPlate && stObj.floorPlate.userData && stObj.floorPlate.userData.updateText) {
+          stObj.floorPlate.userData.updateText(st.stepNum + '. ' + st.name, statusStr);
+        }
+        if (stObj.headerTag && stObj.headerTag.el) {
+          stObj.headerTag.el.className = 'tag-3d tag-station' +
+            (isRunning ? ' active-station' : '') +
+            (isFocused ? ' focused-station' : '');
+          stObj.headerTag.el.innerHTML =
+            st.stepNum + '. ' + st.name + ' <span style="opacity:0.8;">(' + statusStr + ')</span>';
+        }
 
         stObj.inTag.el.className = 'tag-3d tag-io io-in' + (isFocused ? ' io-focused' : '');
         stObj.outTag.el.className = 'tag-3d tag-io io-out' + (isFocused ? ' io-focused' : '');

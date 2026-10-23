@@ -298,20 +298,7 @@ function buildFactoryFloorSystem(scene, zonesConfig, sceneObjects, getCssVar, re
       sceneObjects.zoneBorders[zKey] = borderGroup;
     }
 
-    // 3D Zone Labels
-    if (typeof registerLabel3D === 'function') {
-      const labelHtml = isSubZone
-        ? '<span class="mat-dot" style="background:#94a3b8;"></span>PRD WH'
-        : zCfg.name;
-      const labelY = isSubZone ? 4.8 : 8.8;
-      const labelZ = isSubZone ? 5.2 : (zCfg.center[2] - zCfg.size[1] / 2 + 2);
-      registerLabel3D(
-        labelHtml,
-        new THREE.Vector3(zCfg.center[0], labelY, labelZ),
-        'tag-zone',
-        zKey
-      );
-    }
+    // (Floating 3D Zone Labels replaced by Industrial Floor Plates in js/scene.js)
   });
 
   // 4. Central Transit Highway (Dashed lines removed per user request)

@@ -164,6 +164,131 @@
     };
 
 
+    function drawCanvasRoundRect(ctx, x, y, width, height, radius) {
+      if (typeof ctx.roundRect === "function") {
+        ctx.beginPath();
+        ctx.roundRect(x, y, width, height, radius);
+        return;
+      }
+      ctx.beginPath();
+      ctx.moveTo(x + radius, y);
+      ctx.lineTo(x + width - radius, y);
+      ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+      ctx.lineTo(x + width, y + height - radius);
+      ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+      ctx.lineTo(x + radius, y + height);
+      ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+      ctx.lineTo(x, y + radius);
+      ctx.quadraticCurveTo(x, y, x + radius, y);
+      ctx.closePath();
+    }
+
+    function createIndustrialFloorPlateMesh(opt) {
+      const w = opt.width || 5.8;
+      const h = opt.height || 1.65;
+      const canvas = document.createElement("canvas");
+      canvas.width = 512;
+      canvas.height = 144;
+      const ctx = canvas.getContext("2d");
+
+      function redraw(titleText, statusText, subText) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // 1. Deep industrial plate background with metallic border
+        ctx.fillStyle = "#0f172a";
+        ctx.strokeStyle = "#334155";
+        ctx.lineWidth = 4;
+        drawCanvasRoundRect(ctx, 4, 4, canvas.width - 8, canvas.height - 8, 14);
+        ctx.fill();
+        ctx.stroke();
+
+        // 2. Corner industrial rivets / bolts
+        const rivets = [
+          [16, 16], [canvas.width - 16, 16],
+          [16, canvas.height - 16], [canvas.width - 16, canvas.height - 16]
+        ];
+        rivets.forEach(function (pt) {
+          ctx.fillStyle = "#64748b";
+          ctx.beginPath();
+          ctx.arc(pt[0], pt[1], 3.5, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.strokeStyle = "#94a3b8";
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(pt[0] - 2.5, pt[1]);
+          ctx.lineTo(pt[0] + 2.5, pt[1]);
+          ctx.stroke();
+        });
+
+        // 3. Status LED Accent Stripe on the left edge
+        let statusColor = "#94a3b8";
+        if (statusText === "RUNNING") statusColor = "#22c55e";
+        else if (statusText === "DONE") statusColor = "#3b82f6";
+        else if (statusText === "WAITING" || statusText === "WAITING_INPUT") statusColor = "#f59e0b";
+        else if (statusText === "SKIPPED") statusColor = "#64748b";
+        else if (opt.accentColor) statusColor = opt.accentColor;
+
+        ctx.fillStyle = statusColor;
+        drawCanvasRoundRect(ctx, 14, 20, 8, canvas.height - 40, 4);
+        ctx.fill();
+
+        // 4. Main Title
+        ctx.fillStyle = "#f8fafc";
+        ctx.font = "bold 32px \"Segoe UI\", -apple-system, sans-serif";
+        ctx.textAlign = "left";
+        ctx.textBaseline = "middle";
+        ctx.fillText(titleText, 34, 48);
+
+        // 5. Subtitle / Status Badge
+        if (statusText) {
+          ctx.fillStyle = statusColor;
+          ctx.font = "bold 20px \"Segoe UI\", monospace";
+          ctx.fillText("● " + statusText, 36, 96);
+        } else if (subText || opt.subText) {
+          ctx.fillStyle = "#94a3b8";
+          ctx.font = "bold 18px \"Segoe UI\", sans-serif";
+          ctx.fillText((subText || opt.subText).toUpperCase(), 36, 96);
+        }
+
+        texture.needsUpdate = true;
+      }
+
+      const texture = new THREE.CanvasTexture(canvas);
+      texture.generateMipmaps = true;
+      texture.minFilter = THREE.LinearMipmapLinearFilter;
+      texture.magFilter = THREE.LinearFilter;
+      if (typeof renderer !== "undefined" && renderer.capabilities) {
+        texture.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
+      }
+      redraw(opt.text, opt.status, opt.subText);
+
+      const geo = new THREE.PlaneGeometry(w, h);
+      const mat = new THREE.MeshBasicMaterial({
+        map: texture,
+        transparent: true,
+        depthWrite: false,
+        polygonOffset: true,
+        polygonOffsetFactor: -1,
+        polygonOffsetUnits: -1
+      });
+      const mesh = new THREE.Mesh(geo, mat);
+      mesh.rotation.x = -Math.PI / 2;
+      mesh.position.set(opt.pos[0], opt.pos[1] !== undefined ? opt.pos[1] : 0.035, opt.pos[2]);
+
+      mesh.userData = {
+        selectKey: opt.targetKey,
+        updateText: function (newTitle, newStatus, newSub) {
+          redraw(newTitle, newStatus, newSub);
+        }
+      };
+
+      scene.add(mesh);
+      if (opt.targetKey && sceneObjects.selectableMeshes) {
+        sceneObjects.selectableMeshes.push(mesh);
+      }
+      return mesh;
+    }
+
     function registerLabel3D(textHtml, worldPosVec3, cssClass, clickTargetKey) {
       const div = document.createElement('div');
       div.className = 'tag-3d ' + (cssClass || '');
@@ -222,11 +347,69 @@
       addFloorRect(-79, -65,   3, 20); // Supplies Used WH (SW)
       addFloorRect(-61, -47,   3, 20); // Resin & Film Storage (SE)
 
-      // 4 Main 3D Floating Tags (matching reference image pills)
-      registerLabel3D('Cylinder WH', new THREE.Vector3(-72, 6.4, -11.5), 'tag-zone', 'ZONE_RM');
-      registerLabel3D('Chemical WH', new THREE.Vector3(-54, 6.4, -11.5), 'tag-zone', 'ZONE_RM');
-      registerLabel3D('Supplies Used WH', new THREE.Vector3(-72, 6.4, 11.5), 'tag-zone', 'ZONE_RM');
-      registerLabel3D('Resin & Film Storage', new THREE.Vector3(-54, 6.4, 11.5), 'tag-zone', 'ZONE_RM');
+      // 4 Industrial Floor Plates for RM Sub-Warehouses (Style 1: Industrial Floor Plate)
+      createIndustrialFloorPlateMesh({
+        text: 'Cylinder WH',
+        subText: 'Gravure Cylinders',
+        pos: [-72, 0.035, -5.2],
+        width: 6.2, height: 1.7,
+        targetKey: 'ZONE_RM'
+      });
+      createIndustrialFloorPlateMesh({
+        text: 'Chemical WH',
+        subText: 'Inks & Solvents',
+        pos: [-54, 0.035, -5.2],
+        width: 6.2, height: 1.7,
+        targetKey: 'ZONE_RM'
+      });
+      createIndustrialFloorPlateMesh({
+        text: 'Supplies Used WH',
+        subText: 'Cores & Cartons',
+        pos: [-72, 0.035, 5.2],
+        width: 6.2, height: 1.7,
+        targetKey: 'ZONE_RM'
+      });
+      createIndustrialFloorPlateMesh({
+        text: 'Resin & Film Storage',
+        subText: 'Resin & Raw Films',
+        pos: [-54, 0.035, 5.2],
+        width: 6.5, height: 1.7,
+        targetKey: 'ZONE_RM'
+      });
+
+      // Main Factory Zone Industrial Floor Plates
+      createIndustrialFloorPlateMesh({
+        text: 'RM WH',
+        subText: 'Raw Materials WH',
+        pos: [-63, 0.035, 20.8],
+        width: 7.2, height: 2.0,
+        targetKey: 'ZONE_RM',
+        accentColor: '#facc15'
+      });
+      createIndustrialFloorPlateMesh({
+        text: 'PRD Line',
+        subText: 'Manufacturing Line',
+        pos: [0, 0.035, 20.8],
+        width: 7.2, height: 2.0,
+        targetKey: 'ZONE_PRD',
+        accentColor: '#38bdf8'
+      });
+      createIndustrialFloorPlateMesh({
+        text: 'PRD WH',
+        subText: 'Aging & Curing Buffer',
+        pos: [-10, 0.035, 17.5],
+        width: 6.2, height: 1.7,
+        targetKey: 'ZONE_PRD_WH',
+        accentColor: '#a855f7'
+      });
+      createIndustrialFloorPlateMesh({
+        text: 'FG WH & Yard',
+        subText: 'Finished Goods & Yard',
+        pos: [64, 0.035, 20.8],
+        width: 7.8, height: 2.0,
+        targetKey: 'ZONE_FG',
+        accentColor: '#10b981'
+      });
 
       // 1. CYLINDER WH (NW Quadrant: Selective rack + 8 vertical black cylinders)
       const cylRackGroup = new THREE.Group();
@@ -560,13 +743,17 @@
 
         scene.add(stGroup);
 
-        const headerHeight = (st.id === 'ST_BLOWN') ? 10.2 : 6.6;
-        const headerTag = registerLabel3D(
-          st.stepNum + '. ' + st.name,
-          new THREE.Vector3(st.pos[0], headerHeight, st.pos[2]),
-          'tag-station',
-          st.id
-        );
+        // Style 1: Industrial Floor Plate placed directly on the floor in front of each machine
+        const isRow1Station = (st.row === 1);
+        const plateZ = isRow1Station ? -7.8 : 17.2;
+        const plateMesh = createIndustrialFloorPlateMesh({
+          text: st.stepNum + '. ' + st.name,
+          status: 'IDLE',
+          pos: [st.pos[0], 0.035, plateZ],
+          width: 5.8,
+          height: 1.65,
+          targetKey: st.id
+        });
 
         const inTag = registerLabel3D(
           'In: ' + st.inputSummary,
@@ -591,7 +778,8 @@
           extraWorkers: extraWorkers,
           beaconMat: beaconMat,
           worker: worker,
-          headerTag: headerTag,
+          floorPlate: plateMesh,
+          headerTag: null,
           inTag: inTag,
           outTag: outTag
         };
@@ -994,21 +1182,7 @@
       scene.add(truck);
       sceneObjects.containerTruck = truck;
 
-      const truckLabel = registerLabel3D(
-        'Container Truck (Loading Yard)',
-        new THREE.Vector3(81, 7.2, -4),
-        'tag-zone',
-        'ZONE_FG'
-      );
-      truckLabel.followObj = truck;
-      truckLabel.offsetY = 7.0;
-
-      registerLabel3D(
-        'Truck Loading Yard',
-        new THREE.Vector3(81, 9.4, -4),
-        'tag-zone',
-        'ZONE_FG'
-      );
+      // (Truck Loading Yard and Container Truck labels removed per user request)
 
       // Material Handling Fleet placed along dedicated Central Transit Corridor lanes
       // Westbound North Lane (z = -1.8) for RM Forklift; Eastbound South Lane (z = +1.8) for Hand Pallet Truck
