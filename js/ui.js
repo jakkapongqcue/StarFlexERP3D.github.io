@@ -249,6 +249,10 @@
       const isMinimal = (appState.inputMode === 'MINIMAL');
       syncDynamicMachineRollColors();
 
+      if (appState.simStatus === 'RUNNING' && appState.isConcurrent) {
+        initConcurrentPipeline(plan);
+      }
+
       const isPieces = (appState.unit === 'pieces');
       document.getElementById('piecesPerBoxGroup').classList.toggle('hidden', !isPieces);
       document.getElementById('skipSlitRow').classList.toggle('hidden', appState.productType === 'FG_ROLL');

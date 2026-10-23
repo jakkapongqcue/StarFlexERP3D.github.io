@@ -714,22 +714,48 @@
         return plan.routeIds.indexOf(m.toStation) !== -1;
       });
 
-      // Hand Pallet Truck Missions along Eastbound Lane (z = +1.2)
-      const hptMissions = [
-        { fromStation: 'ST_PRINT', toZone: 'ZONE_PRD_WH', cargoKey: 'PRINTING_ROLL', items: [{ key: 'PRINTING_ROLL', qtyText: 'Printed Roll → PRD WH' }] },
-        { fromZone: 'ZONE_PRD_WH', toStation: 'ST_LAM', cargoKey: 'PRINTING_ROLL', items: [{ key: 'PRINTING_ROLL', qtyText: 'PRD WH → Laminate' }] },
-        { fromStation: 'ST_LAM', toZone: 'ZONE_PRD_WH', cargoKey: 'LAMINATE_ROLL', items: [{ key: 'LAMINATE_ROLL', qtyText: 'Laminate Roll → Curing' }] },
-        { fromZone: 'ZONE_PRD_WH', toStation: 'ST_SLIT', cargoKey: 'LAMINATE_ROLL', items: [{ key: 'LAMINATE_ROLL', qtyText: 'Cured Roll → Slit' }] },
-        { fromStation: 'ST_SLIT', toStation: 'ST_BAG', cargoKey: 'SLIT_ROLL', items: [{ key: 'SLIT_ROLL', qtyText: 'Slit Rolls → Bag' }] },
-        { fromStation: 'ST_BAG', toStation: 'ST_SPOUT', cargoKey: 'FG_BAG_BOX', items: [{ key: 'FG_BAG_BOX', qtyText: 'Pouches → Spout' }] }
-      ].filter(function (m) {
-        const fromOk = !m.fromStation || plan.routeIds.indexOf(m.fromStation) !== -1;
-        const toOk = !m.toStation || plan.routeIds.indexOf(m.toStation) !== -1;
-        return fromOk && toOk;
-      });
+      // Hand Pallet Truck Missions: Direct Station-to-Station WIP flow strictly matching active route
+      const hptMissions = [];
+      const route = plan.routeIds || [];
+
+      if (route.indexOf('ST_PRINT') !== -1 && route.indexOf('ST_LAM') !== -1) {
+        hptMissions.push({
+          fromStation: 'ST_PRINT',
+          toStation: 'ST_LAM',
+          cargoKey: 'PRINTING_ROLL',
+          items: [{ key: 'PRINTING_ROLL', qtyText: 'Printed Roll' }]
+        });
+      }
+      if (route.indexOf('ST_LAM') !== -1 && route.indexOf('ST_SLIT') !== -1) {
+        hptMissions.push({
+          fromStation: 'ST_LAM',
+          toStation: 'ST_SLIT',
+          cargoKey: 'LAMINATE_ROLL',
+          items: [{ key: 'LAMINATE_ROLL', qtyText: 'Laminate Roll' }]
+        });
+      }
+      if (route.indexOf('ST_SLIT') !== -1 && route.indexOf('ST_BAG') !== -1) {
+        hptMissions.push({
+          fromStation: 'ST_SLIT',
+          toStation: 'ST_BAG',
+          cargoKey: 'SLIT_ROLL',
+          items: [{ key: 'SLIT_ROLL', qtyText: 'Slit Rolls' }]
+        });
+      }
+      if (route.indexOf('ST_BAG') !== -1 && route.indexOf('ST_SPOUT') !== -1) {
+        hptMissions.push({
+          fromStation: 'ST_BAG',
+          toStation: 'ST_SPOUT',
+          cargoKey: 'FG_BAG_BOX',
+          items: [{ key: 'FG_BAG_BOX', qtyText: 'Pouches' }]
+        });
+      }
 
       const initialRM = rmMissions[0] || { fromKey: 'RESIN', toStation: 'ST_BLOWN', cargoKey: 'RESIN', items: [{ key: 'RESIN', qtyText: 'Resin Sacks' }] };
-      const initialHPT = hptMissions[0] || { fromStation: 'ST_PRINT', toZone: 'ZONE_PRD_WH', cargoKey: 'PRINTING_ROLL', items: [{ key: 'PRINTING_ROLL', qtyText: 'Printed Roll' }] };
+      const initialHPT = hptMissions[0] || null;
+      const nextHPT = (hptMissions.length > 1) ? hptMissions[1] : initialHPT;
+      const fgCargoKey = (appState.productType === 'FG_ROLL') ? 'SLIT_ROLL' : ((appState.productType === 'FG_SPOUT') ? 'FG_SPOUT_BOX' : 'FG_BAG_BOX');
+      const fgCargoLabel = (appState.productType === 'FG_ROLL') ? 'Slit Film Rolls' : ((appState.productType === 'FG_SPOUT') ? 'Spout Pouches' : 'Hygiene Pouches');
 
       resetAllStationBays();
 
@@ -746,7 +772,7 @@
         indexHPT: 0,
         timerHPT: 0,
         durHPT: 4.8,
-        wpHPT: buildConcurrentHptWaypoints(initialHPT),
+        wpHPT: buildConcurrentHptWaypoints(initialHPT, nextHPT),
         hptDropped: false,
         hptPickedUp: false,
 
@@ -769,7 +795,7 @@
       mountCargoOnVehicle(sceneObjects.rmForklift, initialRM.cargoKey, initialRM.items);
       mountCargoOnVehicle(sceneObjects.handPalletTruck, null, []);
       mountCargoOnVehicle(sceneObjects.fgForklift, null, []);
-      mountCargoOnVehicle(sceneObjects.deliveryForklift, 'FG_BAG_BOX', [{ key: 'FG_BAG_BOX', qtyText: 'Pallet for Dispatch' }]);
+      mountCargoOnVehicle(sceneObjects.deliveryForklift, fgCargoKey, [{ key: fgCargoKey, qtyText: 'Pallet for Dispatch' }]);
     }
 
     function stepConcurrentFrame(dt, nowSec, scaledDt) {
@@ -914,16 +940,19 @@
           cd.hptPickedUp = false;
           if (cd.missionsHPT && cd.missionsHPT.length > 0) {
             cd.indexHPT = (cd.indexHPT + 1) % cd.missionsHPT.length;
-            const nextH = cd.missionsHPT[cd.indexHPT];
-            cd.wpHPT = buildConcurrentHptWaypoints(nextH);
+            const curH = cd.missionsHPT[cd.indexHPT];
+            const nextH = cd.missionsHPT[(cd.indexHPT + 1) % cd.missionsHPT.length];
+            cd.wpHPT = buildConcurrentHptWaypoints(curH, nextH);
           }
         }
       }
 
       // 3. FG Forklift Movement
-      const isSpout = (appState.productType === 'FG_SPOUT');
-      const finalStKey = isSpout ? 'ST_SPOUT' : (appState.productType === 'FG_ROLL' ? 'ST_SLIT' : 'ST_BAG');
+      const finalStKey = (appState.productType === 'FG_ROLL') ? 'ST_SLIT' : ((appState.productType === 'FG_SPOUT') ? 'ST_SPOUT' : 'ST_BAG');
       const finalStObj = sceneObjects.stationObjs[finalStKey];
+      const fgCargoKey = (appState.productType === 'FG_ROLL') ? 'SLIT_ROLL' : ((appState.productType === 'FG_SPOUT') ? 'FG_SPOUT_BOX' : 'FG_BAG_BOX');
+      const fgCargoLabel = (appState.productType === 'FG_ROLL') ? 'Slit Film Rolls' : ((appState.productType === 'FG_SPOUT') ? 'Spout Pouches' : 'Hygiene Pouches');
+
       let fgWaitOutput = false;
       if (finalStObj && !cd.fgPickedUp) {
         // Requirement 2: FG Forklift waits if final station has no output in green bay!
@@ -932,7 +961,7 @@
         } else {
           cd.fgPickedUp = true;
           clearBayCargo(finalStObj.outfeedBay);
-          mountCargoOnVehicle(sceneObjects.fgForklift, 'FG_BAG_BOX', [{ key: 'FG_BAG_BOX', qtyText: 'Finished Goods' }]);
+          mountCargoOnVehicle(sceneObjects.fgForklift, fgCargoKey, [{ key: fgCargoKey, qtyText: fgCargoLabel }]);
         }
       }
 
@@ -945,7 +974,7 @@
         if (tFG >= 0.48 && !cd.fgDropped) {
           cd.fgDropped = true;
           mountCargoOnVehicle(sceneObjects.fgForklift, null, []);
-          populateFgRackVisuals('FG_BAG_BOX', 3);
+          populateFgRackVisuals(fgCargoKey, 3);
         }
         if (tFG >= 1) {
           cd.timerFG = 0;
@@ -968,7 +997,7 @@
         if (sceneObjects.containerTruck && sceneObjects.containerTruck.userData.loadedPalletsGroup) {
           const tg = sceneObjects.containerTruck.userData.loadedPalletsGroup;
           if (tg.children.length === 0) {
-            const loadedCargo = createCargoVisualByKey('FG_BAG_BOX');
+            const loadedCargo = createCargoVisualByKey(fgCargoKey);
             tg.add(loadedCargo);
           }
         }
@@ -978,7 +1007,7 @@
       if (tDeliv >= 1) {
         cd.timerDeliv = 0;
         cd.delivDropped = false;
-        mountCargoOnVehicle(sceneObjects.deliveryForklift, 'FG_BAG_BOX', [{ key: 'FG_BAG_BOX', qtyText: 'Pallet for Dispatch' }]);
+        mountCargoOnVehicle(sceneObjects.deliveryForklift, fgCargoKey, [{ key: fgCargoKey, qtyText: 'Pallet for Dispatch' }]);
       }
 
       // Container Truck Departure cycle at Loading Yard

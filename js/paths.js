@@ -80,7 +80,7 @@
         outX = st.hptDock[0];
         outZ = st.hptDock[2];
       }
-      const laneZ = 1.8; // Eastbound South lane heading to Warehouse FG
+      const laneZ = (outZ > 0) ? 1.8 : -1.8; // Use row-appropriate central corridor lane
       return [
         new THREE.Vector3(outX, 0.0, outZ),
         new THREE.Vector3(outX, 0.0, laneZ),
@@ -140,7 +140,7 @@
       ];
     }
 
-    function buildConcurrentHptWaypoints(mission) {
+    function buildConcurrentHptWaypoints(mission, nextMission) {
       if (!mission) {
         return [new THREE.Vector3(-10, 0.0, 1.8), new THREE.Vector3(-10, 0.0, 1.8)];
       }
@@ -163,29 +163,48 @@
       }
       const laneZ = 1.8; // Dedicated Eastbound South lane for Hand Pallet Truck
 
+      const next = nextMission || mission;
+      let nextFromX = fromX, nextFromZ = fromZ;
+      if (next.fromStation && STATION_MAP[next.fromStation]) {
+        nextFromX = STATION_MAP[next.fromStation].hptDock[0];
+        nextFromZ = STATION_MAP[next.fromStation].hptDock[2];
+      } else if (next.fromZone === 'ZONE_PRD_WH') {
+        nextFromX = -7.6;
+        nextFromZ = 5.2;
+      }
+
       return [
         new THREE.Vector3(fromX, 0.0, fromZ),
         new THREE.Vector3(fromX, 0.0, laneZ),
         new THREE.Vector3(toX, 0.0, laneZ),
         new THREE.Vector3(toX, 0.0, toZ),
         new THREE.Vector3(toX, 0.0, laneZ),
-        new THREE.Vector3(fromX, 0.0, laneZ),
-        new THREE.Vector3(fromX, 0.0, fromZ)
+        new THREE.Vector3(nextFromX, 0.0, laneZ),
+        new THREE.Vector3(nextFromX, 0.0, nextFromZ)
       ];
     }
 
     function buildConcurrentFgWaypoints() {
-      // Pick up from the Outfeed bay (Right Green box) of Bag (12.4, -5.2) or Spout (32.4, -5.2)
-      const isSpout = (appState.productType === 'FG_SPOUT');
-      const pickX = isSpout ? 32.4 : 12.4;
-      const pickZ = -5.2;
+      // Pick up from Outfeed bay (Right Green box) of actual final process station:
+      // FG_ROLL -> Slit (32.4, 5.2)
+      // FG_BAG  -> Bag  (12.4, -5.2)
+      // FG_SPOUT -> Spout (32.4, -5.2)
+      let finalSt = 'ST_BAG';
+      if (appState.productType === 'FG_ROLL') finalSt = 'ST_SLIT';
+      else if (appState.productType === 'FG_SPOUT') finalSt = 'ST_SPOUT';
+
+      const st = STATION_MAP[finalSt];
+      const pickX = st ? st.hptDock[0] : 12.4;
+      const pickZ = st ? st.hptDock[2] : -5.2;
+      const laneZ = (pickZ > 0) ? 1.8 : -1.8;
+
       return [
         new THREE.Vector3(pickX, 0.0, pickZ),
-        new THREE.Vector3(pickX, 0.0, 1.8),
-        new THREE.Vector3(51, 0.0, 1.8),
-        new THREE.Vector3(51, 0.0, -10.0),
-        new THREE.Vector3(51, 0.0, 1.8),
-        new THREE.Vector3(pickX, 0.0, 1.8),
+        new THREE.Vector3(pickX, 0.0, laneZ),
+        new THREE.Vector3(51.0, 0.0, laneZ),
+        new THREE.Vector3(51.0, 0.0, -4.0),
+        new THREE.Vector3(51.0, 0.0, laneZ),
+        new THREE.Vector3(pickX, 0.0, laneZ),
         new THREE.Vector3(pickX, 0.0, pickZ)
       ];
     }
