@@ -133,8 +133,8 @@ function buildBagMachine(st, rollersOut, reciprocatorsOut, extraWorkersOut) {
         extraWorkersOut.push(pinkWorker);
 
     // Industrial Wooden Pallet loaded with Finished Hygiene Pouch Cartons beside the machine outfeed (media_1792732066355)
-  const bagPalX = 4.6;
-  const bagPalZ = 0.6;
+  const bagPalX = 4.8;
+  const bagPalZ = 2.1;
   const bagPalletGroup = createStandardBoxPallet({ width: 1.9, depth: 1.45, tiers: 2, hasWrap: true });
   bagPalletGroup.position.set(bagPalX, 0.0, bagPalZ);
   bagPalletGroup.rotation.y = 0.05;
