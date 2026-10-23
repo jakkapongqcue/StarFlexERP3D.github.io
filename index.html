@@ -1,401 +1,726 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en" data-theme="light">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>Starflex ERP 3D – Flexible Packaging Factory Simulator</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20,500,0,0" rel="stylesheet" />
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-  <link rel="stylesheet" href="css/style.css" />
-</head>
-<body>
-  <!-- 3D WebGL Canvas -->
-  <canvas id="viewportCanvas" aria-label="3D Flexible Packaging Factory Simulation"></canvas>
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+    <title>Starflex ERP 3D - Factory Simulator</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="img/favicon.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="img/favicon.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="img/favicon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20,500,0,0"
+      rel="stylesheet"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <!-- 3D WebGL Canvas -->
+    <canvas
+      id="viewportCanvas"
+      aria-label="3D Flexible Packaging Factory Simulation"
+    ></canvas>
 
-  <!-- Floating 3D HTML Labels Overlay -->
-  <div id="overlayLayer"></div>
+    <!-- Floating 3D HTML Labels Overlay -->
+    <div id="overlayLayer"></div>
 
-  <!-- Floating Process Focus Input/Output Banner -->
-  <div id="focusProcessBanner" class="hidden" role="status" aria-live="polite">
-    <div class="focus-banner-top">
-      <div class="focus-banner-title" id="focusBannerTitle">Station Focus</div>
-      <div style="display:flex;align-items:center;gap:6px;">
-        <span id="focusBannerBadge" class="status-badge status-idle">IDLE</span>
-        <button type="button" id="closeFocusBannerBtn" class="link-btn" style="text-decoration:none;font-size:13px;" title="Exit Focus">✕</button>
-      </div>
-    </div>
-    <div class="focus-io-grid">
-      <div class="focus-io-box">
-        <span class="focus-io-label in-lbl">Input (Materials Supplied)</span>
-        <strong id="focusBannerInText">—</strong>
-      </div>
-      <span style="font-size:15px;color:var(--text-muted);font-weight:700;">➔</span>
-      <div class="focus-io-box">
-        <span class="focus-io-label out-lbl">Output (Produced)</span>
-        <strong id="focusBannerOutText">—</strong>
-      </div>
-    </div>
-  </div>
-
-  <!-- Top Dashboard Bar -->
-  <header id="topHeader">
-    <div class="top-bar-row">
-      <div class="brand-box">
-        <div style="display:flex;align-items:center;gap:10px;">
-          <div class="brand-badge">SF</div>
-          <div>
-            <div class="brand-title">Starflex ERP 3D</div>
-            <div class="brand-sub">Linear Flexible Packaging Factory Simulator</div>
-          </div>
+    <!-- Floating Process Focus Input/Output Banner -->
+    <div
+      id="focusProcessBanner"
+      class="hidden"
+      role="status"
+      aria-live="polite"
+    >
+      <div class="focus-banner-top">
+        <div class="focus-banner-title" id="focusBannerTitle">
+          Station Focus
         </div>
-        <div style="display:flex;align-items:center;gap:6px;">
-          <div class="header-divider"></div>
-          <!-- Toggle KPI Bar Visibility Button -->
-          <button type="button" id="toggleKpiBarBtn" class="icon-toggle-btn active" title="Show / Hide KPI Cards">
-            <span class="material-symbols-outlined" id="toggleKpiBarIcon">monitoring</span>
+        <div style="display: flex; align-items: center; gap: 6px">
+          <span id="focusBannerBadge" class="status-badge status-idle"
+            >IDLE</span
+          >
+          <button
+            type="button"
+            id="closeFocusBannerBtn"
+            class="link-btn"
+            style="text-decoration: none; font-size: 13px"
+            title="Exit Focus"
+          >
+            ✕
           </button>
-          <!-- Theme Mode Dropdown with Google Material Symbols Icons -->
-          <div class="theme-dropdown" id="themeDropdownWrap">
-            <button type="button" id="themeDropdownBtn" class="theme-dropdown-trigger" aria-haspopup="listbox" aria-expanded="false" title="Change Color Theme">
-              <span class="material-symbols-outlined" id="themeDropdownIcon">light_mode</span>
-              <span id="themeDropdownLabel">Light</span>
-              <span class="material-symbols-outlined" style="font-size:15px;opacity:0.7;">expand_more</span>
+        </div>
+      </div>
+      <div class="focus-io-grid">
+        <div class="focus-io-box">
+          <span class="focus-io-label in-lbl">Input (Materials Supplied)</span>
+          <strong id="focusBannerInText">—</strong>
+        </div>
+        <span
+          style="font-size: 15px; color: var(--text-muted); font-weight: 700"
+          >➔</span
+        >
+        <div class="focus-io-box">
+          <span class="focus-io-label out-lbl">Output (Produced)</span>
+          <strong id="focusBannerOutText">—</strong>
+        </div>
+      </div>
+    </div>
+
+    <!-- Top Dashboard Bar -->
+    <header id="topHeader">
+      <div class="top-bar-row">
+        <div class="brand-box">
+          <div style="display: flex; align-items: center; gap: 10px">
+            <div class="brand-badge">SF</div>
+            <div>
+              <div class="brand-title">Starflex ERP 3D</div>
+              <div class="brand-sub">
+                Linear Flexible Packaging Factory Simulator
+              </div>
+            </div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 6px">
+            <div class="header-divider"></div>
+            <!-- Toggle KPI Bar Visibility Button -->
+            <button
+              type="button"
+              id="toggleKpiBarBtn"
+              class="icon-toggle-btn active"
+              title="Show / Hide KPI Cards"
+            >
+              <span class="material-symbols-outlined" id="toggleKpiBarIcon"
+                >monitoring</span
+              >
             </button>
-            <div class="theme-dropdown-menu hidden" id="themeDropdownMenu" role="listbox" aria-label="Theme Mode">
-              <button type="button" class="theme-dropdown-item active" data-theme-mode="light" role="option">
-                <span class="material-symbols-outlined">light_mode</span>
-                <span>Light</span>
+            <!-- Theme Mode Dropdown with Google Material Symbols Icons -->
+            <div class="theme-dropdown" id="themeDropdownWrap">
+              <button
+                type="button"
+                id="themeDropdownBtn"
+                class="theme-dropdown-trigger"
+                aria-haspopup="listbox"
+                aria-expanded="false"
+                title="Change Color Theme"
+              >
+                <span class="material-symbols-outlined" id="themeDropdownIcon"
+                  >light_mode</span
+                >
+                <span id="themeDropdownLabel">Light</span>
+                <span
+                  class="material-symbols-outlined"
+                  style="font-size: 15px; opacity: 0.7"
+                  >expand_more</span
+                >
               </button>
-              <button type="button" class="theme-dropdown-item" data-theme-mode="dark" role="option">
-                <span class="material-symbols-outlined">dark_mode</span>
-                <span>Dark</span>
-              </button>
-              <button type="button" class="theme-dropdown-item" data-theme-mode="system" role="option">
-                <span class="material-symbols-outlined">desktop_windows</span>
-                <span>System</span>
-              </button>
+              <div
+                class="theme-dropdown-menu hidden"
+                id="themeDropdownMenu"
+                role="listbox"
+                aria-label="Theme Mode"
+              >
+                <button
+                  type="button"
+                  class="theme-dropdown-item active"
+                  data-theme-mode="light"
+                  role="option"
+                >
+                  <span class="material-symbols-outlined">light_mode</span>
+                  <span>Light</span>
+                </button>
+                <button
+                  type="button"
+                  class="theme-dropdown-item"
+                  data-theme-mode="dark"
+                  role="option"
+                >
+                  <span class="material-symbols-outlined">dark_mode</span>
+                  <span>Dark</span>
+                </button>
+                <button
+                  type="button"
+                  class="theme-dropdown-item"
+                  data-theme-mode="system"
+                  role="option"
+                >
+                  <span class="material-symbols-outlined">desktop_windows</span>
+                  <span>System</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <div class="kpi-grid" id="topKpiGrid">
-        <div class="kpi-card">
-          <div class="kpi-label">WIP Orders</div>
-          <div class="kpi-val" id="kpiWipVal">0</div>
-          <div class="kpi-sub" id="kpiWipSub">Idle / Ready</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-label">Total FG Stock</div>
-          <div class="kpi-val" id="kpiFgStockVal">0 pallets</div>
-          <div class="kpi-sub" id="kpiFgStockSub">Ready for dispatch</div>
-        </div>
-        <!-- Process Mode / Visual Flow KPI Card (Hidden in Minimal Mode per user request) -->
-        <div class="kpi-card hidden" id="kpiProcessModeCard">
-          <div class="kpi-label">Process Waste</div>
-          <div class="kpi-val" id="kpiWasteVal">0.0%</div>
-          <div class="kpi-sub" id="kpiWasteSub">Cumulative route waste</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-label">Order Progress</div>
-          <div class="kpi-val" id="kpiProgressVal">0%</div>
-          <div class="kpi-sub" id="kpiProgressSub">Awaiting Start</div>
+        <div class="kpi-grid" id="topKpiGrid">
+          <div class="kpi-card">
+            <div class="kpi-label">WIP Orders</div>
+            <div class="kpi-val" id="kpiWipVal">0</div>
+            <div class="kpi-sub" id="kpiWipSub">Idle / Ready</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Total FG Stock</div>
+            <div class="kpi-val" id="kpiFgStockVal">0 pallets</div>
+            <div class="kpi-sub" id="kpiFgStockSub">Ready for dispatch</div>
+          </div>
+          <!-- Process Mode / Visual Flow KPI Card (Hidden in Minimal Mode per user request) -->
+          <div class="kpi-card hidden" id="kpiProcessModeCard">
+            <div class="kpi-label">Process Waste</div>
+            <div class="kpi-val" id="kpiWasteVal">0.0%</div>
+            <div class="kpi-sub" id="kpiWasteSub">Cumulative route waste</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Order Progress</div>
+            <div class="kpi-val" id="kpiProgressVal">0%</div>
+            <div class="kpi-sub" id="kpiProgressSub">Awaiting Start</div>
+          </div>
         </div>
       </div>
-    </div>
-  </header>
+    </header>
 
-  <!-- Left Panel: Production Order Configuration -->
-  <aside id="orderPanel" aria-label="Production Order Input Panel">
-    <div class="panel-header">
-      <div class="panel-title">
-        <span class="material-symbols-outlined" style="font-size:16px;color:var(--accent);">tune</span>
-        <span>Production Simulation Setup</span>
-      </div>
-      <div style="display:flex;align-items:center;gap:6px;">
-        <span id="simStateBadge" class="status-badge status-idle">Ready</span>
-        <button type="button" id="toggleOrderPanelBtn" class="panel-collapse-btn" aria-expanded="true" title="Hide or Show Setup Panel">
-          <span class="material-symbols-outlined" id="toggleOrderPanelIcon" style="font-size:15px;">expand_less</span>
-          <span id="toggleOrderPanelLabel">Hide</span>
-        </button>
-      </div>
-    </div>
-    <div class="panel-body">
-      <!-- Input Mode Switcher: Mode: Flow Only (Non-Linear Digital Twin) vs Mode: Flow Details (Linear Step-by-Step ERP) -->
-      <div class="mode-switcher" role="tablist" aria-label="Order Input Mode">
-        <button type="button" id="modeMinimalBtn" class="mode-btn active" role="tab" aria-selected="true">Mode: Flow Only</button>
-        <button type="button" id="modeDetailedBtn" class="mode-btn" role="tab" aria-selected="false">Mode: Flow Details</button>
-      </div>
-
-      <!-- 1. Product Type with Custom Packaging Icons -->
-      <div class="field-group">
-        <div class="field-label-row">
-          <span>1. Product Type</span>
-          <span id="routePreviewText" style="font-size:10.5px;color:var(--accent);">5 steps</span>
+    <!-- Left Panel: Production Order Configuration -->
+    <aside id="orderPanel" aria-label="Production Order Input Panel">
+      <div class="panel-header">
+        <div class="panel-title">
+          <span
+            class="material-symbols-outlined"
+            style="font-size: 16px; color: var(--accent)"
+            >tune</span
+          >
+          <span>Production Simulation Setup</span>
         </div>
-        <div class="seg-group" id="productTypeGroup">
-          <button type="button" class="seg-btn active" data-product="FG_ROLL">
-            <svg viewBox="0 0 36 36" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <ellipse cx="14" cy="18" rx="6" ry="10" />
-              <ellipse cx="14" cy="18" rx="2.2" ry="4" />
-              <path d="M14 8 H26 C29.3 8 32 12.5 32 18 C32 23.5 29.3 28 26 28 H14" />
-              <path d="M22 28 V33 H31" />
-            </svg>
-            <span>FG Roll</span>
-          </button>
-          <button type="button" class="seg-btn" data-product="FG_BAG">
-            <svg viewBox="0 0 36 36" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M9 6 H27 L29 13 V28 C29 30 27.5 31 25.5 31 H10.5 C8.5 31 7 30 7 28 V13 Z" />
-              <line x1="9" y1="9.5" x2="27" y2="9.5" />
-              <path d="M27 6 L24 13 V30" />
-              <path d="M9 6 L12 13" />
-            </svg>
-            <span>FG Bag</span>
-          </button>
-          <button type="button" class="seg-btn" data-product="FG_SPOUT">
-            <svg viewBox="0 0 36 36" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="15" y="3" width="6" height="4" rx="1" />
-              <line x1="16.5" y1="7" x2="16.5" y2="9.5" />
-              <line x1="19.5" y1="7" x2="19.5" y2="9.5" />
-              <path d="M8 9.5 H23 L28 14.5 V29 C28 30.5 26.5 31.5 25 31.5 H11 C9.5 31.5 8 30.5 8 29 Z" />
-              <path d="M24 8.5 L26.5 6 L29.5 9 L27 11.5" />
-            </svg>
-            <span>FG Spout</span>
+        <div style="display: flex; align-items: center; gap: 6px">
+          <span id="simStateBadge" class="status-badge status-idle">Ready</span>
+          <button
+            type="button"
+            id="toggleOrderPanelBtn"
+            class="panel-collapse-btn"
+            aria-expanded="true"
+            title="Hide or Show Setup Panel"
+          >
+            <span
+              class="material-symbols-outlined"
+              id="toggleOrderPanelIcon"
+              style="font-size: 15px"
+              >expand_less</span
+            >
+            <span id="toggleOrderPanelLabel">Hide</span>
           </button>
         </div>
       </div>
-
-      <!-- 2. Base Film Source -->
-      <div class="field-group">
-        <div class="field-label-row">
-          <span>2. Base Film Source</span>
-        </div>
-        <div class="seg-group two-col" id="filmSourceGroup">
-          <button type="button" class="seg-btn active" data-source="INHOUSE">In-house Blown Film</button>
-          <button type="button" class="seg-btn" data-source="PURCHASED">Purchased Film</button>
-        </div>
-        <div id="purchasedFilmNote" class="skip-note hidden">
-          Blown Film is skipped. Printing takes Purchased Film directly from RM WH.
-        </div>
-      </div>
-
-      <!-- Minimal Mode Visual Flow Summary Card (Hidden per user request) -->
-      <div id="minimalAssumptionsBox" class="minimal-flow-card hidden">
-        <div style="display:flex;align-items:center;justify-content:space-between;">
-          <strong style="color:var(--text-main);font-size:11.5px;">Visual Flow Mode</strong>
-          <button type="button" id="jumpDetailedBtn" class="link-btn">Open Detailed &amp; Logs</button>
-        </div>
-        <div>Runs the linear 3D production flow RM → WIP → FG → Delivery without numeric clutter. Switch to <strong>Detailed</strong> to view Factory Overview, RM Inventory &amp; Event Logs.</div>
-        <div class="minimal-route-steps" id="minimalRouteStepsPreview"></div>
-      </div>
-
-      <!-- B. Detailed Mode Controls -->
-      <div id="detailedFieldsContainer" class="detailed-box hidden">
-        <div class="field-label-row">
-          <span style="color:var(--text-main);font-weight:700;">Detailed Order &amp; Yield Parameters</span>
-          <button type="button" id="resetDefaultsBtn" class="link-btn">Reset to defaults</button>
+      <div class="panel-body">
+        <!-- Input Mode Switcher: Mode: Flow Only (Non-Linear Digital Twin) vs Mode: Flow Details (Linear Step-by-Step ERP) -->
+        <div class="mode-switcher" role="tablist" aria-label="Order Input Mode">
+          <button
+            type="button"
+            id="modeMinimalBtn"
+            class="mode-btn active"
+            role="tab"
+            aria-selected="true"
+          >
+            Mode: Flow Only
+          </button>
+          <button
+            type="button"
+            id="modeDetailedBtn"
+            class="mode-btn"
+            role="tab"
+            aria-selected="false"
+          >
+            Mode: Flow Details
+          </button>
         </div>
 
+        <!-- 1. Product Type with Custom Packaging Icons -->
         <div class="field-group">
           <div class="field-label-row">
-            <label for="orderQtyInput">Order Quantity &amp; Unit</label>
-            <span id="convertedHintText" style="font-size:10.5px;color:var(--accent);">= 500 kg</span>
+            <span>1. Product Type</span>
+            <span
+              id="routePreviewText"
+              style="font-size: 10.5px; color: var(--accent)"
+              >5 steps</span
+            >
           </div>
-          <div class="input-row">
-            <input type="number" id="orderQtyInput" class="form-input" value="20" min="1" step="1" />
-            <select id="orderUnitSelect" class="form-select" style="max-width: 120px;">
-              <option value="roll">roll</option>
-              <option value="meter">meter</option>
-              <option value="kilogram">kilogram</option>
+          <div class="seg-group" id="productTypeGroup">
+            <button type="button" class="seg-btn active" data-product="FG_ROLL">
+              <svg
+                viewBox="0 0 36 36"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <ellipse cx="14" cy="18" rx="6" ry="10" />
+                <ellipse cx="14" cy="18" rx="2.2" ry="4" />
+                <path
+                  d="M14 8 H26 C29.3 8 32 12.5 32 18 C32 23.5 29.3 28 26 28 H14"
+                />
+                <path d="M22 28 V33 H31" />
+              </svg>
+              <span>FG Roll</span>
+            </button>
+            <button type="button" class="seg-btn" data-product="FG_BAG">
+              <svg
+                viewBox="0 0 36 36"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path
+                  d="M9 6 H27 L29 13 V28 C29 30 27.5 31 25.5 31 H10.5 C8.5 31 7 30 7 28 V13 Z"
+                />
+                <line x1="9" y1="9.5" x2="27" y2="9.5" />
+                <path d="M27 6 L24 13 V30" />
+                <path d="M9 6 L12 13" />
+              </svg>
+              <span>FG Bag</span>
+            </button>
+            <button type="button" class="seg-btn" data-product="FG_SPOUT">
+              <svg
+                viewBox="0 0 36 36"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <rect x="15" y="3" width="6" height="4" rx="1" />
+                <line x1="16.5" y1="7" x2="16.5" y2="9.5" />
+                <line x1="19.5" y1="7" x2="19.5" y2="9.5" />
+                <path
+                  d="M8 9.5 H23 L28 14.5 V29 C28 30.5 26.5 31.5 25 31.5 H11 C9.5 31.5 8 30.5 8 29 Z"
+                />
+                <path d="M24 8.5 L26.5 6 L29.5 9 L27 11.5" />
+              </svg>
+              <span>FG Spout</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 2. Base Film Source -->
+        <div class="field-group">
+          <div class="field-label-row">
+            <span>2. Base Film Source</span>
+          </div>
+          <div class="seg-group two-col" id="filmSourceGroup">
+            <button type="button" class="seg-btn active" data-source="INHOUSE">
+              In-house Blown Film
+            </button>
+            <button type="button" class="seg-btn" data-source="PURCHASED">
+              Purchased Film
+            </button>
+          </div>
+          <div id="purchasedFilmNote" class="skip-note hidden">
+            Blown Film is skipped. Printing takes Purchased Film directly from
+            RM WH.
+          </div>
+        </div>
+
+        <!-- Minimal Mode Visual Flow Summary Card (Hidden per user request) -->
+        <div id="minimalAssumptionsBox" class="minimal-flow-card hidden">
+          <div
+            style="
+              display: flex;
+              align-items: center;
+              justify-content: space-between;
+            "
+          >
+            <strong style="color: var(--text-main); font-size: 11.5px"
+              >Visual Flow Mode</strong
+            >
+            <button type="button" id="jumpDetailedBtn" class="link-btn">
+              Open Detailed &amp; Logs
+            </button>
+          </div>
+          <div>
+            Runs the linear 3D production flow RM → WIP → FG → Delivery without
+            numeric clutter. Switch to <strong>Detailed</strong> to view Factory
+            Overview, RM Inventory &amp; Event Logs.
+          </div>
+          <div class="minimal-route-steps" id="minimalRouteStepsPreview"></div>
+        </div>
+
+        <!-- B. Detailed Mode Controls -->
+        <div id="detailedFieldsContainer" class="detailed-box hidden">
+          <div class="field-label-row">
+            <span style="color: var(--text-main); font-weight: 700"
+              >Detailed Order &amp; Yield Parameters</span
+            >
+            <button type="button" id="resetDefaultsBtn" class="link-btn">
+              Reset to defaults
+            </button>
+          </div>
+
+          <div class="field-group">
+            <div class="field-label-row">
+              <label for="orderQtyInput">Order Quantity &amp; Unit</label>
+              <span
+                id="convertedHintText"
+                style="font-size: 10.5px; color: var(--accent)"
+                >= 500 kg</span
+              >
+            </div>
+            <div class="input-row">
+              <input
+                type="number"
+                id="orderQtyInput"
+                class="form-input"
+                value="20"
+                min="1"
+                step="1"
+              />
+              <select
+                id="orderUnitSelect"
+                class="form-select"
+                style="max-width: 120px"
+              >
+                <option value="roll">roll</option>
+                <option value="meter">meter</option>
+                <option value="kilogram">kilogram</option>
+              </select>
+            </div>
+            <div class="preset-row" id="qtyPresetRow"></div>
+          </div>
+
+          <div class="field-group hidden" id="piecesPerBoxGroup">
+            <div class="field-label-row">
+              <label for="piecesPerBoxInput">Pieces per Corrugated Box</label>
+              <span id="boxCountCalcText" style="color: var(--accent)"
+                >10 boxes</span
+              >
+            </div>
+            <input
+              type="number"
+              id="piecesPerBoxInput"
+              class="form-input"
+              value="300"
+              min="1"
+              step="10"
+            />
+          </div>
+
+          <div class="field-group">
+            <div class="field-label-row">
+              <span>Standard Roll Spec (Conversion)</span>
+            </div>
+            <div class="input-row">
+              <div style="flex: 1">
+                <label
+                  for="metersPerRollInput"
+                  style="font-size: 10px; color: var(--text-muted)"
+                  >Meters / Roll</label
+                >
+                <input
+                  type="number"
+                  id="metersPerRollInput"
+                  class="form-input"
+                  value="1000"
+                  min="10"
+                  step="50"
+                />
+              </div>
+              <div style="flex: 1">
+                <label
+                  for="kgPerRollInput"
+                  style="font-size: 10px; color: var(--text-muted)"
+                  >Kilograms / Roll</label
+                >
+                <input
+                  type="number"
+                  id="kgPerRollInput"
+                  class="form-input"
+                  value="25"
+                  min="1"
+                  step="1"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div class="toggle-row hidden" id="skipSlitRow">
+            <label for="skipSlitCheckbox"
+              >Skip Slit process (feed Laminate Roll directly)</label
+            >
+            <input type="checkbox" id="skipSlitCheckbox" />
+          </div>
+
+          <div class="field-group">
+            <div class="field-label-row">
+              <span>Waste % per Active Process</span>
+              <div style="display: flex; align-items: center; gap: 4px">
+                <input
+                  type="number"
+                  id="bulkWasteInput"
+                  value="3"
+                  min="0"
+                  max="45"
+                  step="0.5"
+                  style="
+                    width: 44px;
+                    padding: 1px 4px;
+                    font-size: 10.5px;
+                    border: 1px solid var(--border-color);
+                    border-radius: 4px;
+                    background: var(--bg-card);
+                  "
+                />
+                <button type="button" id="applyAllWasteBtn" class="link-btn">
+                  Apply all
+                </button>
+              </div>
+            </div>
+            <div class="waste-grid" id="wasteInputsGrid"></div>
+          </div>
+
+          <div class="field-group" style="margin-top: 10px">
+            <div class="field-label-row">
+              <span>Machine Process Timing (Minutes)</span>
+              <button
+                type="button"
+                id="resetDefaultTimingBtn"
+                class="link-btn"
+                title="Reset to default operational minutes"
+              >
+                Reset default
+              </button>
+            </div>
+            <div
+              style="
+                font-size: 10px;
+                color: var(--text-muted);
+                margin-bottom: 6px;
+              "
+            >
+              Set duration for input material consumption & finished output
+              production:
+            </div>
+            <div
+              id="stationTimingGrid"
+              style="display: flex; flex-direction: column; gap: 5px"
+            ></div>
+          </div>
+        </div>
+
+        <!-- Camera Tracking, Loop & Reset View Controls (Single Consolidated Location) -->
+        <div
+          style="
+            border-top: 1px solid var(--border-color);
+            padding-top: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+          "
+        >
+          <div class="sim-assist-bar">
+            <button
+              type="button"
+              id="panelFollowBtn"
+              class="action-pill-btn"
+              title="Automatically focus and follow RM → WIP → FG movement"
+            >
+              <span class="material-symbols-outlined">my_location</span>
+              <span id="panelFollowLabel">Follow: OFF</span>
+            </button>
+            <button
+              type="button"
+              id="panelLoopBtn"
+              class="action-pill-btn"
+              title="Repeat production order continuously"
+            >
+              <span class="material-symbols-outlined">repeat</span>
+              <span id="panelLoopLabel">Loop: OFF</span>
+            </button>
+            <button
+              type="button"
+              id="resetCameraBtn"
+              class="action-pill-btn"
+              title="Reset Camera View to All Factory"
+            >
+              <span class="material-symbols-outlined">center_focus_strong</span>
+              <span>Reset View</span>
+            </button>
+          </div>
+          <div class="toggle-row">
+            <label for="showLabelsToggle">Show 3D material name labels</label>
+            <input type="checkbox" id="showLabelsToggle" />
+          </div>
+          <div class="toggle-row">
+            <label for="simSpeedSelect">Simulation Speed</label>
+            <select
+              id="simSpeedSelect"
+              class="form-select"
+              style="width: 105px; padding: 3px 6px"
+            >
+              <option value="0.5">0.5x Slow</option>
+              <option value="1" selected>1x Normal</option>
+              <option value="1.8">1.8x Fast</option>
+              <option value="3">3x Turbo</option>
             </select>
           </div>
-          <div class="preset-row" id="qtyPresetRow"></div>
         </div>
 
-        <div class="field-group hidden" id="piecesPerBoxGroup">
-          <div class="field-label-row">
-            <label for="piecesPerBoxInput">Pieces per Corrugated Box</label>
-            <span id="boxCountCalcText" style="color:var(--accent);">10 boxes</span>
-          </div>
-          <input type="number" id="piecesPerBoxInput" class="form-input" value="300" min="1" step="10" />
+        <div id="validationAlert" class="validation-msg">
+          Please enter a valid order quantity greater than 0.
         </div>
 
-        <div class="field-group">
-          <div class="field-label-row">
-            <span>Standard Roll Spec (Conversion)</span>
-          </div>
-          <div class="input-row">
-            <div style="flex:1;">
-              <label for="metersPerRollInput" style="font-size:10px;color:var(--text-muted);">Meters / Roll</label>
-              <input type="number" id="metersPerRollInput" class="form-input" value="1000" min="10" step="50" />
-            </div>
-            <div style="flex:1;">
-              <label for="kgPerRollInput" style="font-size:10px;color:var(--text-muted);">Kilograms / Roll</label>
-              <input type="number" id="kgPerRollInput" class="form-input" value="25" min="1" step="1" />
-            </div>
-          </div>
-        </div>
-
-        <div class="toggle-row hidden" id="skipSlitRow">
-          <label for="skipSlitCheckbox">Skip Slit process (feed Laminate Roll directly)</label>
-          <input type="checkbox" id="skipSlitCheckbox" />
-        </div>
-
-        <div class="field-group">
-          <div class="field-label-row">
-            <span>Waste % per Active Process</span>
-            <div style="display:flex;align-items:center;gap:4px;">
-              <input type="number" id="bulkWasteInput" value="3" min="0" max="45" step="0.5" style="width:44px;padding:1px 4px;font-size:10.5px;border:1px solid var(--border-color);border-radius:4px;background:var(--bg-card);" />
-              <button type="button" id="applyAllWasteBtn" class="link-btn">Apply all</button>
-            </div>
-          </div>
-          <div class="waste-grid" id="wasteInputsGrid"></div>
-        </div>
-
-        <div class="field-group" style="margin-top:10px;">
-          <div class="field-label-row">
-            <span>Machine Process Timing (Minutes)</span>
-            <button type="button" id="resetDefaultTimingBtn" class="link-btn" title="Reset to default operational minutes">Reset default</button>
-          </div>
-          <div style="font-size:10px;color:var(--text-muted);margin-bottom:6px;">
-            Set duration for input material consumption & finished output production:
-          </div>
-          <div id="stationTimingGrid" style="display:flex;flex-direction:column;gap:5px;"></div>
-        </div>
-      </div>
-
-      <!-- Camera Tracking, Loop & Reset View Controls (Single Consolidated Location) -->
-      <div style="border-top:1px solid var(--border-color);padding-top:8px;display:flex;flex-direction:column;gap:6px;">
-        <div class="sim-assist-bar">
-          <button type="button" id="panelFollowBtn" class="action-pill-btn" title="Automatically focus and follow RM → WIP → FG movement">
-            <span class="material-symbols-outlined">my_location</span>
-            <span id="panelFollowLabel">Follow: OFF</span>
+        <div class="btn-row">
+          <button
+            type="button"
+            id="startSimBtn"
+            class="btn btn-primary"
+            title="Start or Pause simulation (Spacebar)"
+          >
+            <span class="material-symbols-outlined" id="startSimBtnIcon"
+              >play_arrow</span
+            >
+            <span id="startSimBtnLabel">Start</span>
           </button>
-          <button type="button" id="panelLoopBtn" class="action-pill-btn" title="Repeat production order continuously">
-            <span class="material-symbols-outlined">repeat</span>
-            <span id="panelLoopLabel">Loop: OFF</span>
-          </button>
-          <button type="button" id="resetCameraBtn" class="action-pill-btn" title="Reset Camera View to All Factory">
-            <span class="material-symbols-outlined">center_focus_strong</span>
-            <span>Reset View</span>
+          <button
+            type="button"
+            id="resetSimBtn"
+            class="btn btn-outline-danger"
+            title="Reset all inventory and vehicles"
+          >
+            <span class="material-symbols-outlined">restart_alt</span>
+            <span>Reset</span>
           </button>
         </div>
-        <div class="toggle-row">
-          <label for="showLabelsToggle">Show 3D material name labels</label>
-          <input type="checkbox" id="showLabelsToggle" />
-        </div>
-        <div class="toggle-row">
-          <label for="simSpeedSelect">Simulation Speed</label>
-          <select id="simSpeedSelect" class="form-select" style="width:105px;padding:3px 6px;">
-            <option value="0.5">0.5x Slow</option>
-            <option value="1" selected>1x Normal</option>
-            <option value="1.8">1.8x Fast</option>
-            <option value="3">3x Turbo</option>
-          </select>
+
+        <!-- Detailed Mode Process & RM Consumption Summary Table -->
+        <div
+          id="detailedSummarySection"
+          class="field-group hidden"
+          style="margin-top: 4px"
+        >
+          <div class="field-label-row">
+            <span>Backward Calculation &amp; Yield Table</span>
+            <span style="font-size: 10px; color: var(--text-muted)">in kg</span>
+          </div>
+          <div class="summary-table-wrap">
+            <table class="summary-table">
+              <thead>
+                <tr>
+                  <th>Process</th>
+                  <th>Input</th>
+                  <th>Waste</th>
+                  <th>Output</th>
+                </tr>
+              </thead>
+              <tbody id="summaryTableBody"></tbody>
+            </table>
+          </div>
+          <div class="field-label-row" style="margin-top: 4px">
+            <span>Estimated RM Consumption</span>
+          </div>
+          <div class="rm-consumed-grid" id="rmConsumedGrid"></div>
         </div>
       </div>
+    </aside>
 
-      <div id="validationAlert" class="validation-msg">Please enter a valid order quantity greater than 0.</div>
-
-      <div class="btn-row">
-        <button type="button" id="startSimBtn" class="btn btn-primary" title="Start or Pause simulation (Spacebar)">
-          <span class="material-symbols-outlined" id="startSimBtnIcon">play_arrow</span>
-          <span id="startSimBtnLabel">Start</span>
-        </button>
-        <button type="button" id="resetSimBtn" class="btn btn-outline-danger" title="Reset all inventory and vehicles">
-          <span class="material-symbols-outlined">restart_alt</span>
-          <span>Reset</span>
-        </button>
-      </div>
-
-      <!-- Detailed Mode Process & RM Consumption Summary Table -->
-      <div id="detailedSummarySection" class="field-group hidden" style="margin-top:4px;">
-        <div class="field-label-row">
-          <span>Backward Calculation &amp; Yield Table</span>
-          <span style="font-size:10px;color:var(--text-muted);">in kg</span>
+    <!-- Right Panel: Factory Overview, RM Stock & Event Log (Hidden in Minimal Mode) -->
+    <aside
+      id="detailPanel"
+      class="hidden"
+      aria-label="Area and Station Inspector Panel"
+    >
+      <div class="panel-header">
+        <div class="panel-title" id="inspectorTitle">
+          Starflex Factory Overview
         </div>
-        <div class="summary-table-wrap">
-          <table class="summary-table">
-            <thead>
-              <tr>
-                <th>Process</th>
-                <th>Input</th>
-                <th>Waste</th>
-                <th>Output</th>
-              </tr>
-            </thead>
-            <tbody id="summaryTableBody"></tbody>
-          </table>
+        <div style="display: flex; align-items: center; gap: 6px">
+          <span id="inspectorBadge" class="status-badge status-idle"
+            >All Factory</span
+          >
+          <button
+            type="button"
+            id="toggleDetailPanelBtn"
+            class="panel-collapse-btn"
+            aria-expanded="true"
+            title="Hide or Show Inspector Panel"
+          >
+            <span
+              class="material-symbols-outlined"
+              id="toggleDetailPanelIcon"
+              style="font-size: 15px"
+              >expand_less</span
+            >
+            <span id="toggleDetailPanelLabel">Hide</span>
+          </button>
         </div>
-        <div class="field-label-row" style="margin-top:4px;">
-          <span>Estimated RM Consumption</span>
+      </div>
+      <div class="panel-body">
+        <div
+          id="inspectorContent"
+          style="
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            font-size: 12px;
+          "
+        ></div>
+
+        <div
+          class="field-group"
+          style="border-top: 1px solid var(--border-color); padding-top: 8px"
+        >
+          <div class="field-label-row">
+            <span>RM WH Inventory</span>
+            <span
+              id="rmListModeHint"
+              style="font-size: 10px; color: var(--text-muted)"
+              >Live Quantities</span
+            >
+          </div>
+          <div class="stock-list" id="rmStockListContainer"></div>
         </div>
-        <div class="rm-consumed-grid" id="rmConsumedGrid"></div>
-      </div>
-    </div>
-  </aside>
 
-  <!-- Right Panel: Factory Overview, RM Stock & Event Log (Hidden in Minimal Mode) -->
-  <aside id="detailPanel" class="hidden" aria-label="Area and Station Inspector Panel">
-    <div class="panel-header">
-      <div class="panel-title" id="inspectorTitle">Starflex Factory Overview</div>
-      <div style="display:flex;align-items:center;gap:6px;">
-        <span id="inspectorBadge" class="status-badge status-idle">All Factory</span>
-        <button type="button" id="toggleDetailPanelBtn" class="panel-collapse-btn" aria-expanded="true" title="Hide or Show Inspector Panel">
-          <span class="material-symbols-outlined" id="toggleDetailPanelIcon" style="font-size:15px;">expand_less</span>
-          <span id="toggleDetailPanelLabel">Hide</span>
-        </button>
-      </div>
-    </div>
-    <div class="panel-body">
-      <div id="inspectorContent" style="display:flex;flex-direction:column;gap:8px;font-size:12px;"></div>
-
-      <div class="field-group" style="border-top:1px solid var(--border-color);padding-top:8px;">
-        <div class="field-label-row">
-          <span>RM WH Inventory</span>
-          <span id="rmListModeHint" style="font-size:10px;color:var(--text-muted);">Live Quantities</span>
+        <div
+          class="field-group"
+          style="border-top: 1px solid var(--border-color); padding-top: 8px"
+        >
+          <div class="field-label-row">
+            <span>Live Material &amp; Fleet Event Log</span>
+            <button type="button" id="clearLogBtn" class="link-btn">
+              Clear
+            </button>
+          </div>
+          <div class="event-log-box" id="eventLogContainer"></div>
         </div>
-        <div class="stock-list" id="rmStockListContainer"></div>
       </div>
+    </aside>
 
-      <div class="field-group" style="border-top:1px solid var(--border-color);padding-top:8px;">
-        <div class="field-label-row">
-          <span>Live Material &amp; Fleet Event Log</span>
-          <button type="button" id="clearLogBtn" class="link-btn">Clear</button>
-        </div>
-        <div class="event-log-box" id="eventLogContainer"></div>
-      </div>
-    </div>
-  </aside>
+    <!-- Bottom Unified Zone & Process Stepper Bar -->
+    <footer
+      id="bottomStepperBar"
+      aria-label="Production Process Progress Stepper"
+    ></footer>
 
-  <!-- Bottom Unified Zone & Process Stepper Bar -->
-  <footer id="bottomStepperBar" aria-label="Production Process Progress Stepper"></footer>
-
-  <!-- Application Modular Scripts -->
-  <script src="js/config.js"></script>
-  <script src="js/calculations.js"></script>
-  <script src="js/materials.js"></script>
-  <!-- Individual Machine Models (in machines/ folder) -->
-  <script src="js/machines/common.js"></script>
-  <script src="js/machines/blown-film.js"></script>
-  <script src="js/machines/ink-mix.js"></script>
-  <script src="js/machines/printing.js"></script>
-  <script src="js/machines/laminate.js"></script>
-  <script src="js/machines/slit.js"></script>
-  <script src="js/machines/bag.js"></script>
-  <script src="js/machines/spout.js"></script>
-  <script src="js/machines/index.js"></script>
-  <script src="js/vehicles.js"></script>
-  <script src="js/bays.js"></script>
-  <script src="js/floor.js"></script>
-  <script src="js/scene.js"></script>
-  <script src="js/labels.js"></script>
-  <script src="js/paths.js"></script>
-  <script src="js/simulation.js"></script>
-  <script src="js/ui.js"></script>
-  <script src="js/main.js"></script>
-</body>
+    <!-- Application Modular Scripts -->
+    <script src="js/config.js"></script>
+    <script src="js/calculations.js"></script>
+    <script src="js/materials.js"></script>
+    <!-- Individual Machine Models (in machines/ folder) -->
+    <script src="js/machines/common.js"></script>
+    <script src="js/machines/blown-film.js"></script>
+    <script src="js/machines/ink-mix.js"></script>
+    <script src="js/machines/printing.js"></script>
+    <script src="js/machines/laminate.js"></script>
+    <script src="js/machines/slit.js"></script>
+    <script src="js/machines/bag.js"></script>
+    <script src="js/machines/spout.js"></script>
+    <script src="js/machines/index.js"></script>
+    <script src="js/vehicles.js"></script>
+    <script src="js/bays.js"></script>
+    <script src="js/floor.js"></script>
+    <script src="js/scene.js"></script>
+    <script src="js/labels.js"></script>
+    <script src="js/paths.js"></script>
+    <script src="js/simulation.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/main.js"></script>
+  </body>
 </html>
