@@ -630,6 +630,12 @@
       sceneObjects.rmForklift.rotation.y = Math.PI;
       mountCargoOnVehicle(sceneObjects.rmForklift, null, []);
 
+      if (sceneObjects.rmForklift2) {
+        sceneObjects.rmForklift2.position.set(-52, 0.15, -1.8);
+        sceneObjects.rmForklift2.rotation.y = Math.PI;
+        mountCargoOnVehicle(sceneObjects.rmForklift2, null, []);
+      }
+
       sceneObjects.fgForklift.position.set(45, 0.15, 1.8);
       sceneObjects.fgForklift.rotation.y = 0;
       mountCargoOnVehicle(sceneObjects.fgForklift, null, []);
@@ -641,6 +647,26 @@
       sceneObjects.handPalletTruck.position.set(-10, 0.15, 1.8);
       sceneObjects.handPalletTruck.rotation.y = 0;
       mountCargoOnVehicle(sceneObjects.handPalletTruck, null, []);
+      if (sceneObjects.handPalletTruck && sceneObjects.handPalletTruck.userData.operator) {
+        const op = sceneObjects.handPalletTruck.userData.operator;
+        if (op.userData && op.userData.leftArm) {
+          op.userData.leftArm.rotation.x = 0;
+          op.userData.rightArm.rotation.x = 0;
+        }
+      }
+
+      if (sceneObjects.handPalletTruck2) {
+        sceneObjects.handPalletTruck2.position.set(10, 0.15, 1.8);
+        sceneObjects.handPalletTruck2.rotation.y = 0;
+        mountCargoOnVehicle(sceneObjects.handPalletTruck2, null, []);
+        if (sceneObjects.handPalletTruck2.userData.operator) {
+          const op = sceneObjects.handPalletTruck2.userData.operator;
+          if (op.userData && op.userData.leftArm) {
+            op.userData.leftArm.rotation.x = 0;
+            op.userData.rightArm.rotation.x = 0;
+          }
+        }
+      }
 
       sceneObjects.containerTruck.position.set(81, 0.0, -4);
       if (sceneObjects.containerTruck.userData.setDoorOpenRatio) {

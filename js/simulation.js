@@ -701,8 +701,8 @@
         if (stObj && stObj.beaconMat) stObj.beaconMat.color.setHex(0x22c55e);
       });
 
-      // RM Missions along Westbound Lane (z = -1.2)
-      const rmMissions = [
+      // 1. Raw Material Missions: Outbound & Inbound Collections
+      const allRmMissionsOutbound = [
         { fromKey: 'RESIN', toStation: 'ST_BLOWN', cargoKey: 'RESIN', items: [{ key: 'RESIN', qtyText: 'Resin Sacks' }] },
         { fromKey: 'RM_INK', toStation: 'ST_INK', cargoKey: 'RM_INK', items: [{ key: 'RM_INK', qtyText: 'Ink Drums' }] },
         { fromKey: (appState.filmSource === 'INHOUSE' ? 'BLOWN_FILM' : 'PURCHASED_FILM'), toStation: 'ST_PRINT', cargoKey: 'PURCHASED_FILM', items: [{ key: 'PURCHASED_FILM', qtyText: 'Substrate Film' }, { key: 'CYLINDER', qtyText: 'Cylinders' }] },
@@ -714,28 +714,91 @@
         return plan.routeIds.indexOf(m.toStation) !== -1;
       });
 
-      // Hand Pallet Truck Missions: Direct Station-to-Station WIP flow strictly matching active route
-      const hptMissions = [];
+      // RM Inbound Collections (retrieve output from Blown Film & Ink to store back into RM WH)
+      const allRmMissionsInbound = [];
+      if (plan.routeIds.indexOf('ST_BLOWN') !== -1) {
+        allRmMissionsInbound.push({
+          fromStation: 'ST_BLOWN',
+          toStorage: 'BLOWN_FILM',
+          cargoKey: 'BLOWN_FILM',
+          items: [{ key: 'BLOWN_FILM', qtyText: 'Extruded Film Roll' }]
+        });
+      }
+      if (plan.routeIds.indexOf('ST_INK') !== -1) {
+        allRmMissionsInbound.push({
+          fromStation: 'ST_INK',
+          toStorage: 'MIXED_INK',
+          cargoKey: 'MIXED_INK',
+          items: [{ key: 'MIXED_INK', qtyText: 'Mixed Color Ink' }]
+        });
+      }
+
+      // Partition RM workload across 2 RM Forklifts:
+      // RM Forklift 1 (Yellow #f59e0b): Outbound raw materials to upstream stations (Extrusion, Ink, Printing, Laminate)
+      let rm1Missions = allRmMissionsOutbound.filter(function (m) {
+        return ['ST_BLOWN', 'ST_INK', 'ST_PRINT', 'ST_LAM'].indexOf(m.toStation) !== -1;
+      });
+      // RM Forklift 2 (Safety Orange #ea580c): Inbound collections back to RM WH + downstream packaging supplies (Slit, Bag, Spout)
+      let rm2Missions = [].concat(
+        allRmMissionsInbound,
+        allRmMissionsOutbound.filter(function (m) {
+          return ['ST_SLIT', 'ST_BAG', 'ST_SPOUT'].indexOf(m.toStation) !== -1;
+        })
+      );
+
+      // Robust fallbacks to ensure both vehicles collaborate
+      if (rm1Missions.length === 0 && rm2Missions.length > 0) rm1Missions = rm2Missions.slice();
+      if (rm2Missions.length === 0 && rm1Missions.length > 0) rm2Missions = rm1Missions.slice();
+      if (rm1Missions.length === 0) {
+        rm1Missions = [{ fromKey: 'RESIN', toStation: 'ST_BLOWN', cargoKey: 'RESIN', items: [{ key: 'RESIN', qtyText: 'Resin Sacks' }] }];
+        rm2Missions = [{ fromKey: 'BOX', toStation: 'ST_BAG', cargoKey: 'BOX', items: [{ key: 'BOX', qtyText: 'Carton Boxes' }] }];
+      }
+
+      // 2. Hand Pallet Truck Missions (Two Operators with Zero-Teleport Transit):
+      // Worker 1: ST_PRINT -> PRD WH (Aging/Curing) -> ST_LAM
+      // Worker 2: ST_LAM -> PRD WH (Aging/Curing) -> ST_SLIT -> ST_BAG -> ST_SPOUT
       const route = plan.routeIds || [];
+      const hpt1Missions = [];
+      const hpt2Missions = [];
 
       if (route.indexOf('ST_PRINT') !== -1 && route.indexOf('ST_LAM') !== -1) {
-        hptMissions.push({
+        hpt1Missions.push({
           fromStation: 'ST_PRINT',
+          toZone: 'ZONE_PRD_WH',
+          cargoKey: 'PRINTING_ROLL',
+          items: [{ key: 'PRINTING_ROLL', qtyText: 'Printed Roll (to Curing)' }]
+        });
+        hpt1Missions.push({
+          fromZone: 'ZONE_PRD_WH',
           toStation: 'ST_LAM',
+          cargoKey: 'PRINTING_ROLL',
+          items: [{ key: 'PRINTING_ROLL', qtyText: 'Cured Printed Roll' }]
+        });
+      } else if (route.indexOf('ST_PRINT') !== -1) {
+        hpt1Missions.push({
+          fromStation: 'ST_PRINT',
+          toZone: 'ZONE_PRD_WH',
           cargoKey: 'PRINTING_ROLL',
           items: [{ key: 'PRINTING_ROLL', qtyText: 'Printed Roll' }]
         });
       }
+
       if (route.indexOf('ST_LAM') !== -1 && route.indexOf('ST_SLIT') !== -1) {
-        hptMissions.push({
+        hpt2Missions.push({
           fromStation: 'ST_LAM',
+          toZone: 'ZONE_PRD_WH',
+          cargoKey: 'LAMINATE_ROLL',
+          items: [{ key: 'LAMINATE_ROLL', qtyText: 'Laminate Roll (to Curing)' }]
+        });
+        hpt2Missions.push({
+          fromZone: 'ZONE_PRD_WH',
           toStation: 'ST_SLIT',
           cargoKey: 'LAMINATE_ROLL',
-          items: [{ key: 'LAMINATE_ROLL', qtyText: 'Laminate Roll' }]
+          items: [{ key: 'LAMINATE_ROLL', qtyText: 'Cured Laminate Roll' }]
         });
       }
       if (route.indexOf('ST_SLIT') !== -1 && route.indexOf('ST_BAG') !== -1) {
-        hptMissions.push({
+        hpt2Missions.push({
           fromStation: 'ST_SLIT',
           toStation: 'ST_BAG',
           cargoKey: 'SLIT_ROLL',
@@ -743,7 +806,7 @@
         });
       }
       if (route.indexOf('ST_BAG') !== -1 && route.indexOf('ST_SPOUT') !== -1) {
-        hptMissions.push({
+        hpt2Missions.push({
           fromStation: 'ST_BAG',
           toStation: 'ST_SPOUT',
           cargoKey: 'FG_BAG_BOX',
@@ -751,30 +814,104 @@
         });
       }
 
-      const initialRM = rmMissions[0] || { fromKey: 'RESIN', toStation: 'ST_BLOWN', cargoKey: 'RESIN', items: [{ key: 'RESIN', qtyText: 'Resin Sacks' }] };
-      const initialHPT = hptMissions[0] || null;
-      const nextHPT = (hptMissions.length > 1) ? hptMissions[1] : initialHPT;
+      // Balance fallbacks for edge-case routes
+      if (hpt1Missions.length === 0 && hpt2Missions.length > 0) {
+        hpt1Missions.push(hpt2Missions.shift());
+      }
+      if (hpt2Missions.length === 0 && hpt1Missions.length > 0) {
+        hpt2Missions.push(hpt1Missions[0]);
+      }
+      if (hpt1Missions.length === 0) {
+        hpt1Missions.push({
+          fromStation: 'ST_PRINT',
+          toZone: 'ZONE_PRD_WH',
+          cargoKey: 'PRINTING_ROLL',
+          items: [{ key: 'PRINTING_ROLL', qtyText: 'Printed Roll' }]
+        });
+      }
+      if (hpt2Missions.length === 0) {
+        hpt2Missions.push({
+          fromZone: 'ZONE_PRD_WH',
+          toStation: 'ST_LAM',
+          cargoKey: 'PRINTING_ROLL',
+          items: [{ key: 'PRINTING_ROLL', qtyText: 'Cured Printed Roll' }]
+        });
+      }
+
+      // Compute initial continuous waypoints (Leg A: loaded to dock, Leg B: empty to next pickup)
+      const initRM1 = rm1Missions[0];
+      const nextRM1 = (rm1Missions.length > 1) ? rm1Missions[1] : initRM1;
+      const wpRM1 = buildConcurrentRmWaypoints(initRM1, nextRM1);
+
+      const initRM2 = rm2Missions[0];
+      const nextRM2 = (rm2Missions.length > 1) ? rm2Missions[1] : initRM2;
+      const wpRM2 = buildConcurrentRmWaypoints(initRM2, nextRM2);
+
+      const initHPT1 = hpt1Missions[0];
+      const nextHPT1 = (hpt1Missions.length > 1) ? hpt1Missions[1] : initHPT1;
+      const wpHPT1 = buildConcurrentHptWaypoints(initHPT1, nextHPT1);
+
+      const initHPT2 = hpt2Missions[0];
+      const nextHPT2 = (hpt2Missions.length > 1) ? hpt2Missions[1] : initHPT2;
+      const wpHPT2 = buildConcurrentHptWaypoints(initHPT2, nextHPT2);
+
       const fgCargoKey = (appState.productType === 'FG_ROLL') ? 'SLIT_ROLL' : ((appState.productType === 'FG_SPOUT') ? 'FG_SPOUT_BOX' : 'FG_BAG_BOX');
       const fgCargoLabel = (appState.productType === 'FG_ROLL') ? 'Slit Film Rolls' : ((appState.productType === 'FG_SPOUT') ? 'Spout Pouches' : 'Hygiene Pouches');
 
       resetAllStationBays();
 
+      // Zero-snap: place each vehicle exactly at the first waypoint of its initial mission
+      sceneObjects.rmForklift.position.copy(wpRM1[0]);
+      if (sceneObjects.rmForklift2) sceneObjects.rmForklift2.position.copy(wpRM2[0]);
+      sceneObjects.handPalletTruck.position.copy(wpHPT1[0]);
+      if (sceneObjects.handPalletTruck2) sceneObjects.handPalletTruck2.position.copy(wpHPT2[0]);
+
       appState.concurrentData = {
         stationCycles: {},
-        missionsRM: rmMissions,
-        indexRM: 0,
-        timerRM: 0,
-        durRM: 4.5,
-        wpRM: buildConcurrentRmWaypoints(initialRM),
-        rmDropped: false,
 
-        missionsHPT: hptMissions,
-        indexHPT: 0,
-        timerHPT: 0,
-        durHPT: 4.8,
-        wpHPT: buildConcurrentHptWaypoints(initialHPT, nextHPT),
-        hptDropped: false,
-        hptPickedUp: false,
+        // RM Forklift 1 (Yellow)
+        vehRM1: {
+          missions: rm1Missions,
+          index: 0,
+          timer: 0,
+          dur: 4.5,
+          wp: wpRM1,
+          dropped: false,
+          pickedUp: true
+        },
+
+        // RM Forklift 2 (Safety Orange)
+        vehRM2: {
+          missions: rm2Missions,
+          index: 0,
+          timer: 0,
+          dur: 4.8,
+          wp: wpRM2,
+          dropped: false,
+          pickedUp: !initRM2.fromStation
+        },
+
+        // HPT Worker 1
+        vehHPT1: {
+          missions: hpt1Missions,
+          index: 0,
+          timer: 0,
+          dur: 4.6,
+          wp: wpHPT1,
+          dropped: false,
+          pickedUp: false
+        },
+
+        // HPT Worker 2
+        vehHPT2: {
+          missions: hpt2Missions,
+          index: 0,
+          timer: 0,
+          dur: 5.0,
+          wp: wpHPT2,
+          dropped: false,
+          pickedUp: false
+        },
 
         timerFG: 0,
         durFG: 4.2,
@@ -792,10 +929,115 @@
         progressTimer: 0
       };
 
-      mountCargoOnVehicle(sceneObjects.rmForklift, initialRM.cargoKey, initialRM.items);
+      mountCargoOnVehicle(sceneObjects.rmForklift, initRM1.cargoKey, initRM1.items);
+      if (sceneObjects.rmForklift2) {
+        if (!initRM2.fromStation) {
+          mountCargoOnVehicle(sceneObjects.rmForklift2, initRM2.cargoKey, initRM2.items);
+        } else {
+          mountCargoOnVehicle(sceneObjects.rmForklift2, null, []);
+        }
+      }
       mountCargoOnVehicle(sceneObjects.handPalletTruck, null, []);
+      if (sceneObjects.handPalletTruck2) mountCargoOnVehicle(sceneObjects.handPalletTruck2, null, []);
       mountCargoOnVehicle(sceneObjects.fgForklift, null, []);
       mountCargoOnVehicle(sceneObjects.deliveryForklift, fgCargoKey, [{ key: fgCargoKey, qtyText: 'Pallet for Dispatch' }]);
+    }
+
+    function updateConcurrentVehicle(veh, state, scaledDt, nowSec, isHpt, isRmCollection) {
+      if (!veh || !state || !state.missions || state.missions.length === 0) return;
+
+      const curM = state.missions[state.index];
+
+      // Requirement 2: Downstream vehicle waits if pickup bay has no cargo ready
+      let mustWait = false;
+      if (isHpt && !state.pickedUp) {
+        if (curM.fromStation && sceneObjects.stationObjs[curM.fromStation]) {
+          const srcBay = sceneObjects.stationObjs[curM.fromStation].outfeedBay;
+          if (!bayHasCargo(srcBay)) {
+            mustWait = true;
+          } else {
+            state.pickedUp = true;
+            clearBayCargo(srcBay);
+            mountCargoOnVehicle(veh, curM.cargoKey, curM.items);
+          }
+        } else if (curM.fromZone === 'ZONE_PRD_WH') {
+          if (sceneObjects.prdBayOut && bayHasCargo(sceneObjects.prdBayOut)) {
+            state.pickedUp = true;
+            clearBayCargo(sceneObjects.prdBayOut);
+            mountCargoOnVehicle(veh, curM.cargoKey, curM.items);
+          } else {
+            state.pickedUp = true;
+            mountCargoOnVehicle(veh, curM.cargoKey, curM.items);
+          }
+        }
+      } else if (!isHpt && isRmCollection && !state.pickedUp && curM.fromStation) {
+        const srcBay = sceneObjects.stationObjs[curM.fromStation] && sceneObjects.stationObjs[curM.fromStation].outfeedBay;
+        if (srcBay && !bayHasCargo(srcBay)) {
+          mustWait = true;
+        } else {
+          state.pickedUp = true;
+          if (srcBay) clearBayCargo(srcBay);
+          mountCargoOnVehicle(veh, curM.cargoKey, curM.items);
+        }
+      }
+
+      if (mustWait) return;
+
+      state.timer += scaledDt;
+      const t = Math.min(1, state.timer / state.dur);
+      const pose = sampleWaypoints(state.wp, t);
+      veh.position.copy(pose.pos);
+      veh.rotation.y = pose.yaw;
+
+      // Arm swing animation for human workers
+      if (veh.userData && veh.userData.operator) {
+        const op = veh.userData.operator;
+        if (op.userData && op.userData.leftArm) {
+          op.userData.leftArm.rotation.x = Math.sin(nowSec * 10) * 0.4;
+          op.userData.rightArm.rotation.x = -Math.sin(nowSec * 10) * 0.4;
+        }
+      }
+
+      // Dropoff calculation: ratio of distance to destination dock (point 3)
+      const ratioDrop = (state.wp.length >= 4)
+        ? (computePathLength(state.wp.slice(0, 4)) / computePathLength(state.wp))
+        : 0.48;
+
+      if (t >= ratioDrop && !state.dropped) {
+        state.dropped = true;
+        if (curM.toStation && sceneObjects.stationObjs[curM.toStation]) {
+          setBayCargo(sceneObjects.stationObjs[curM.toStation].infeedBay, curM.cargoKey);
+        } else if (curM.toZone === 'ZONE_PRD_WH') {
+          if (sceneObjects.prdBayIn) setBayCargo(sceneObjects.prdBayIn, curM.cargoKey);
+          if (sceneObjects.prdBayOut && !bayHasCargo(sceneObjects.prdBayOut)) {
+            setBayCargo(sceneObjects.prdBayOut, curM.cargoKey);
+          }
+          appendEventLog('PRD WH: Roll entered Aging & Curing room.');
+        } else if (curM.toStorage) {
+          appendEventLog('RM WH: Stored ' + curM.cargoKey + ' into warehouse rack/bay.');
+        }
+        mountCargoOnVehicle(veh, null, []);
+      }
+
+      // Mission completion: arrival at nextFromPos
+      if (t >= 1) {
+        state.timer = 0;
+        state.dropped = false;
+        state.pickedUp = false;
+        state.index = (state.index + 1) % state.missions.length;
+        const newCur = state.missions[state.index];
+        const newNext = state.missions[(state.index + 1) % state.missions.length];
+
+        if (isHpt) {
+          state.wp = buildConcurrentHptWaypoints(newCur, newNext);
+        } else {
+          state.wp = buildConcurrentRmWaypoints(newCur, newNext);
+          if (newCur.fromKey) {
+            mountCargoOnVehicle(veh, newCur.cargoKey, newCur.items);
+            state.pickedUp = true;
+          }
+        }
+      }
     }
 
     function stepConcurrentFrame(dt, nowSec, scaledDt) {
@@ -827,7 +1069,7 @@
 
         if (sc.status === 'WAITING_INPUT') {
           if (hasInfeed) {
-            // Requirement 1: Input arrived in yellow infeed bay! Machine can now start operating!
+            // Input arrived in yellow infeed bay! Machine can start operating!
             sc.status = 'RUNNING';
             sc.elapsed = 0;
             sc.inputConsumed = false;
@@ -837,13 +1079,11 @@
           }
         } else if (sc.status === 'RUNNING') {
           sc.elapsed += scaledDt;
-          // Requirement 3: Input consumption after inputMin
           if (sc.elapsed >= tInputSec && !sc.inputConsumed) {
             sc.inputConsumed = true;
             clearBayCargo(stObj.infeedBay);
             appendEventLog('Station ' + (STATION_MAP[stId] ? STATION_MAP[stId].name : stId) + ': Input material consumed at ' + timing.inputMin + ' min');
           }
-          // Requirement 3: Output production after outputMin
           if (sc.elapsed >= tOutputSec && !sc.outputProduced) {
             sc.outputProduced = true;
             sc.status = 'OUTPUT_READY';
@@ -863,88 +1103,24 @@
         }
       });
 
-      // 1. RM Forklift Movement (Westbound Lane z = -1.8)
-      cd.timerRM += scaledDt;
-      const tRM = Math.min(1, cd.timerRM / cd.durRM);
-      const poseRM = sampleWaypoints(cd.wpRM, tRM);
-      sceneObjects.rmForklift.position.copy(poseRM.pos);
-      sceneObjects.rmForklift.rotation.y = poseRM.yaw;
-      if (tRM >= 0.48 && !cd.rmDropped) {
-        cd.rmDropped = true;
-        const curM = (cd.missionsRM && cd.missionsRM.length > 0) ? cd.missionsRM[cd.indexRM] : null;
-        if (curM && sceneObjects.stationObjs[curM.toStation]) {
-          setBayCargo(sceneObjects.stationObjs[curM.toStation].infeedBay, curM.cargoKey);
-        }
-        mountCargoOnVehicle(sceneObjects.rmForklift, null, []);
-      }
-      if (tRM >= 1) {
-        cd.timerRM = 0;
-        cd.rmDropped = false;
-        if (cd.missionsRM && cd.missionsRM.length > 0) {
-          cd.indexRM = (cd.indexRM + 1) % cd.missionsRM.length;
-          const nextM = cd.missionsRM[cd.indexRM];
-          cd.wpRM = buildConcurrentRmWaypoints(nextM);
-          mountCargoOnVehicle(sceneObjects.rmForklift, nextM.cargoKey, nextM.items);
-        }
+      // 1. RM Forklift 1 Movement (Outbound Raw Materials along North Lane z = -1.8)
+      if (cd.vehRM1) {
+        updateConcurrentVehicle(sceneObjects.rmForklift, cd.vehRM1, scaledDt, nowSec, false, false);
       }
 
-      // 2. Hand Pallet Truck Movement (Eastbound Lane z = +1.8)
-      const curH = (cd.missionsHPT && cd.missionsHPT.length > 0) ? cd.missionsHPT[cd.indexHPT] : null;
-      let hptWaitOutput = false;
-      if (curH && curH.fromStation && sceneObjects.stationObjs[curH.fromStation] && !cd.hptPickedUp) {
-        const srcBay = sceneObjects.stationObjs[curH.fromStation].outfeedBay;
-        // Requirement 2: Downstream waits if outfeed bay has NO output!
-        if (!bayHasCargo(srcBay)) {
-          hptWaitOutput = true;
-        } else {
-          cd.hptPickedUp = true;
-          clearBayCargo(srcBay);
-          mountCargoOnVehicle(sceneObjects.handPalletTruck, curH.cargoKey, curH.items);
-        }
-      } else if (curH && curH.fromZone === 'ZONE_PRD_WH' && sceneObjects.prdBayOut && !cd.hptPickedUp) {
-        if (!bayHasCargo(sceneObjects.prdBayOut)) {
-          cd.hptPickedUp = true;
-          mountCargoOnVehicle(sceneObjects.handPalletTruck, curH.cargoKey, curH.items);
-        } else {
-          cd.hptPickedUp = true;
-          clearBayCargo(sceneObjects.prdBayOut);
-          mountCargoOnVehicle(sceneObjects.handPalletTruck, curH.cargoKey, curH.items);
-        }
+      // 1b. RM Forklift 2 Movement (Inbound Collections & Packaging Supplies along North Lane z = -1.8)
+      if (cd.vehRM2 && sceneObjects.rmForklift2) {
+        updateConcurrentVehicle(sceneObjects.rmForklift2, cd.vehRM2, scaledDt, nowSec, false, true);
       }
 
-      if (!hptWaitOutput) {
-        cd.timerHPT += scaledDt;
-        const tHPT = Math.min(1, cd.timerHPT / cd.durHPT);
-        const poseHPT = sampleWaypoints(cd.wpHPT, tHPT);
-        sceneObjects.handPalletTruck.position.copy(poseHPT.pos);
-        sceneObjects.handPalletTruck.rotation.y = poseHPT.yaw;
-        if (sceneObjects.handPalletTruck.userData.operator) {
-          const op = sceneObjects.handPalletTruck.userData.operator;
-          op.userData.leftArm.rotation.x = Math.sin(nowSec * 10) * 0.4;
-          op.userData.rightArm.rotation.x = -Math.sin(nowSec * 10) * 0.4;
-        }
-        if (tHPT >= 0.48 && !cd.hptDropped) {
-          cd.hptDropped = true;
-          if (curH) {
-            if (curH.toStation && sceneObjects.stationObjs[curH.toStation]) {
-              setBayCargo(sceneObjects.stationObjs[curH.toStation].infeedBay, curH.cargoKey);
-            } else if (curH.toZone === 'ZONE_PRD_WH' && sceneObjects.prdBayIn) {
-              setBayCargo(sceneObjects.prdBayIn, curH.cargoKey);
-            }
-          }
-          mountCargoOnVehicle(sceneObjects.handPalletTruck, null, []);
-        }
-        if (tHPT >= 1) {
-          cd.timerHPT = 0;
-          cd.hptDropped = false;
-          cd.hptPickedUp = false;
-          if (cd.missionsHPT && cd.missionsHPT.length > 0) {
-            cd.indexHPT = (cd.indexHPT + 1) % cd.missionsHPT.length;
-            const curH = cd.missionsHPT[cd.indexHPT];
-            const nextH = cd.missionsHPT[(cd.indexHPT + 1) % cd.missionsHPT.length];
-            cd.wpHPT = buildConcurrentHptWaypoints(curH, nextH);
-          }
-        }
+      // 2. Hand Pallet Truck Worker 1 (Print -> PRD WH -> Laminate along South Lane z = +1.8)
+      if (cd.vehHPT1) {
+        updateConcurrentVehicle(sceneObjects.handPalletTruck, cd.vehHPT1, scaledDt, nowSec, true, false);
+      }
+
+      // 2b. Hand Pallet Truck Worker 2 (Laminate -> PRD WH -> Slit -> Bag -> Spout along South Lane z = +1.8)
+      if (cd.vehHPT2 && sceneObjects.handPalletTruck2) {
+        updateConcurrentVehicle(sceneObjects.handPalletTruck2, cd.vehHPT2, scaledDt, nowSec, true, false);
       }
 
       // 3. FG Forklift Movement
@@ -955,7 +1131,6 @@
 
       let fgWaitOutput = false;
       if (finalStObj && !cd.fgPickedUp) {
-        // Requirement 2: FG Forklift waits if final station has no output in green bay!
         if (!bayHasCargo(finalStObj.outfeedBay)) {
           fgWaitOutput = true;
         } else {
@@ -983,14 +1158,13 @@
         }
       }
 
-      // 5. Delivery Forklift & Container Truck Loop
+      // 4. Delivery Forklift & Container Truck Loop
       cd.timerDeliv += scaledDt;
       const tDeliv = Math.min(1, cd.timerDeliv / cd.durDeliv);
       const poseDeliv = sampleWaypoints(cd.wpDeliv, tDeliv);
       sceneObjects.deliveryForklift.position.copy(poseDeliv.pos);
       sceneObjects.deliveryForklift.rotation.y = poseDeliv.yaw;
 
-      // When reaching the truck (waypoint 2 at tDeliv >= 0.48), unload pallet into truck and clear forklift forks!
       if (tDeliv >= 0.48 && !cd.delivDropped) {
         cd.delivDropped = true;
         mountCargoOnVehicle(sceneObjects.deliveryForklift, null, []);
@@ -1003,7 +1177,6 @@
         }
       }
 
-      // When completing return trip back to staging area (tDeliv >= 1), reset and pick up next pallet
       if (tDeliv >= 1) {
         cd.timerDeliv = 0;
         cd.delivDropped = false;
@@ -1017,7 +1190,6 @@
       }
       if (cd.truckDeparted) {
         const departProgress = Math.min(1, (cd.truckCycleTimer - 12) / 3.0);
-        // Doors swing closed as truck drives out onto highway
         if (sceneObjects.containerTruck.userData.setDoorOpenRatio) {
           sceneObjects.containerTruck.userData.setDoorOpenRatio(Math.max(0, 1.0 - departProgress * 2.5));
         }
@@ -1038,13 +1210,12 @@
           }
         }
       } else {
-        // While parked at loading yard, side doors remain wide open for forklift loading
         if (sceneObjects.containerTruck.userData.setDoorOpenRatio) {
           sceneObjects.containerTruck.userData.setDoorOpenRatio(1.0);
         }
       }
 
-      // Smooth order progress increment (update KPI element directly without rebuilding DOM every frame)
+      // Smooth order progress increment
       cd.progressTimer += scaledDt;
       const newPct = Math.min(100, Math.floor((cd.progressTimer * 4.5) % 100));
       if (newPct !== appState.orderProgressPct) {
@@ -1053,7 +1224,6 @@
         if (progressEl) progressEl.textContent = newPct + '%';
       }
     }
-
     function stepSimulationFrame(dt) {
       const nowSec = performance.now() * 0.001;
       const scaledDt = dt * appState.simSpeed;

@@ -154,9 +154,11 @@
       fgRackSlots: [],
       fgStoredMeshes: [],
       rmForklift: null,
+      rmForklift2: null,
       fgForklift: null,
       deliveryForklift: null,
       handPalletTruck: null,
+      handPalletTruck2: null,
       containerTruck: null,
       labels3D: []
     };
@@ -1010,30 +1012,42 @@
 
       // Material Handling Fleet placed along dedicated Central Transit Corridor lanes
       // Westbound North Lane (z = -1.8) for RM Forklift; Eastbound South Lane (z = +1.8) for Hand Pallet Truck
-      sceneObjects.rmForklift = createForkliftMesh(0xf59e0b);
+      sceneObjects.rmForklift = createForkliftMesh(0xf59e0b); // RM Forklift #1 (Yellow: Outbound RM Delivery)
       sceneObjects.rmForklift.position.set(-45, 0.0, -1.8);
       sceneObjects.rmForklift.rotation.y = Math.PI; // facing West
       scene.add(sceneObjects.rmForklift);
 
-      sceneObjects.fgForklift = createForkliftMesh(0x10b981);
+      sceneObjects.rmForklift2 = createForkliftMesh(0xea580c); // RM Forklift #2 (Orange: Inbound RM Storage & Collection)
+      sceneObjects.rmForklift2.position.set(-52, 0.0, -1.8);
+      sceneObjects.rmForklift2.rotation.y = Math.PI; // facing West
+      scene.add(sceneObjects.rmForklift2);
+
+      sceneObjects.fgForklift = createForkliftMesh(0x10b981); // FG Forklift (Green: Production to Warehouse FG)
       sceneObjects.fgForklift.position.set(45, 0.0, 1.8);
       sceneObjects.fgForklift.rotation.y = 0; // facing East
       scene.add(sceneObjects.fgForklift);
 
-      sceneObjects.deliveryForklift = createForkliftMesh(0x3b82f6);
+      sceneObjects.deliveryForklift = createForkliftMesh(0x3b82f6); // Delivery Forklift (Blue: Loading Yard Dispatch)
       sceneObjects.deliveryForklift.position.set(63, 0.0, -4);
       scene.add(sceneObjects.deliveryForklift);
 
-      sceneObjects.handPalletTruck = createHandPalletTruckMesh();
+      sceneObjects.handPalletTruck = createHandPalletTruckMesh(); // HPT #1 (Worker 1: Print -> PRD WH -> Lam)
       sceneObjects.handPalletTruck.position.set(-10, 0.0, 1.8);
       sceneObjects.handPalletTruck.rotation.y = 0; // facing East
       scene.add(sceneObjects.handPalletTruck);
 
+      sceneObjects.handPalletTruck2 = createHandPalletTruckMesh(); // HPT #2 (Worker 2: Lam -> PRD WH -> Slit -> Bag -> Spout)
+      sceneObjects.handPalletTruck2.position.set(10, 0.0, 1.8);
+      sceneObjects.handPalletTruck2.rotation.y = 0; // facing East
+      scene.add(sceneObjects.handPalletTruck2);
+
       [
         { veh: sceneObjects.rmForklift },
+        { veh: sceneObjects.rmForklift2 },
         { veh: sceneObjects.fgForklift },
         { veh: sceneObjects.deliveryForklift },
-        { veh: sceneObjects.handPalletTruck }
+        { veh: sceneObjects.handPalletTruck },
+        { veh: sceneObjects.handPalletTruck2 }
       ].forEach(function (vItem) {
         const tag = registerLabel3D('', new THREE.Vector3(), 'tag-pallet', null);
         tag.followObj = vItem.veh;

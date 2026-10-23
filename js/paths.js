@@ -115,28 +115,72 @@
       return { pos: waypoints[waypoints.length - 1].clone(), yaw: 0 };
     }
 
-    function buildConcurrentRmWaypoints(mission) {
+    function getDockPos(stationIdOrKey, isOutfeed) {
+      if (stationIdOrKey === 'ZONE_PRD_WH') {
+        return isOutfeed ? new THREE.Vector3(-7.6, 0.0, 5.2) : new THREE.Vector3(-12.4, 0.0, 5.2);
+      }
+      const st = STATION_MAP[stationIdOrKey];
+      if (st) {
+        if (isOutfeed) {
+          return new THREE.Vector3(st.hptDock[0], 0.0, st.hptDock[2]);
+        } else {
+          return new THREE.Vector3(st.flDock[0], 0.0, st.flDock[2]);
+        }
+      }
+      const mat = MATERIAL_CATALOG[stationIdOrKey];
+      if (mat) {
+        const d = mat.rmDock || mat.rmPos;
+        return new THREE.Vector3(d[0], 0.0, d[2]);
+      }
+      return new THREE.Vector3(-63.0, 0.0, -4.0);
+    }
+
+    function buildConcurrentRmWaypoints(mission, nextMission) {
       if (!mission) {
         return [new THREE.Vector3(-45, 0.0, -1.8), new THREE.Vector3(-45, 0.0, -1.8)];
       }
-      const st = STATION_MAP[mission.toStation];
-      const mat = MATERIAL_CATALOG[mission.fromKey] || MATERIAL_CATALOG.RESIN;
-      const pickX = (mat && mat.rmDock) ? mat.rmDock[0] : ((mat && mat.rmPos) ? mat.rmPos[0] : -63);
-      const pickZ = (mat && mat.rmDock) ? mat.rmDock[2] : ((mat && mat.rmPos) ? mat.rmPos[2] : -4);
-      const targetX = st ? st.flDock[0] : -32.4;
-      const targetZ = st ? st.flDock[2] : -5.2;
-      const laneZ = -1.8; // Dedicated Westbound North lane for RM Forklift
+      const laneZ = -1.8; // Dedicated Westbound North lane for RM Forklifts
+
+      let fromPos;
+      if (mission.fromStation) {
+        fromPos = getDockPos(mission.fromStation, true);
+      } else if (mission.fromKey) {
+        fromPos = getDockPos(mission.fromKey, true);
+      } else if (mission.fromStorage) {
+        fromPos = getDockPos(mission.fromStorage, true);
+      } else {
+        fromPos = new THREE.Vector3(-63.0, 0.0, -4.0);
+      }
+
+      let toPos;
+      if (mission.toStation) {
+        toPos = getDockPos(mission.toStation, false);
+      } else if (mission.toStorage) {
+        toPos = getDockPos(mission.toStorage, false);
+      } else {
+        toPos = new THREE.Vector3(-54.0, 0.0, 11.5);
+      }
+
+      const next = nextMission || mission;
+      let nextFromPos;
+      if (next.fromStation) {
+        nextFromPos = getDockPos(next.fromStation, true);
+      } else if (next.fromKey) {
+        nextFromPos = getDockPos(next.fromKey, true);
+      } else if (next.fromStorage) {
+        nextFromPos = getDockPos(next.fromStorage, true);
+      } else {
+        nextFromPos = new THREE.Vector3(-63.0, 0.0, -4.0);
+      }
 
       return [
-        new THREE.Vector3(pickX, 0.0, pickZ),
-        new THREE.Vector3(-63.0, 0.0, pickZ),
-        new THREE.Vector3(-63.0, 0.0, laneZ),
-        new THREE.Vector3(targetX, 0.0, laneZ),
-        new THREE.Vector3(targetX, 0.0, targetZ),
-        new THREE.Vector3(targetX, 0.0, laneZ),
-        new THREE.Vector3(-63.0, 0.0, laneZ),
-        new THREE.Vector3(-63.0, 0.0, pickZ),
-        new THREE.Vector3(pickX, 0.0, pickZ)
+        new THREE.Vector3(fromPos.x, 0.0, fromPos.z),
+        new THREE.Vector3(fromPos.x, 0.0, laneZ),
+        new THREE.Vector3(toPos.x, 0.0, laneZ),
+        new THREE.Vector3(toPos.x, 0.0, toPos.z),
+        new THREE.Vector3(toPos.x, 0.0, laneZ),
+        new THREE.Vector3(nextFromPos.x, 0.0, laneZ),
+        new THREE.Vector3(nextFromPos.x, 0.0, nextFromPos.z)
       ];
     }
 
