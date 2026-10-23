@@ -132,88 +132,12 @@ function buildBagMachine(st, rollersOut, reciprocatorsOut, extraWorkersOut) {
         mGroup.add(pinkWorker);
         extraWorkersOut.push(pinkWorker);
 
-  // Industrial Wooden Pallet loaded with Finished Hygiene Pouch Cartons beside the machine outfeed
-  const bagPalW = 1.9;
-  const bagPalD = 1.45;
-  const bagPalH = 0.15;
+    // Industrial Wooden Pallet loaded with Finished Hygiene Pouch Cartons beside the machine outfeed (media_1792732066355)
   const bagPalX = 4.6;
   const bagPalZ = 0.6;
-
-  const bagPalletGroup = new THREE.Group();
+  const bagPalletGroup = createStandardBoxPallet({ width: 1.9, depth: 1.45, tiers: 2, hasWrap: true });
   bagPalletGroup.position.set(bagPalX, 0.0, bagPalZ);
   bagPalletGroup.rotation.y = 0.05;
-
-  // Wooden Pallet Deck & Stringer Runners
-  const bagWoodMat = new THREE.MeshLambertMaterial({ color: 0xd4a373 });
-  const bagWoodBlockMat = new THREE.MeshLambertMaterial({ color: 0xb45309 });
-
-  const bagPlankCount = 6;
-  const bagPlankD = (bagPalD - 0.08) / bagPlankCount;
-  for (let p = 0; p < bagPlankCount; p++) {
-    const plank = new THREE.Mesh(new THREE.BoxGeometry(bagPalW, 0.028, bagPlankD * 0.88), bagWoodMat);
-    plank.position.set(0, bagPalH - 0.014, -bagPalD / 2 + bagPlankD / 2 + p * bagPlankD);
-    plank.castShadow = true;
-    plank.receiveShadow = true;
-    bagPalletGroup.add(plank);
-  }
-
-  [-bagPalW / 2 + 0.10, 0, bagPalW / 2 - 0.10].forEach(function (rx) {
-    const runner = new THREE.Mesh(new THREE.BoxGeometry(0.14, bagPalH - 0.05, bagPalD), bagWoodBlockMat);
-    runner.position.set(rx, (bagPalH - 0.05) / 2 + 0.02, 0);
-    runner.castShadow = true;
-    runner.receiveShadow = true;
-    bagPalletGroup.add(runner);
-  });
-
-  for (let p = 0; p < 3; p++) {
-    const btmPlank = new THREE.Mesh(new THREE.BoxGeometry(bagPalW, 0.02, bagPalD * 0.22), bagWoodMat);
-    btmPlank.position.set(0, 0.01, -bagPalD / 2 + 0.18 + p * (bagPalD - 0.36) / 2);
-    bagPalletGroup.add(btmPlank);
-  }
-
-  // Stacked Shipping Boxes of Finished Hygiene Refill Pouches (2 tiers of 2x2 boxes)
-  const bagBoxW = 0.88;
-  const bagBoxD = 0.65;
-  const bagBoxH = 0.46;
-  const bagKraftMat = getKraftBoxMaterial();
-  const bagTapeMat = getWhiteTapeMaterial();
-  const bagLabelMat = new THREE.MeshBasicMaterial({ map: getBoxStarflexLabelTexture() });
-
-  const bagOffsetsX = [-bagPalW / 4, bagPalW / 4];
-  const bagOffsetsZ = [-bagPalD / 4, bagPalD / 4];
-
-  for (let tier = 0; tier < 2; tier++) {
-    const curY = bagPalH + tier * bagBoxH;
-    bagOffsetsX.forEach(function (bx, xi) {
-      bagOffsetsZ.forEach(function (bz, zi) {
-        const boxMesh = new THREE.Mesh(new THREE.BoxGeometry(bagBoxW, bagBoxH, bagBoxD), bagKraftMat);
-        boxMesh.position.set(bx, curY + bagBoxH / 2, bz);
-        boxMesh.castShadow = true;
-        boxMesh.receiveShadow = true;
-        bagPalletGroup.add(boxMesh);
-
-        const tape = new THREE.Mesh(new THREE.BoxGeometry(bagBoxW + 0.005, 0.01, 0.16), bagTapeMat);
-        tape.position.set(bx, curY + bagBoxH + 0.005, bz);
-        bagPalletGroup.add(tape);
-
-        if (bz > 0) {
-          const label = new THREE.Mesh(new THREE.PlaneGeometry(0.35, 0.20), bagLabelMat);
-          label.position.set(bx, curY + bagBoxH * 0.52, bz + bagBoxD / 2 + 0.003);
-          bagPalletGroup.add(label);
-        }
-      });
-    });
-  }
-
-  // Transparent stretch film shrink-wrap enclosing the pallet load
-  const bagTotalStackH = 2 * bagBoxH;
-  const bagWrapMesh = new THREE.Mesh(
-    new THREE.BoxGeometry(bagPalW - 0.06, bagTotalStackH + 0.04, bagPalD - 0.06),
-    getStretchWrapMaterial()
-  );
-  bagWrapMesh.position.set(0, bagPalH + bagTotalStackH / 2, 0);
-  bagPalletGroup.add(bagWrapMesh);
-
   mGroup.add(bagPalletGroup);
 
   return mGroup;

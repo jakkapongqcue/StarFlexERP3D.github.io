@@ -420,33 +420,21 @@
 
       supGroup.add(supRack);
 
-      // (b) Stack of 3 Kraft Corrugated Cardboard Carton Boxes on the floor (matching reference image)
+      // (b) Standard Box Pallet for Production Supplies (media_1792732066355)
       // Placed directly on the concrete floor next to the rack: local x = 0.4, z = 0.0
       const boxMeshes = [];
-      const bW = 2.4;
-      const bD = 2.0;
-      const bH = 0.52;
+      const boxPallet1 = createStandardBoxPallet({ width: 2.2, depth: 1.6, tiers: 2, hasWrap: false });
+      boxPallet1.position.set(0.4, 0.0, 0.0);
+      supGroup.add(boxPallet1);
+      boxMeshes.push(boxPallet1);
 
-      for (let i = 0; i < 3; i++) {
-        const bGrp = createKraftCartonBox(bW, bH, bD, 'z');
-        bGrp.position.set(0.4, i * bH, 0);
-        supGroup.add(bGrp);
-        boxMeshes.push(bGrp);
-      }
-
-      // (c) Stack of 2 Kraft Carton Boxes (Spout Caps / Fitment cartons) on the floor
+      // (c) Standard Box Pallet for Spout Caps / Fitment Cartons on the floor
       // Placed directly on the concrete floor to the right of cardboard boxes: local x = 3.0, z = 0.0
       const spoutMeshes = [];
-      const sW = 1.8;
-      const sD = 1.6;
-      const sH = 0.52;
-
-      for (let j = 0; j < 2; j++) {
-        const sGrp = createKraftCartonBox(sW, sH, sD, 'z');
-        sGrp.position.set(3.0, j * sH, 0);
-        supGroup.add(sGrp);
-        spoutMeshes.push(sGrp);
-      }
+      const boxPallet2 = createStandardBoxPallet({ width: 2.0, depth: 1.6, tiers: 2, hasWrap: false });
+      boxPallet2.position.set(3.0, 0.0, 0.0);
+      supGroup.add(boxPallet2);
+      spoutMeshes.push(boxPallet2);
       rmGroup.add(supGroup);
 
       sceneObjects.rmVisualGroups.PAPERCORE = { group: supGroup, pallets: coreMeshes };
@@ -657,15 +645,7 @@
 
       // Helper: Euro Pallet with Kraft Carton Boxes (Top Tier Storage)
       function createEuroPalletWithBoxes() {
-        const grp = new THREE.Group();
-        const woodMat = new THREE.MeshLambertMaterial({ color: 0xd4a373 });
-        const pallet = new THREE.Mesh(new THREE.BoxGeometry(2.1, 0.14, 1.9), woodMat);
-        pallet.position.y = 0.07;
-        grp.add(pallet);
-        const kBox = createKraftRackBox();
-        kBox.position.set(0, 0.14, 0);
-        grp.add(kBox);
-        return grp;
+        return createStandardBoxPallet({ width: 2.1, depth: 1.9, tiers: 2, hasWrap: true });
       }
 
       // Helper: Euro Pallet with Standing Paper Cores (Top Tier Storage)

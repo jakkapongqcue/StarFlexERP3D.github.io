@@ -691,87 +691,12 @@ function buildSpoutMachine(st, rollersOut, reciprocatorsOut, extraWorkersOut) {
     mGroup.add(packedPouch);
   }
 
-    // Industrial Wooden Pallet loaded with Finished Spout Pouch Cartons beside the machine
-  const palW = 1.9;
-  const palD = 1.45;
-  const palH = 0.15;
+    // Industrial Wooden Pallet loaded with Finished Spout Pouch Cartons beside the machine (media_1792732066355)
   const palX = 3.6;
   const palZ = 2.15;
-
-  const spoutPalletGroup = new THREE.Group();
+  const spoutPalletGroup = createStandardBoxPallet({ width: 1.9, depth: 1.45, tiers: 2, hasWrap: true });
   spoutPalletGroup.position.set(palX, 0.0, palZ);
   spoutPalletGroup.rotation.y = 0.08;
-
-  // Wooden Pallet Deck & Stringer Runners
-  const woodMat = new THREE.MeshLambertMaterial({ color: 0xd4a373 });
-  const woodBlockMat = new THREE.MeshLambertMaterial({ color: 0xb45309 });
-
-  const plankCount = 6;
-  const plankD = (palD - 0.08) / plankCount;
-  for (let p = 0; p < plankCount; p++) {
-    const plank = new THREE.Mesh(new THREE.BoxGeometry(palW, 0.028, plankD * 0.88), woodMat);
-    plank.position.set(0, palH - 0.014, -palD / 2 + plankD / 2 + p * plankD);
-    plank.castShadow = true;
-    plank.receiveShadow = true;
-    spoutPalletGroup.add(plank);
-  }
-
-  [-palW / 2 + 0.10, 0, palW / 2 - 0.10].forEach(function (rx) {
-    const runner = new THREE.Mesh(new THREE.BoxGeometry(0.14, palH - 0.05, palD), woodBlockMat);
-    runner.position.set(rx, (palH - 0.05) / 2 + 0.02, 0);
-    runner.castShadow = true;
-    runner.receiveShadow = true;
-    spoutPalletGroup.add(runner);
-  });
-
-  for (let p = 0; p < 3; p++) {
-    const btmPlank = new THREE.Mesh(new THREE.BoxGeometry(palW, 0.02, palD * 0.22), woodMat);
-    btmPlank.position.set(0, 0.01, -palD / 2 + 0.18 + p * (palD - 0.36) / 2);
-    spoutPalletGroup.add(btmPlank);
-  }
-
-  // Stacked Shipping Boxes of Finished Spout Pouches (2 tiers of 2x2 boxes)
-  const boxW = 0.88;
-  const boxD = 0.65;
-  const boxH = 0.46;
-  const whiteTapeMat = getWhiteTapeMaterial();
-  const labelMat = new THREE.MeshBasicMaterial({ map: getBoxStarflexLabelTexture() });
-
-  const bOffsetsX = [-palW / 4, palW / 4];
-  const bOffsetsZ = [-palD / 4, palD / 4];
-
-  for (let tier = 0; tier < 2; tier++) {
-    const curY = palH + tier * boxH;
-    bOffsetsX.forEach(function (bx, xi) {
-      bOffsetsZ.forEach(function (bz, zi) {
-        const boxMesh = new THREE.Mesh(new THREE.BoxGeometry(boxW, boxH, boxD), kraftBoxMat);
-        boxMesh.position.set(bx, curY + boxH / 2, bz);
-        boxMesh.castShadow = true;
-        boxMesh.receiveShadow = true;
-        spoutPalletGroup.add(boxMesh);
-
-        const tape = new THREE.Mesh(new THREE.BoxGeometry(boxW + 0.005, 0.01, 0.16), whiteTapeMat);
-        tape.position.set(bx, curY + boxH + 0.005, bz);
-        spoutPalletGroup.add(tape);
-
-        if (bz > 0) {
-          const label = new THREE.Mesh(new THREE.PlaneGeometry(0.35, 0.20), labelMat);
-          label.position.set(bx, curY + boxH * 0.52, bz + boxD / 2 + 0.003);
-          spoutPalletGroup.add(label);
-        }
-      });
-    });
-  }
-
-  // Transparent stretch film shrink-wrap enclosing the pallet load
-  const totalStackH = 2 * boxH;
-  const wrapMesh = new THREE.Mesh(
-    new THREE.BoxGeometry(palW - 0.06, totalStackH + 0.04, palD - 0.06),
-    getStretchWrapMaterial()
-  );
-  wrapMesh.position.set(0, palH + totalStackH / 2, 0);
-  spoutPalletGroup.add(wrapMesh);
-
   mGroup.add(spoutPalletGroup);
 
   return mGroup;

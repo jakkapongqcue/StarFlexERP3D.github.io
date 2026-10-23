@@ -229,6 +229,17 @@ function createPalletBaseMesh(palletColor) {
         tape.castShadow = true;
         grp.add(tape);
 
+        // Product shipping label with cyan/blue Starflex header on front face (media_1792732066355)
+        if (typeof optionsOrW !== 'object' || optionsOrW.hasLabel !== false) {
+          const labelMat = new THREE.MeshBasicMaterial({ map: getBoxStarflexLabelTexture() });
+          const labelW = Math.min(0.42, w * 0.42);
+          const labelH = Math.min(0.24, h * 0.42);
+          const label = new THREE.Mesh(new THREE.PlaneGeometry(labelW, labelH), labelMat);
+          label.position.set(0, h * 0.52, d / 2 + 0.003);
+          grp.add(label);
+          grp.userData.labelMesh = label;
+        }
+
         grp.userData.boxMesh = box;
         grp.userData.tapeMesh = tape;
       }
@@ -1263,13 +1274,12 @@ function createPalletBaseMesh(palletColor) {
           }
         }
       } else if (matKey === 'BOX' || matKey === 'FG_BAG_BOX' || matKey === 'FG_SPOUT_BOX') {
-        for (let y = 0; y < 2; y++) {
-          for (let x = -0.48; x <= 0.48; x += 0.96) {
-            const b = createKraftCartonBox(0.88, 0.58, 1.35, 'z');
-            b.position.set(x, 0.27 + y * 0.60, 0);
-            grp.add(b);
-          }
-        }
+        buildStandardBoxPalletLayers(grp, 0.26, {
+          width: 2.2,
+          depth: 1.6,
+          tiers: 2,
+          hasWrap: false
+        });
         if (matKey === 'FG_BAG_BOX') {
           [-0.48, 0.48].forEach(function (bx) {
             [-0.32, 0, 0.32].forEach(function (bz) {
@@ -2084,5 +2094,121 @@ function createFgFloorStagedBoxPallet(variant) {
     grp.add(seam);
   }
 
+  return grp;
+}
+
+/* =========================================================================
+   STANDARD STARFLEX BOX PALLET (Matching Reference Image media_1792732066355)
+   - Natural Warm Wood Pallet with Dark Wood Runner Blocks
+   - 2 Tiers of 2x2 Corrugated Kraft Boxes (8 boxes total)
+   - White Sealing Tape across the top face of each box
+   - Starflex Shipping Label with Cyan/Blue Header Band on the front of each box
+   ========================================================================= */
+
+function createRealisticWoodPallet(width, depth) {
+  const palW = width || 2.2;
+  const palD = depth || 1.6;
+  const palH = 0.16;
+  const grp = new THREE.Group();
+  const woodMat = new THREE.MeshLambertMaterial({ color: 0xd4a373 });
+  const blockMat = new THREE.MeshLambertMaterial({ color: 0xb45309 });
+
+  // Top deck boards
+  const plankCount = 6;
+  const plankD = (palD - 0.08) / plankCount;
+  for (let p = 0; p < plankCount; p++) {
+    const plank = new THREE.Mesh(new THREE.BoxGeometry(palW, 0.028, plankD * 0.88), woodMat);
+    plank.position.set(0, palH - 0.014, -palD / 2 + plankD / 2 + p * plankD);
+    plank.castShadow = true;
+    plank.receiveShadow = true;
+    grp.add(plank);
+  }
+
+  // 3 runner stringers (left, center, right)
+  const runnerW = 0.14;
+  const runnerH = palH - 0.05;
+  [-palW / 2 + 0.10, 0, palW / 2 - 0.10].forEach(function (rx) {
+    const runner = new THREE.Mesh(new THREE.BoxGeometry(runnerW, runnerH, palD), blockMat);
+    runner.position.set(rx, runnerH / 2 + 0.02, 0);
+    runner.castShadow = true;
+    runner.receiveShadow = true;
+    grp.add(runner);
+  });
+
+  // Bottom skid boards
+  for (let p = 0; p < 3; p++) {
+    const btmPlank = new THREE.Mesh(new THREE.BoxGeometry(palW, 0.02, palD * 0.22), woodMat);
+    btmPlank.position.set(0, 0.01, -palD / 2 + 0.18 + p * (palD - 0.36) / 2);
+    grp.add(btmPlank);
+  }
+
+  grp.userData.dimensions = { width: palW, depth: palD, height: palH };
+  return grp;
+}
+
+function buildStandardBoxPalletLayers(parentGroup, baseHeight, options) {
+  const opt = options || {};
+  const bHeight = (baseHeight !== undefined) ? baseHeight : 0.16;
+  const palW = opt.width || 2.2;
+  const palD = opt.depth || 1.6;
+  const tiers = opt.tiers || 2;
+  const boxW = opt.boxWidth || ((palW - 0.12) / 2);
+  const boxD = opt.boxDepth || ((palD - 0.12) / 2);
+  const boxH = opt.boxHeight || 0.48;
+
+  const kraftMat = getKraftBoxMaterial();
+  const tapeMat = getWhiteTapeMaterial();
+  const labelMat = new THREE.MeshBasicMaterial({
+    map: opt.labelTexture || getBoxStarflexLabelTexture()
+  });
+
+  const xOffsets = [-palW / 4, palW / 4];
+  const zOffsets = [-palD / 4, palD / 4];
+
+  for (let t = 0; t < tiers; t++) {
+    const curY = bHeight + t * boxH;
+    xOffsets.forEach(function (bx) {
+      zOffsets.forEach(function (bz) {
+        const boxMesh = new THREE.Mesh(new THREE.BoxGeometry(boxW, boxH, boxD), kraftMat);
+        boxMesh.position.set(bx, curY + boxH / 2, bz);
+        boxMesh.castShadow = true;
+        boxMesh.receiveShadow = true;
+        parentGroup.add(boxMesh);
+
+        // White sealing tape on top of box
+        const tape = new THREE.Mesh(new THREE.BoxGeometry(boxW + 0.005, 0.01, 0.16), tapeMat);
+        tape.position.set(bx, curY + boxH + 0.005, bz);
+        parentGroup.add(tape);
+
+        // Front-facing label
+        if (bz > 0) {
+          const label = new THREE.Mesh(new THREE.PlaneGeometry(0.36, 0.21), labelMat);
+          label.position.set(bx, curY + boxH * 0.52, bz + boxD / 2 + 0.003);
+          parentGroup.add(label);
+        }
+      });
+    });
+  }
+
+  if (opt.hasWrap) {
+    const totalH = tiers * boxH;
+    const wrapMesh = new THREE.Mesh(
+      new THREE.BoxGeometry(palW - 0.06, totalH + 0.04, palD - 0.06),
+      getStretchWrapMaterial()
+    );
+    wrapMesh.position.set(0, bHeight + totalH / 2, 0);
+    parentGroup.add(wrapMesh);
+  }
+}
+
+function createStandardBoxPallet(options) {
+  const opt = options || {};
+  const palW = opt.width || 2.2;
+  const palD = opt.depth || 1.6;
+  const isRed = !!opt.isRed;
+  const pallet = isRed ? createRedIndustrialPallet(palW, palD) : createRealisticWoodPallet(palW, palD);
+  const grp = new THREE.Group();
+  grp.add(pallet);
+  buildStandardBoxPalletLayers(grp, 0.16, opt);
   return grp;
 }
