@@ -555,7 +555,7 @@ function buildBagMachine(st, rollersOut, reciprocatorsOut, extraWorkersOut) {
   rollersOut.push(endRoller);
 
   // 5D. Pair of Bright Blue Corrugated Plastic Guide Baffles (Cleanly flanking the belt without clipping pouches)
-  [-0.41, 0.31].forEach(function (bz) {
+  [-0.37, 0.27].forEach(function (bz) {
     const baffleGroup = new THREE.Group();
     baffleGroup.position.set(2.92, convH + 0.11, bz);
 
@@ -602,9 +602,9 @@ function buildBagMachine(st, rollersOut, reciprocatorsOut, extraWorkersOut) {
     outfeedGroup.add(swMesh);
   });
 
-  // 5G. FIXED RED CIRCLE 3: Exactly 3 Distinct, Well-Spaced Finished Pouches on the Green Belt
-  // In createPouchMesh: +Z is Front artwork, X is width (centered), Y is height (0..height).
-  // With rotation.x = -Math.PI / 2: Front artwork (+Z) faces UP (+Y), X (0.32m) is along belt, and Y (0.44m) spans +Z across belt.
+  // 5G. 3 Finished Pouches Centered on the Green Belt (Belt Center z = -0.05)
+  // In createPouchMesh: local Y spans 0..height, which with rotation.x = -Math.PI/2 maps to world Z = pz - y.
+  // Setting pz = -0.05 + pouchH / 2 perfectly centers the pouch span (-0.27 to +0.17) right at z = -0.05!
   const pouchH = 0.44;
   [2.98, 3.62, 4.26].forEach(function (px) {
     const pouch = createPouchMesh({
@@ -614,7 +614,7 @@ function buildBagMachine(st, rollersOut, reciprocatorsOut, extraWorkersOut) {
       depth: 0.05
     });
     pouch.rotation.x = -Math.PI / 2;
-    pouch.position.set(px, convH + 0.048, -0.05 - pouchH / 2);
+    pouch.position.set(px, convH + 0.048, -0.05 + pouchH / 2);
     outfeedGroup.add(pouch);
   });
 
