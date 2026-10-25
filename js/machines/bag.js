@@ -1,47 +1,66 @@
 /* =========================================================================
-   StarFlexERP 3D - High-Precision Stand-Up Pouch Bag Making Machine (ST_BAG)
-   Faithfully modeled based on actual factory reference photos:
-   - Photo 1 & 2: Large Master Film Roll Unwinder & Tension Dancer Roller System
-     * Jumbo roll on pneumatic air shaft with expansion chucks
-     * Heavy black steel frame with tension dancer rollers & accumulator rack
-     * Upper bridge beam with circular lightening holes
-     * Local push-button control station on pedestal
-   - Photo 3: Triangular Forming Plow (Plow Folder / V-Folder)
-     * Angled triangular forming plow folding flat printed film in half
-     * Polished diagonal forming rods & gusset bottom former
-     * Chrome pneumatic adjustment cylinders
-   - Photo 4 & 5: Sealing, Trimming, Cutting & Outfeed Conveyor Line
-     * Modular stainless steel machine bed with lower access doors
-     * Progressive Heat Sealing units (Bottom Gusset, Side Seal, Chill Block)
-     * Top pneumatic press cylinders & spring-loaded pressure blocks
-     * Micrometric side adjustment handwheels
-     * Rotary edge trim slitters & scrap vacuum suction hoses
-     * High-speed guillotine cross-cutting knife
-     * Green flat belt delivery conveyor with Blue acrylic stacking divider tents
-     * Stream of shingled finished flexible pouches on the green belt
-     * Packing table extension & open corrugated carton box
-     * Factory operator (cleanroom cap & uniform) packing pouches into carton
-     * Articulated swing-arm HMI touch console
-     * Finished goods wooden pallet with shrink-wrapped cartons
+   StarFlexERP 3D - Authentic Stand-Up Pouch Bag Making Machine (ST_BAG)
+   Upgraded 5-Stage Converting Line based on Factory Reference Photos 1–5:
+   1. Unwind & Festoon Tension Dancer System (นำม้วนฟิล์มใหญ่มาทำให้มี Tension ที่เหมาะสม):
+      - Heavy stepped matte-black steel side frames (#15181e)
+      - Upper Jumbo Master Printed Film Roll + Lower Secondary Gusset Roll with brake disc
+      - Multi-roller vertical festoon tension dancer accumulator (6 upper + 6 lower rollers)
+        with multi-pass weaving film web & reciprocating tension dancer bar
+      - Side-mounted brushed stainless steel control cabinet with pushbuttons & air tubes
+      - Upper black bridge beam with 5 circular lightening cutouts, 45° turn-bars & photocell sensor
+   2. Triangular V-Plow Forming Assembly (นำไปขึ้นรูปซอง):
+      - Brushed stainless steel triangular forming plow (V-folder) & bottom gusset former
+      - 3D angled film web wrapping over the V-plow into a folded multi-layer pouch web
+   3. 4-Station Heat Sealing & Cooling Press (และ Seal ประกบ):
+      - Brushed stainless steel modular lower cabinet with 4 access doors
+      - 4 heavy black reciprocating heat-sealing bridges (Longitudinal + Cross Seal + Chill Bar)
+      - Dual top compression coil springs, pneumatic actuators & 4 front black spoked handwheels
+   4. Edge-Trim Slitter, Scrap Extraction & Guillotine Cutter (และตัดส่วนไม่จำเป็นออก):
+      - Rotary edge-trim shear knives separating excess film margins
+      - Visible trimmed waste strip sucked through spiral extraction hose into trim waste bin
+      - Enclosed brushed stainless steel cutter hood with side knobs & blue static-eliminator bar
+   5. Green Belt Outfeed Conveyor & End-of-Line Operator (และออกมาตามสายพาน ที่มีพนักงานยืนอยู่ปลายทาง):
+      - White articulated cantilever swing-arm with vertical HMI cabinet & flexible conduit
+      - Stainless steel conveyor table with green elastic cord transfer & green PVC flat belt
+      - Pair of bright blue corrugated guide baffles & white cardboard box on side ledge
+      - Shingled stream of finished pouches moving to the end of the conveyor
+      - Operator standing at the end of the conveyor inspecting & packing pouches into cartons
    ========================================================================= */
 
 function buildBagMachine(st, rollersOut, reciprocatorsOut, extraWorkersOut) {
   const mGroup = new THREE.Group();
 
-  // Materials & Finishes
-  const stainlessSteel = new THREE.MeshStandardMaterial({ color: 0xd1d5db, roughness: 0.35, metalness: 0.65 });
+  // Authentic Industrial Materials
+  const stainlessSteel = new THREE.MeshStandardMaterial({ color: 0xd1d5db, roughness: 0.32, metalness: 0.68 });
+  const brushedSteel = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, roughness: 0.26, metalness: 0.75 });
   const darkSteel = new THREE.MeshLambertMaterial({ color: 0x1e293b });
-  const frameBlack = new THREE.MeshLambertMaterial({ color: 0x0f172a });
-  const chromeMat = new THREE.MeshStandardMaterial({ color: 0xf1f5f9, roughness: 0.18, metalness: 0.85 });
+  const frameBlack = new THREE.MeshLambertMaterial({ color: 0x14171f });
+  const chromeMat = new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.16, metalness: 0.88 });
+  const bronzeRollMat = new THREE.MeshStandardMaterial({ color: 0xb45309, roughness: 0.28, metalness: 0.78 });
   const brassMat = new THREE.MeshStandardMaterial({ color: 0xd97706, roughness: 0.30, metalness: 0.75 });
   const rubberBlack = new THREE.MeshLambertMaterial({ color: 0x111827 });
-  const conveyorGreen = new THREE.MeshLambertMaterial({ color: 0x15803d }); // Authentic green PVC belt from Photos 4 & 5
-  const blueAcrylic = new THREE.MeshLambertMaterial({ color: 0x1d4ed8 }); // Blue divider tents from Photos 4 & 5
-  const orangeSealMat = new THREE.MeshLambertMaterial({ color: 0xf97316 }); // Heat seal silicone release strip
-  const pneumaticBlue = new THREE.MeshLambertMaterial({ color: 0x0284c7 });
-  const whiteEnclosure = new THREE.MeshLambertMaterial({ color: 0xf8fafc });
-  const hazardYellow = new THREE.MeshLambertMaterial({ color: 0xfacc15 });
-  const aluminumFoil = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, roughness: 0.25, metalness: 0.85 });
+  const conveyorGreen = new THREE.MeshLambertMaterial({ color: 0x15803d }); // Photo 4 & 5 green PVC belt
+  const blueBaffleMat = new THREE.MeshLambertMaterial({ color: 0x1d4ed8 }); // Photo 4 & 5 bright blue guide baffles
+  const staticBarBlue = new THREE.MeshLambertMaterial({ color: 0x0284c7 }); // Photo 4 blue static bar on cutter
+  const orangeSealMat = new THREE.MeshLambertMaterial({ color: 0xf97316 });
+  const whiteArmMat = new THREE.MeshLambertMaterial({ color: 0xf8fafc });
+  const yellowHoseMat = new THREE.MeshLambertMaterial({ color: 0xeab308 });
+  const redMat = new THREE.MeshLambertMaterial({ color: 0xdc2626 });
+  const greenBtnMat = new THREE.MeshLambertMaterial({ color: 0x16a34a });
+
+  const filmTex = getHygieneFilmTexture();
+  const printedWebMat = new THREE.MeshStandardMaterial({
+    map: filmTex,
+    roughness: 0.28,
+    metalness: 0.14,
+    side: THREE.DoubleSide
+  });
+  const silverFoilWebMat = new THREE.MeshStandardMaterial({
+    color: 0xe2e8f0,
+    roughness: 0.20,
+    metalness: 0.82,
+    side: THREE.DoubleSide
+  });
 
   function tagSelectable(mesh) {
     mesh.userData.selectKey = st.id;
@@ -52,562 +71,586 @@ function buildBagMachine(st, rollersOut, reciprocatorsOut, extraWorkersOut) {
   }
 
   /* =========================================================================
-     1. MACHINE BED & LOWER MODULAR ENCLOSURE (Center: x = 0.2, y = 0.38, z = 0)
+     STAGE 1: UNWIND STAND & MULTI-ROLLER FESTOON TENSION DANCER TOWER
+     (Photo 1 & 2: x = -5.0 to -2.7)
+     "นำม้วน film ใหญ่มาทำให้มี tension ที่เหมาะ"
      ========================================================================= */
-  const bedLength = 4.2;
-  const bedWidth = 1.45;
-  const bedHeight = 0.76;
+  const unwindGroup = new THREE.Group();
+  const towerW = 1.72;
+  const halfW = towerW / 2;
 
-  // Recessed dark kick-plate base
-  const kickBase = new THREE.Mesh(new THREE.BoxGeometry(bedLength + 0.1, 0.08, bedWidth + 0.05), frameBlack);
-  kickBase.position.set(0.1, 0.04, 0);
-  mGroup.add(kickBase);
+  // 1A. Heavy Stepped Matte-Black Side Frames (Photo 1 profile)
+  [-halfW + 0.06, halfW - 0.06].forEach(function (fz) {
+    // Tall Rear Dancer Accumulator Tower Plate (x = -3.75 to -2.75, height = 2.48m)
+    const rearTowerPlate = tagSelectable(new THREE.Mesh(new THREE.BoxGeometry(0.95, 2.48, 0.08), frameBlack));
+    rearTowerPlate.position.set(-3.25, 1.24, fz);
+    unwindGroup.add(rearTowerPlate);
 
-  // Main stainless steel machine chassis bed
-  const bedMesh = tagSelectable(new THREE.Mesh(new THREE.BoxGeometry(bedLength, bedHeight - 0.08, bedWidth), stainlessSteel));
-  bedMesh.position.set(0.1, 0.42, 0);
-  mGroup.add(bedMesh);
+    // Vertical Chrome Linear Guide Shaft & Pneumatic Cylinder on tower side (Photo 1)
+    const guideRod = new THREE.Mesh(new THREE.CylinderGeometry(0.028, 0.028, 2.25, 12), chromeMat);
+    guideRod.position.set(-3.05, 1.20, fz + (fz > 0 ? 0.06 : -0.06));
+    unwindGroup.add(guideRod);
 
-  // 4 Lower Stainless Steel Access / Inspection Doors with Chrome Pull Handles (Front / Operator side at z = +0.73)
-  const doorW = 0.95;
-  const doorH = 0.60;
-  [-1.4, -0.4, 0.6, 1.6].forEach(function (dx) {
-    const door = new THREE.Mesh(new THREE.BoxGeometry(doorW - 0.04, doorH, 0.025), stainlessSteel);
-    door.position.set(dx, 0.42, bedWidth / 2 + 0.013);
-    mGroup.add(door);
+    // Stepped Mid-Upper Unwind Support Arm (x = -4.65 to -3.65, y = 0.85 to 1.65)
+    const upperStepPlate = tagSelectable(new THREE.Mesh(new THREE.BoxGeometry(1.15, 0.78, 0.08), frameBlack));
+    upperStepPlate.position.set(-4.15, 1.26, fz);
+    unwindGroup.add(upperStepPlate);
 
-    // Chrome bar handle
-    const handle = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.035, 0.04), chromeMat);
-    handle.position.set(dx, 0.62, bedWidth / 2 + 0.038);
-    mGroup.add(handle);
+    // Lower Unwind Support Base Frame (x = -4.95 to -3.65, y = 0.06 to 0.86)
+    const lowerStepPlate = new THREE.Mesh(new THREE.BoxGeometry(1.35, 0.80, 0.08), frameBlack);
+    lowerStepPlate.position.set(-4.30, 0.46, fz);
+    unwindGroup.add(lowerStepPlate);
+
+    // Circular inspection hole ring in side plate (visible in Photo 1)
+    const sideHole = new THREE.Mesh(new THREE.CylinderGeometry(0.075, 0.075, 0.09, 16), brassMat);
+    sideHole.rotation.x = Math.PI / 2;
+    sideHole.position.set(-3.95, 1.45, fz);
+    unwindGroup.add(sideHole);
+
+    // Silver Leveling Feet under unwind frame
+    [-4.80, -3.70, -2.85].forEach(function (lx) {
+      const footPad = new THREE.Mesh(new THREE.CylinderGeometry(0.065, 0.075, 0.04, 14), chromeMat);
+      footPad.position.set(lx, 0.02, fz);
+      unwindGroup.add(footPad);
+    });
   });
 
-  // Leveling Foot Pads under machine corners
-  [
-    [-1.9, -bedWidth / 2 + 0.1], [-1.9, bedWidth / 2 - 0.1],
-    [2.1, -bedWidth / 2 + 0.1], [2.1, bedWidth / 2 - 0.1]
-  ].forEach(function ([fx, fz]) {
-    const foot = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.06, 16), darkSteel);
-    foot.position.set(fx, 0.03, fz);
-    mGroup.add(foot);
-    const stud = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 0.12, 12), chromeMat);
-    stud.position.set(fx, 0.08, fz);
-    mGroup.add(stud);
+  // 1B. Upper Black Bridge Beam with 5 Circular Lightening Cutouts (Photo 2)
+  const holeBridge = new THREE.Group();
+  holeBridge.position.set(-2.78, 2.22, 0);
+  const bridgeWeb = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.30, towerW - 0.08), frameBlack);
+  holeBridge.add(bridgeWeb);
+  [-0.60, -0.30, 0.0, 0.30, 0.60].forEach(function (hz) {
+    const cutoutRim = new THREE.Mesh(new THREE.CylinderGeometry(0.082, 0.082, 0.13, 18), darkSteel);
+    cutoutRim.rotation.x = Math.PI / 2;
+    cutoutRim.position.set(0, 0, hz);
+    holeBridge.add(cutoutRim);
+    const cutoutVoid = new THREE.Mesh(new THREE.CylinderGeometry(0.064, 0.064, 0.135, 16), chromeMat);
+    cutoutVoid.rotation.x = Math.PI / 2;
+    cutoutVoid.position.set(0, 0, hz);
+    holeBridge.add(cutoutVoid);
   });
+  unwindGroup.add(holeBridge);
 
-  /* =========================================================================
-     2. REAR JUMBO UNWIND STAND & TENSION DANCER TOWER (Photos 1 & 2: x = -4.8 to -2.6)
-     ========================================================================= */
-  const towerGroup = new THREE.Group();
-  const towerH = 2.45;
-  const towerW = 1.70;
+  // 1C. Upper Jumbo Master Printed Film Roll (Photo 1: Large roll at x = -4.35, y = 1.52)
+  const mainAirShaft = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.055, towerW + 0.16, 18), chromeMat);
+  mainAirShaft.rotation.x = Math.PI / 2;
+  mainAirShaft.position.set(-4.35, 1.52, 0);
+  unwindGroup.add(mainAirShaft);
 
-  // 4 Heavy Black Steel Upright Columns (Box Beams 80x80mm)
-  [
-    [-4.5, -towerW / 2 + 0.1], [-4.5, towerW / 2 - 0.1],
-    [-3.1, -towerW / 2 + 0.1], [-3.1, towerW / 2 - 0.1]
-  ].forEach(function ([cx, cz]) {
-    const col = tagSelectable(new THREE.Mesh(new THREE.BoxGeometry(0.12, towerH, 0.12), frameBlack));
-    col.position.set(cx, towerH / 2, cz);
-    towerGroup.add(col);
-  });
-
-  // Longitudinal & Transverse Connecting Beams
-  [-towerW / 2 + 0.1, towerW / 2 - 0.1].forEach(function (bz) {
-    const topLong = new THREE.Mesh(new THREE.BoxGeometry(1.52, 0.10, 0.10), frameBlack);
-    topLong.position.set(-3.8, towerH - 0.05, bz);
-    towerGroup.add(topLong);
-
-    const midLong = new THREE.Mesh(new THREE.BoxGeometry(1.52, 0.08, 0.08), frameBlack);
-    midLong.position.set(-3.8, 1.25, bz);
-    towerGroup.add(midLong);
-  });
-
-  // Distinctive Upper Bridge Beam with Circular Lightening Holes (Photo 2)
-  const holeBeamGroup = new THREE.Group();
-  holeBeamGroup.position.set(-3.1, towerH - 0.18, 0);
-  const beamPlate = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.28, towerW - 0.2), frameBlack);
-  holeBeamGroup.add(beamPlate);
-
-  // 4 Circular Cutout Rings on the crossbeam
-  [-0.55, -0.18, 0.18, 0.55].forEach(function (hz) {
-    const holeRing = new THREE.Mesh(new THREE.CylinderGeometry(0.085, 0.085, 0.145, 18), darkSteel);
-    holeRing.rotation.x = Math.PI / 2;
-    holeRing.position.set(0, 0, hz);
-    holeBeamGroup.add(holeRing);
-    const innerHole = new THREE.Mesh(new THREE.CylinderGeometry(0.065, 0.065, 0.15, 16), chromeMat);
-    innerHole.rotation.x = Math.PI / 2;
-    innerHole.position.set(0, 0, hz);
-    holeBeamGroup.add(innerHole);
-  });
-  towerGroup.add(holeBeamGroup);
-
-  // Heavy-duty A-frame Bearing Pedestals for the Unwind Shaft
-  [-towerW / 2 + 0.05, towerW / 2 - 0.05].forEach(function (pz) {
-    const bearingBlock = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.40, 0.14), darkSteel);
-    bearingBlock.position.set(-4.1, 1.35, pz);
-    towerGroup.add(bearingBlock);
-
-    // Brass expansion core safety chuck
-    const chuck = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.16, 0.16, 18), brassMat);
-    chuck.rotation.x = Math.PI / 2;
-    chuck.position.set(-4.1, 1.35, pz + (pz > 0 ? -0.14 : 0.14));
-    towerGroup.add(chuck);
-  });
-
-  // Large Master Film Roll (Jumbo Roll: diameter 1.2m, width 1.45m)
-  const jumboRollAssembly = createActiveFilmRollAssembly(
-    0.60,
-    1.45,
+  const jumboRoll = createActiveFilmRollAssembly(
+    0.56,
+    1.38,
     0xbe185d,
     0xfacc15,
     0x1e293b,
-    getHygieneFilmTexture(),
+    filmTex,
     0xfbcfe8
   );
-  tagSelectable(jumboRollAssembly.bodyMesh);
-  jumboRollAssembly.group.position.set(-4.1, 1.35, 0);
-  towerGroup.add(jumboRollAssembly.group);
-  rollersOut.push(jumboRollAssembly.group);
+  tagSelectable(jumboRoll.bodyMesh);
+  jumboRoll.group.position.set(-4.35, 1.52, 0);
+  unwindGroup.add(jumboRoll.group);
+  rollersOut.push(jumboRoll.group);
   if (typeof sceneObjects !== 'undefined' && sceneObjects.dynamicRollRefs && sceneObjects.dynamicRollRefs.bagUnwindRolls) {
-    sceneObjects.dynamicRollRefs.bagUnwindRolls.push(jumboRollAssembly);
+    sceneObjects.dynamicRollRefs.bagUnwindRolls.push(jumboRoll);
   }
 
-  // Floating Dancer Tension Roller & Counterbalance Arms (Photo 1)
-  const dancerGroup = new THREE.Group();
-  dancerGroup.position.set(-4.1, 0.48, 0);
+  // 1D. Lower Secondary Gusset Film Roll & Ventilated Brake Disc (Photo 1: x = -4.48, y = 0.50)
+  const lowerShaft = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, towerW + 0.18, 16), darkSteel);
+  lowerShaft.rotation.x = Math.PI / 2;
+  lowerShaft.position.set(-4.48, 0.50, 0);
+  unwindGroup.add(lowerShaft);
 
-  // Dancer Roller
-  const dancerRoll = new THREE.Mesh(new THREE.CylinderGeometry(0.065, 0.065, 1.45, 20), chromeMat);
-  dancerRoll.rotation.x = Math.PI / 2;
-  dancerGroup.add(dancerRoll);
+  // Ventilated brake rotor on far end of lower shaft (Photo 1 right side)
+  const brakeDisc = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.16, 0.04, 20), brushedSteel);
+  brakeDisc.rotation.x = Math.PI / 2;
+  brakeDisc.position.set(-4.48, 0.50, -halfW + 0.16);
+  unwindGroup.add(brakeDisc);
 
-  // Pivot arms & pneumatic cylinder
-  [-0.75, 0.75].forEach(function (dz) {
-    const arm = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.05, 0.04), darkSteel);
-    arm.position.set(0.12, 0.08, dz);
-    arm.rotation.z = -0.35;
-    dancerGroup.add(arm);
+  const secondaryRoll = createActiveFilmRollAssembly(
+    0.22,
+    0.92,
+    0xbe185d,
+    0xd97706,
+    0x1e293b,
+    filmTex,
+    0xfbcfe8
+  );
+  secondaryRoll.group.position.set(-4.48, 0.50, 0);
+  unwindGroup.add(secondaryRoll.group);
+  rollersOut.push(secondaryRoll.group);
+
+  // 1E. Multi-Roller Festoon Tension Dancer Accumulator Bank (Photo 1: 6 upper + 6 lower bronze/chrome rollers)
+  const festoonXPositions = [-3.62, -3.48, -3.34, -3.20, -3.06, -2.92];
+  festoonXPositions.forEach(function (rx, idx) {
+    // Upper stationary accumulator roller
+    const upRoll = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.036, 0.036, towerW - 0.18, 14),
+      idx % 2 === 0 ? bronzeRollMat : chromeMat
+    );
+    upRoll.rotation.x = Math.PI / 2;
+    upRoll.position.set(rx, 2.22, 0);
+    unwindGroup.add(upRoll);
   });
-  const pneuCyl = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.28, 14), pneumaticBlue);
-  pneuCyl.position.set(0.24, 0.22, 0.76);
-  dancerGroup.add(pneuCyl);
-  towerGroup.add(dancerGroup);
 
-  // Vertical Accumulator Roller Bank between uprights at x = -3.1
-  [0.85, 1.35, 1.85].forEach(function (ry) {
-    const guideRoll = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 1.45, 18), chromeMat);
-    guideRoll.rotation.x = Math.PI / 2;
-    guideRoll.position.set(-3.1, ry, 0);
-    towerGroup.add(guideRoll);
+  // Lower Floating Dancer Roller Carriage (reciprocates vertically to maintain constant web tension)
+  const dancerCarriage = new THREE.Group();
+  dancerCarriage.position.set(0, 0.68, 0);
+  festoonXPositions.forEach(function (rx) {
+    const lowRoll = new THREE.Mesh(new THREE.CylinderGeometry(0.036, 0.036, towerW - 0.18, 14), bronzeRollMat);
+    lowRoll.rotation.x = Math.PI / 2;
+    lowRoll.position.set(rx, 0, 0);
+    dancerCarriage.add(lowRoll);
   });
-  // Black rubber nip rollers
-  [1.10, 1.60].forEach(function (ny) {
-    const nipRoll = new THREE.Mesh(new THREE.CylinderGeometry(0.065, 0.065, 1.45, 20), rubberBlack);
+  unwindGroup.add(dancerCarriage);
+  reciprocatorsOut.push({ mesh: dancerCarriage, baseY: 0.68 });
+
+  // Vertical Weaving Film Web Spans inside the Festoon Tension Tower (Photo 1 silver & printed web)
+  for (let i = 0; i < festoonXPositions.length; i++) {
+    const spanX = festoonXPositions[i];
+    const spanMesh = new THREE.Mesh(
+      new THREE.PlaneGeometry(1.36, 1.52),
+      i % 2 === 0 ? silverFoilWebMat : printedWebMat
+    );
+    spanMesh.rotation.y = Math.PI / 2;
+    spanMesh.position.set(spanX, 1.45, 0);
+    unwindGroup.add(spanMesh);
+  }
+
+  // Infeed Film Web from Upper Jumbo Roll into Tension Tower
+  const infeedWebUpper = new THREE.Mesh(new THREE.PlaneGeometry(1.36, 0.82), silverFoilWebMat);
+  infeedWebUpper.rotation.y = Math.PI / 2;
+  infeedWebUpper.rotation.z = -0.72;
+  infeedWebUpper.position.set(-3.98, 2.02, 0);
+  unwindGroup.add(infeedWebUpper);
+
+  // Infeed Film Web from Lower Secondary Roll into Tension Rollers
+  const infeedWebLower = new THREE.Mesh(new THREE.PlaneGeometry(0.90, 0.68), silverFoilWebMat);
+  infeedWebLower.rotation.y = Math.PI / 2;
+  infeedWebLower.rotation.z = 0.45;
+  infeedWebLower.position.set(-4.15, 0.78, 0);
+  unwindGroup.add(infeedWebLower);
+
+  // 1F. Side-Mounted Brushed Stainless Steel Control Box on Unwind Frame (Photo 1 bottom-left)
+  const unwindCtrlBox = tagSelectable(new THREE.Mesh(new THREE.BoxGeometry(0.88, 0.52, 0.26), brushedSteel));
+  unwindCtrlBox.position.set(-3.88, 0.58, halfW + 0.11);
+  unwindGroup.add(unwindCtrlBox);
+
+  // 6 Pushbuttons & Switches on top of the stainless control box (Photo 1)
+  [-0.24, -0.14, -0.04, 0.06, 0.16, 0.26].forEach(function (bx, bIdx) {
+    const btnColor = bIdx === 0 ? 0x16a34a : (bIdx === 1 ? 0xdc2626 : 0x1e293b);
+    const btn = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.018, 0.018, 0.025, 12),
+      new THREE.MeshLambertMaterial({ color: btnColor })
+    );
+    btn.position.set(-3.88 + bx, 0.85, halfW + 0.12);
+    unwindGroup.add(btn);
+  });
+
+  // 1G. Diagonal 45° Turn-Bars, Nip Rollers & Photocell Sensor (Photo 2: x = -2.75)
+  [-0.38, 0.38].forEach(function (tz) {
+    const turnBar = new THREE.Mesh(new THREE.CylinderGeometry(0.032, 0.032, 0.95, 16), chromeMat);
+    turnBar.position.set(-2.65, 1.65, tz);
+    turnBar.rotation.z = 0.65;
+    turnBar.rotation.x = tz > 0 ? 0.45 : -0.45;
+    unwindGroup.add(turnBar);
+  });
+
+  // Dual Black Rubber Pull/Nip Rollers with Chrome Adjustment Lever (Photo 2)
+  [1.22, 1.35].forEach(function (ny) {
+    const nipRoll = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.055, 1.42, 18), rubberBlack);
     nipRoll.rotation.x = Math.PI / 2;
-    nipRoll.position.set(-3.16, ny, 0);
-    towerGroup.add(nipRoll);
+    nipRoll.position.set(-2.72, ny, 0);
+    unwindGroup.add(nipRoll);
   });
 
-  // Top Guide Roller exiting tension section
-  const topGuide = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.055, 1.45, 18), chromeMat);
-  topGuide.rotation.x = Math.PI / 2;
-  topGuide.position.set(-2.65, towerH - 0.15, 0);
-  towerGroup.add(topGuide);
+  // Optical Registration Photocell Sensor on yellow guide block (Photo 2)
+  const sensorBlock = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.12, 0.10), yellowHoseMat);
+  sensorBlock.position.set(-2.55, 1.08, 0.38);
+  unwindGroup.add(sensorBlock);
 
-  // Continuous Film Web in Tension Section
-  const webMat = new THREE.MeshStandardMaterial({
-    map: getHygieneFilmTexture(),
-    roughness: 0.28,
-    metalness: 0.15,
-    side: THREE.DoubleSide
-  });
-
-  // Web Segment 1: from Jumbo roll bottom down to dancer roll
-  const web1Geo = new THREE.PlaneGeometry(1.42, 0.90);
-  const web1 = new THREE.Mesh(web1Geo, webMat);
-  web1.rotation.y = Math.PI / 2;
-  web1.position.set(-4.1, 0.92, 0);
-  towerGroup.add(web1);
-
-  // Web Segment 2: from dancer up to top guide
-  const web2Geo = new THREE.PlaneGeometry(1.42, 1.95);
-  const web2 = new THREE.Mesh(web2Geo, webMat);
-  web2.rotation.y = Math.PI / 2;
-  web2.rotation.z = -0.15;
-  web2.position.set(-3.35, 1.30, 0);
-  towerGroup.add(web2);
-
-  // Local Push-Button Control Station on Pedestal (Photo 1)
-  const pedestal = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.05, 0.65, 14), darkSteel);
-  pedestal.position.set(-3.85, 0.32, towerW / 2 + 0.15);
-  towerGroup.add(pedestal);
-
-  const buttonBox = tagSelectable(new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.36, 0.18), stainlessSteel));
-  buttonBox.position.set(-3.85, 0.72, towerW / 2 + 0.15);
-  towerGroup.add(buttonBox);
-
-  // Buttons on the panel
-  [
-    { y: 0.82, color: 0x16a34a }, // Green Start
-    { y: 0.74, color: 0xdc2626 }, // Red Stop
-    { y: 0.66, color: 0xfacc15 }  // Yellow Jog
-  ].forEach(function (btn) {
-    const bMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.022, 0.022, 0.03, 12), new THREE.MeshLambertMaterial({ color: btn.color }));
-    bMesh.rotation.x = Math.PI / 2;
-    bMesh.position.set(-3.85, btn.y, towerW / 2 + 0.25);
-    towerGroup.add(bMesh);
-  });
-  // Emergency Stop Mushroom Button
-  const eStop = new THREE.Mesh(new THREE.CylinderGeometry(0.038, 0.038, 0.04, 16), new THREE.MeshLambertMaterial({ color: 0xef4444 }));
-  eStop.rotation.x = Math.PI / 2;
-  eStop.position.set(-3.85, 0.58, towerW / 2 + 0.25);
-  towerGroup.add(eStop);
-
-  mGroup.add(towerGroup);
+  mGroup.add(unwindGroup);
 
   /* =========================================================================
-     3. TRIANGULAR FORMING PLOW (PLOW FOLDER / V-FOLDER) (Photo 3: x = -2.6 to -1.2)
+     STAGE 2: TRIANGULAR FORMING PLOW / V-FOLDER ASSEMBLY
+     (Photo 3: x = -2.65 to -1.15)
+     "นำไปขึ้นรูป"
      ========================================================================= */
-  const plowGroup = new THREE.Group();
+  const formingGroup = new THREE.Group();
 
-  // Polished Stainless Steel Diagonal Guide Tubes forming the V-wedge
-  const plowTubeMat = chromeMat;
-  const plowTubeLen = 1.75;
+  // Slotted vertical support brackets holding the V-plow
+  [-0.48, 0.48].forEach(function (bz) {
+    const vPost = new THREE.Mesh(new THREE.BoxGeometry(0.07, 1.55, 0.07), darkSteel);
+    vPost.position.set(-2.05, 1.15, bz);
+    formingGroup.add(vPost);
 
-  // Upper sloping guide tube
-  const tubeUpper = new THREE.Mesh(new THREE.CylinderGeometry(0.038, 0.038, plowTubeLen, 16), plowTubeMat);
-  tubeUpper.position.set(-1.95, 1.48, -0.28);
-  tubeUpper.rotation.z = 0.78;
-  tubeUpper.rotation.y = 0.24;
-  plowGroup.add(tubeUpper);
-
-  // Lower sloping guide tube
-  const tubeLower = new THREE.Mesh(new THREE.CylinderGeometry(0.038, 0.038, plowTubeLen, 16), plowTubeMat);
-  tubeLower.position.set(-1.95, 1.48, 0.28);
-  tubeLower.rotation.z = 0.78;
-  tubeLower.rotation.y = -0.24;
-  plowGroup.add(tubeLower);
-
-  // Apex folding nose block where film reaches full fold
-  const noseBlock = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.22, 0.24), darkSteel);
-  noseBlock.position.set(-1.32, 0.86, 0);
-  plowGroup.add(noseBlock);
-
-  // Pneumatic Gusset Insertion Disc & Adjuster Cylinder (creates the W-fold bottom for stand-up pouches)
-  const gussetDisc = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.18, 0.015, 24), chromeMat);
-  gussetDisc.rotation.z = Math.PI / 2;
-  gussetDisc.position.set(-1.45, 0.88, -0.32);
-  plowGroup.add(gussetDisc);
-
-  // Chrome support struts & black mounting clamp blocks (Photo 3)
-  [-0.35, 0.35].forEach(function (pz) {
-    const strut = new THREE.Mesh(new THREE.CylinderGeometry(0.028, 0.028, 0.95, 14), chromeMat);
-    strut.position.set(-2.15, 1.45, pz);
-    strut.rotation.x = (pz > 0 ? -0.45 : 0.45);
-    plowGroup.add(strut);
-
-    const clamp = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.14, 0.12), frameBlack);
-    clamp.position.set(-2.15, 1.85, pz);
-    plowGroup.add(clamp);
+    // Polished chrome diagonal stabilizer strut with black ball-joint clamp (Photo 3)
+    const diagStrut = new THREE.Mesh(new THREE.CylinderGeometry(0.024, 0.024, 0.72, 14), chromeMat);
+    diagStrut.position.set(-1.85, 1.05, bz * 0.65);
+    diagStrut.rotation.z = 0.55;
+    diagStrut.rotation.x = bz > 0 ? -0.35 : 0.35;
+    formingGroup.add(diagStrut);
   });
 
-  // Folded Continuous Web emerging from the V-plow
-  const foldedWebGeo = new THREE.BoxGeometry(1.25, 0.025, 0.82);
-  const foldedWeb = new THREE.Mesh(foldedWebGeo, webMat);
-  foldedWeb.position.set(-1.25, 0.86, 0);
-  plowGroup.add(foldedWeb);
+  // Upper & Lower Brushed Stainless Steel Converging Plow Plates (Photo 3 V-shape)
+  const plowUpperBar = new THREE.Mesh(new THREE.BoxGeometry(1.45, 0.08, 0.03), brushedSteel);
+  plowUpperBar.position.set(-1.90, 1.42, 0.08);
+  plowUpperBar.rotation.z = -0.38;
+  formingGroup.add(plowUpperBar);
 
-  mGroup.add(plowGroup);
+  const plowLowerBar = new THREE.Mesh(new THREE.BoxGeometry(1.45, 0.08, 0.03), brushedSteel);
+  plowLowerBar.position.set(-1.90, 0.92, 0.08);
+  plowLowerBar.rotation.z = 0.22;
+  formingGroup.add(plowLowerBar);
+
+  // 3D Folding Film Web Panels converging to the V-Plow Apex at x = -1.22, y = 1.08
+  const upperFoldWeb = new THREE.Mesh(new THREE.PlaneGeometry(1.42, 0.78), printedWebMat);
+  upperFoldWeb.position.set(-1.92, 1.38, 0);
+  upperFoldWeb.rotation.x = Math.PI / 2 - 0.32;
+  upperFoldWeb.rotation.y = 0.35;
+  formingGroup.add(upperFoldWeb);
+
+  const lowerFoldWeb = new THREE.Mesh(new THREE.PlaneGeometry(1.42, 0.78), silverFoilWebMat);
+  lowerFoldWeb.position.set(-1.92, 0.96, 0);
+  lowerFoldWeb.rotation.x = Math.PI / 2 + 0.25;
+  lowerFoldWeb.rotation.y = -0.22;
+  formingGroup.add(lowerFoldWeb);
+
+  // Polished Chrome Nip Rollers at the V-Plow Apex where pouch layers merge (Photo 3 right)
+  [1.03, 1.13].forEach(function (ry) {
+    const apexRoll = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.045, 1.18, 18), chromeMat);
+    apexRoll.rotation.x = Math.PI / 2;
+    apexRoll.position.set(-1.22, ry, 0);
+    formingGroup.add(apexRoll);
+  });
+
+  mGroup.add(formingGroup);
 
   /* =========================================================================
-     4. MODULAR HEAT SEALING & COOLING STATIONS (Photo 4 & 5: x = -1.2 to +1.6)
+     STAGE 3: MODULAR STAINLESS BED & 4 HEAT-SEALING / CHILL STATIONS
+     (Photo 4: x = -1.15 to +1.55)
+     "และ Seal ประกบ"
      ========================================================================= */
-  const sealGroup = new THREE.Group();
+  const sealSectionGroup = new THREE.Group();
+  const bedLen = 3.55;
+  const bedW = 1.38;
+  const bedH = 0.84;
+  const bedCenterX = 0.55;
 
-  // Top Horizontal Overhead Bridge Beam supported on 4 chrome guide columns
-  const bridgeH = 1.72;
-  [-0.95, 1.45].forEach(function (bx) {
-    [-0.55, 0.55].forEach(function (bz) {
-      const pillar = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.045, bridgeH - 0.76, 16), chromeMat);
-      pillar.position.set(bx, (bridgeH + 0.76) / 2, bz);
-      sealGroup.add(pillar);
+  // Dark recessed toe-kick base
+  const kickPlate = new THREE.Mesh(new THREE.BoxGeometry(bedLen, 0.08, bedW - 0.06), frameBlack);
+  kickPlate.position.set(bedCenterX, 0.04, 0);
+  sealSectionGroup.add(kickPlate);
+
+  // Long Brushed Stainless Steel Lower Machine Body (Photo 4)
+  const mainBed = tagSelectable(new THREE.Mesh(new THREE.BoxGeometry(bedLen, bedH - 0.08, bedW), stainlessSteel));
+  mainBed.position.set(bedCenterX, 0.46, 0);
+  sealSectionGroup.add(mainBed);
+
+  // Recessed Stainless Cabinet Doors & Latches along Operator Side (z = +bedW/2)
+  [-0.75, 0.05, 0.85, 1.65].forEach(function (dx) {
+    const doorPanel = new THREE.Mesh(new THREE.BoxGeometry(0.72, 0.58, 0.02), brushedSteel);
+    doorPanel.position.set(dx, 0.44, bedW / 2 + 0.01);
+    sealSectionGroup.add(doorPanel);
+
+    const latch = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.10, 0.03), chromeMat);
+    latch.position.set(dx + 0.28, 0.44, bedW / 2 + 0.025);
+    sealSectionGroup.add(latch);
+  });
+
+  // Continuous Folded Film Web running through the Sealing & Cutting Stations
+  const mainPouchWeb = new THREE.Mesh(new THREE.BoxGeometry(3.45, 0.018, 0.86), printedWebMat);
+  mainPouchWeb.position.set(0.50, bedH + 0.14, 0);
+  sealSectionGroup.add(mainPouchWeb);
+
+  // 4 Heavy Black Cast-Steel Reciprocating Heat-Sealing Bridges (Photo 4 top-right)
+  const sealStationsX = [-0.85, -0.25, 0.35, 0.95];
+  sealStationsX.forEach(function (sx, sIdx) {
+    // Fixed side support uprights
+    [-0.56, 0.56].forEach(function (sz) {
+      const upright = new THREE.Mesh(new THREE.BoxGeometry(0.10, 0.56, 0.08), darkSteel);
+      upright.position.set(sx, bedH + 0.28, sz);
+      sealSectionGroup.add(upright);
     });
-  });
 
-  const bridgeBeam = new THREE.Mesh(new THREE.BoxGeometry(2.55, 0.12, 1.25), darkSteel);
-  bridgeBeam.position.set(0.25, bridgeH, 0);
-  sealGroup.add(bridgeBeam);
+    // Reciprocating Upper Sealing Head Assembly
+    const sealHead = new THREE.Group();
+    sealHead.position.set(sx, bedH + 0.28, 0);
 
-  // Station 1: Bottom Gusset Longitudinal Heat Sealer (x = -0.75)
-  const gussetSealer = new THREE.Group();
-  gussetSealer.position.set(-0.75, 1.05, -0.28);
-  const gCyl = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.045, 0.35, 16), pneumaticBlue);
-  gCyl.position.y = 0.38;
-  gussetSealer.add(gCyl);
-  const gBar = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.16, 0.22), brassMat);
-  gussetSealer.add(gBar);
-  sealGroup.add(gussetSealer);
+    // Heavy Black Upper Press Beam
+    const upperBeam = tagSelectable(new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.16, 1.18), frameBlack));
+    upperBeam.position.y = 0.08;
+    sealHead.add(upperBeam);
 
-  // Station 2: Main Transverse Side Heat Sealing Bar (x = 0.05) - Reciprocating Stamping Motion
-  const sideSealer = new THREE.Group();
-  sideSealer.position.set(0.05, 1.05, 0);
+    // Heated Brass / Silicone Sealing Jaw (or Aluminum Chill Bar on 4th station)
+    const jawMat = sIdx === 3 ? brushedSteel : orangeSealMat;
+    const sealJaw = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.06, 1.02), jawMat);
+    sealJaw.position.y = -0.04;
+    sealHead.add(sealJaw);
 
-  // Dual top pneumatic press cylinders
-  [-0.32, 0.32].forEach(function (cz) {
-    const pressCyl = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.38, 16), pneumaticBlue);
-    pressCyl.position.set(0, 0.36, cz);
-    sideSealer.add(pressCyl);
-  });
+    // Dual Silver Compression Coil Springs & Guide Studs on top of each bridge (Photo 4)
+    [-0.42, 0.42].forEach(function (spz) {
+      const springCoil = new THREE.Mesh(new THREE.CylinderGeometry(0.042, 0.042, 0.18, 14), chromeMat);
+      springCoil.position.set(0, 0.25, spz);
+      sealHead.add(springCoil);
 
-  // Upper heated seal bar with orange thermal silicone strip
-  const sealBarBody = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.18, 1.15), darkSteel);
-  sideSealer.add(sealBarBody);
-  const orangeStrip = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.04, 1.05), orangeSealMat);
-  orangeStrip.position.y = -0.10;
-  sideSealer.add(orangeStrip);
+      const topCap = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.03, 14), frameBlack);
+      topCap.position.set(0, 0.35, spz);
+      sealHead.add(topCap);
+    });
 
-  sealGroup.add(sideSealer);
-  reciprocatorsOut.push({ mesh: sideSealer, baseY: 1.05 });
+    sealSectionGroup.add(sealHead);
+    reciprocatorsOut.push({ mesh: sealHead, baseY: bedH + 0.28 });
 
-  // Station 3: Water-Cooled Chill Press Block (x = 0.85) - Reciprocating Stamping Motion
-  const chillSealer = new THREE.Group();
-  chillSealer.position.set(0.85, 1.05, 0);
-
-  [-0.32, 0.32].forEach(function (cz) {
-    const cCyl = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.045, 0.38, 16), pneumaticBlue);
-    cCyl.position.set(0, 0.36, cz);
-    chillSealer.add(cCyl);
-  });
-  const chillBlock = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.18, 1.15), stainlessSteel);
-  chillSealer.add(chillBlock);
-
-  sealGroup.add(chillSealer);
-  reciprocatorsOut.push({ mesh: chillSealer, baseY: 1.05 });
-
-  // Micrometric Adjustment Handwheels along the operator side (Photo 4)
-  [-0.75, -0.20, 0.35, 0.85].forEach(function (hx) {
+    // Authentic Black Spoked Adjustment Handwheel along Operator Side (Photo 4)
     const wheelGroup = new THREE.Group();
-    wheelGroup.position.set(hx, 1.05, bedWidth / 2 + 0.04);
-
-    // Rim
-    const rim = new THREE.Mesh(new THREE.TorusGeometry(0.10, 0.022, 12, 24), darkSteel);
-    wheelGroup.add(rim);
-
-    // Spokes & Hub
-    const hub = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.06, 14), chromeMat);
-    hub.rotation.x = Math.PI / 2;
-    wheelGroup.add(hub);
-
-    // Revolving handle knob
-    const knob = new THREE.Mesh(new THREE.CylinderGeometry(0.018, 0.018, 0.08, 12), chromeMat);
-    knob.rotation.x = Math.PI / 2;
-    knob.position.set(0.07, 0.07, 0.04);
-    wheelGroup.add(knob);
-
-    sealGroup.add(wheelGroup);
+    wheelGroup.position.set(sx, bedH + 0.16, bedW / 2 + 0.12);
+    const wheelRim = new THREE.Mesh(new THREE.TorusGeometry(0.095, 0.018, 10, 20), frameBlack);
+    wheelGroup.add(wheelRim);
+    const wheelShaft = new THREE.Mesh(new THREE.CylinderGeometry(0.022, 0.022, 0.18, 12), chromeMat);
+    wheelShaft.rotation.x = Math.PI / 2;
+    wheelShaft.position.z = -0.08;
+    wheelGroup.add(wheelShaft);
+    const spoke1 = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.018, 0.018), frameBlack);
+    wheelGroup.add(spoke1);
+    const spoke2 = new THREE.Mesh(new THREE.BoxGeometry(0.018, 0.18, 0.018), frameBlack);
+    wheelGroup.add(spoke2);
+    sealSectionGroup.add(wheelGroup);
   });
 
-  // Articulated Swing-Arm Overhead HMI Touch Console (Photo 5)
-  const hmiGroup = new THREE.Group();
-  hmiGroup.position.set(0.35, bridgeH, bedWidth / 2 - 0.1);
-
-  // Vertical pivot post
-  const hmiPost = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.45, 14), chromeMat);
-  hmiPost.position.y = 0.22;
-  hmiGroup.add(hmiPost);
-
-  // Horizontal swing arm
-  const hmiArm = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.08, 0.08), whiteEnclosure);
-  hmiArm.position.set(0.22, 0.45, 0.15);
-  hmiArm.rotation.y = 0.42;
-  hmiGroup.add(hmiArm);
-
-  // Industrial Touchscreen Cabinet
-  const hmiBox = tagSelectable(new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.32, 0.12), whiteEnclosure));
-  hmiBox.position.set(0.48, 0.35, 0.32);
-  hmiGroup.add(hmiBox);
-
-  // Touch display screen
-  const screenMat = new THREE.MeshBasicMaterial({ color: 0x0284c7 });
-  const hmiScreen = new THREE.Mesh(new THREE.PlaneGeometry(0.34, 0.24), screenMat);
-  hmiScreen.position.set(0.48, 0.35, 0.385);
-  hmiGroup.add(hmiScreen);
-
-  sealGroup.add(hmiGroup);
-  mGroup.add(sealGroup);
+  mGroup.add(sealSectionGroup);
 
   /* =========================================================================
-     5. EDGE TRIMMING SLITTERS & GUILLOTINE CUTTING KNIFE (Photo 4: x = +1.5 to +2.1)
+     STAGE 4: EDGE-TRIM SLITTER, SCRAP REMOVAL & GUILLOTINE CUTTER HOOD
+     (Photo 4: x = +1.45 to +2.35)
+     "และตัดส่วนไม่จำเป็นออก"
      ========================================================================= */
-  const cutGroup = new THREE.Group();
-  cutGroup.position.set(1.75, 0.88, 0);
+  const trimCutGroup = new THREE.Group();
 
-  // Rotary Edge Trimming Shear Discs (Trims unprinted margin)
-  [-0.52, 0.52].forEach(function (tz) {
-    const slitterDisc = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.09, 0.015, 20), chromeMat);
-    slitterDisc.rotation.z = Math.PI / 2;
-    slitterDisc.position.set(0, 0.06, tz);
-    cutGroup.add(slitterDisc);
+  // 4A. Rotary Edge-Trim Slitter & Die-Cut Scrap Separation (x = 1.48)
+  const slitterShaft = new THREE.Mesh(new THREE.CylinderGeometry(0.028, 0.028, 1.16, 14), chromeMat);
+  slitterShaft.rotation.x = Math.PI / 2;
+  slitterShaft.position.set(1.48, bedH + 0.22, 0);
+  trimCutGroup.add(slitterShaft);
 
-    // Flexible Spiral Vacuum Scrap Suction Hose
-    const hose = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 0.45, 14), chromeMat);
-    hose.position.set(0.08, -0.15, tz);
-    hose.rotation.x = (tz > 0 ? 0.35 : -0.35);
-    cutGroup.add(hose);
+  [-0.44, 0.44].forEach(function (tz) {
+    // Circular Rotary Trim Knife
+    const knifeDisc = new THREE.Mesh(new THREE.CylinderGeometry(0.075, 0.075, 0.012, 20), chromeMat);
+    knifeDisc.rotation.x = Math.PI / 2;
+    knifeDisc.position.set(1.48, bedH + 0.20, tz);
+    trimCutGroup.add(knifeDisc);
+
+    // Separated Edge-Trim Waste Strip peeling downward into scrap chute
+    const trimStrip = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.008, 0.045), printedWebMat);
+    trimStrip.position.set(1.56, bedH + 0.04, tz * 1.08);
+    trimStrip.rotation.z = -0.65;
+    trimCutGroup.add(trimStrip);
   });
 
-  // Guillotine Cross-Cutting Knife (Reciprocating shear motion)
-  const knifeGroup = new THREE.Group();
-  knifeGroup.position.set(0.22, 0.16, 0);
+  // Yellow Spiral Scrap Extraction Hose & Trim Waste Bin beside machine (Photo 2 & 4)
+  const suctionHose = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.045, 0.68, 14), yellowHoseMat);
+  suctionHose.position.set(1.52, 0.58, -bedW / 2 - 0.12);
+  suctionHose.rotation.x = -0.25;
+  trimCutGroup.add(suctionHose);
 
-  const knifeCyl = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.045, 0.32, 14), pneumaticBlue);
-  knifeCyl.position.y = 0.32;
-  knifeGroup.add(knifeCyl);
+  const scrapBin = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.20, 0.52, 18), darkSteel);
+  scrapBin.position.set(1.52, 0.26, -bedW / 2 - 0.26);
+  trimCutGroup.add(scrapBin);
 
-  const knifeBlade = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.14, 1.15), chromeMat);
-  knifeGroup.add(knifeBlade);
+  // 4B. Enclosed Brushed Stainless Steel Guillotine Cutter Safety Hood (Photo 4 center)
+  const cutterHood = tagSelectable(new THREE.Mesh(new THREE.BoxGeometry(0.62, 0.36, 1.24), brushedSteel));
+  cutterHood.position.set(1.96, bedH + 0.28, 0);
+  trimCutGroup.add(cutterHood);
 
-  cutGroup.add(knifeGroup);
-  reciprocatorsOut.push({ mesh: knifeGroup, baseY: 0.16 });
+  // Side Stainless Electrical/Gear Box on Cutter with 2 Black Knobs (Photo 4)
+  const cutterSideBox = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.44, 0.24), stainlessSteel);
+  cutterSideBox.position.set(1.98, bedH + 0.24, bedW / 2 + 0.10);
+  trimCutGroup.add(cutterSideBox);
 
-  // Transparent Protective Guard Hood over cutter (Photo 4)
-  const hoodMat = new THREE.MeshStandardMaterial({
-    color: 0xffffff,
-    transparent: true,
-    opacity: 0.35,
-    roughness: 0.15,
-    metalness: 0.1
+  [bedH + 0.32, bedH + 0.18].forEach(function (ky) {
+    const blackKnob = new THREE.Mesh(new THREE.CylinderGeometry(0.026, 0.026, 0.04, 12), frameBlack);
+    blackKnob.rotation.x = Math.PI / 2;
+    blackKnob.position.set(2.04, ky, bedW / 2 + 0.23);
+    trimCutGroup.add(blackKnob);
   });
-  const guardHood = new THREE.Mesh(new THREE.BoxGeometry(0.48, 0.32, 1.25), hoodMat);
-  guardHood.position.set(0.12, 0.22, 0);
-  cutGroup.add(guardHood);
 
-  // Yellow Hazard Caution Stripe on guard
-  const hazardBar = new THREE.Mesh(new THREE.BoxGeometry(0.49, 0.04, 1.26), hazardYellow);
-  hazardBar.position.set(0.12, 0.36, 0);
-  cutGroup.add(hazardBar);
+  // Internal High-Speed Reciprocating Guillotine Cross-Cutting Blade
+  const guillotineBlade = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.16, 1.08), chromeMat);
+  guillotineBlade.position.set(2.18, bedH + 0.20, 0);
+  trimCutGroup.add(guillotineBlade);
+  reciprocatorsOut.push({ mesh: guillotineBlade, baseY: bedH + 0.20 });
 
-  mGroup.add(cutGroup);
+  // Signature Bright Blue Static-Eliminator Bar across Cutter Exit (Photo 4 & 5)
+  const blueStaticBar = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.045, 1.18), staticBarBlue);
+  blueStaticBar.position.set(2.29, bedH + 0.24, 0);
+  trimCutGroup.add(blueStaticBar);
+
+  mGroup.add(trimCutGroup);
 
   /* =========================================================================
-     6. GREEN FLAT BELT CONVEYOR & PACKAGING OPERATOR (Photos 4 & 5: x = +2.1 to +4.6)
+     STAGE 5: GREEN BELT OUTFEED CONVEYOR, BLUE BAFFLES, SWING-ARM HMI & OPERATOR
+     (Photos 4 & 5: x = +2.30 to +5.15)
+     "และออกมาตามสายพาน ที่มีพนักงานยืนอยู่ปลายทาง"
      ========================================================================= */
-  const conveyorGroup = new THREE.Group();
-  const convLen = 2.40;
-  const convWidth = 0.88;
-  const convHeight = 0.82;
-  const convCenterX = 3.25;
+  const outfeedGroup = new THREE.Group();
+  const convH = 0.80;
 
-  // Extruded Aluminum Conveyor Frame & Support Legs
-  const convBase = tagSelectable(new THREE.Mesh(new THREE.BoxGeometry(convLen, 0.12, convWidth), stainlessSteel));
-  convBase.position.set(convCenterX, convHeight - 0.06, 0);
-  conveyorGroup.add(convBase);
+  // 5A. White Articulated Cantilever Swing-Arm & Vertical HMI Control Box (Photo 5)
+  const swingArmGroup = new THREE.Group();
+  swingArmGroup.position.set(2.38, convH, bedW / 2 + 0.08);
 
-  // 4 Tubular Support Legs with Adjustable Leveling Feet
+  // Vertical white square support column
+  const armPost = new THREE.Mesh(new THREE.BoxGeometry(0.11, 0.56, 0.11), whiteArmMat);
+  armPost.position.set(0, 0.28, 0);
+  swingArmGroup.add(armPost);
+
+  // Black pivot joint cap
+  const jointCap = new THREE.Mesh(new THREE.CylinderGeometry(0.065, 0.065, 0.04, 16), frameBlack);
+  jointCap.position.set(0, 0.57, 0);
+  swingArmGroup.add(jointCap);
+
+  // Horizontal white cantilever arm extending toward operator/conveyor
+  const horizArm = new THREE.Mesh(new THREE.BoxGeometry(0.75, 0.09, 0.09), whiteArmMat);
+  horizArm.position.set(0.32, 0.52, -0.18);
+  horizArm.rotation.y = 0.42;
+  swingArmGroup.add(horizArm);
+
+  // Vertical White/Light-Grey HMI & Electrical Enclosure suspended at end of arm (Photo 5)
+  const hmiCabinet = tagSelectable(new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.58, 0.26), whiteArmMat));
+  hmiCabinet.position.set(0.62, 0.82, -0.34);
+  swingArmGroup.add(hmiCabinet);
+
+  // Dark front bezel & HMI screen on cabinet
+  const hmiBezel = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.52, 0.02), darkSteel);
+  hmiBezel.position.set(0.62, 0.82, -0.205);
+  swingArmGroup.add(hmiBezel);
+
+  // Red Warning Beacon Light on bracket (Photo 5 top-left)
+  const redTowerLight = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.14, 14), redMat);
+  redTowerLight.position.set(0.0, 0.72, 0.0);
+  swingArmGroup.add(redTowerLight);
+
+  outfeedGroup.add(swingArmGroup);
+
+  // 5B. First-Stage Elastic Cord Transfer Roller Table (Photo 4: x = 2.30 to 2.85)
+  const cordRoller = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.045, 0.92, 16), darkSteel);
+  cordRoller.rotation.x = Math.PI / 2;
+  cordRoller.position.set(2.78, convH + 0.08, 0);
+  outfeedGroup.add(cordRoller);
+
+  [-0.32, -0.16, 0.0, 0.16, 0.32].forEach(function (cz) {
+    const greenCord = new THREE.Mesh(new THREE.BoxGeometry(0.54, 0.012, 0.016), conveyorGreen);
+    greenCord.position.set(2.54, convH + 0.12, cz);
+    outfeedGroup.add(greenCord);
+  });
+
+  // 5C. Stainless Steel Outfeed Table & Green PVC Flat Conveyor Belt (Photos 4 & 5: x = 2.80 to 4.65)
+  const tableLen = 2.25;
+  const tableW = 1.24;
+  const tableCenterX = 3.45;
+
+  const stainlessTable = tagSelectable(new THREE.Mesh(new THREE.BoxGeometry(tableLen, 0.06, tableW), brushedSteel));
+  stainlessTable.position.set(tableCenterX, convH - 0.03, 0);
+  outfeedGroup.add(stainlessTable);
+
+  // Lower stainless support cabinet & legs under conveyor
+  const tableSupport = new THREE.Mesh(new THREE.BoxGeometry(tableLen - 0.2, convH - 0.06, tableW - 0.25), stainlessSteel);
+  tableSupport.position.set(tableCenterX, (convH - 0.06) / 2, 0);
+  outfeedGroup.add(tableSupport);
+
+  // Authentic Flat Green PVC Conveyor Belt running along the center of the stainless table
+  const greenBelt = new THREE.Mesh(new THREE.BoxGeometry(1.92, 0.022, 0.68), conveyorGreen);
+  greenBelt.position.set(3.62, convH + 0.012, -0.05);
+  outfeedGroup.add(greenBelt);
+
+  // End Conveyor Roller at x = 4.58
+  const endRoller = new THREE.Mesh(new THREE.CylinderGeometry(0.038, 0.038, 0.72, 16), chromeMat);
+  endRoller.rotation.x = Math.PI / 2;
+  endRoller.position.set(4.58, convH, -0.05);
+  outfeedGroup.add(endRoller);
+  rollersOut.push(endRoller);
+
+  // 5D. Pair of Bright Blue Corrugated Plastic Guide Baffles (Photos 4 & 5)
+  [-0.38, 0.26].forEach(function (bz) {
+    const baffleGroup = new THREE.Group();
+    baffleGroup.position.set(2.92, convH + 0.13, bz);
+
+    const vWall = new THREE.Mesh(new THREE.BoxGeometry(0.58, 0.24, 0.018), blueBaffleMat);
+    vWall.rotation.x = bz > 0 ? -0.18 : 0.18;
+    baffleGroup.add(vWall);
+
+    const baseFoot = new THREE.Mesh(new THREE.BoxGeometry(0.58, 0.015, 0.12), blueBaffleMat);
+    baseFoot.position.y = -0.11;
+    baffleGroup.add(baseFoot);
+
+    outfeedGroup.add(baffleGroup);
+  });
+
+  // 5E. White Open-Top Cardboard Box on Front-Left Conveyor Table Ledge (Photo 5 foreground)
+  const whiteSampleBox = new THREE.Group();
+  whiteSampleBox.position.set(2.68, convH + 0.18, 0.44);
+  const wBoxBody = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.34, 0.32), whiteArmMat);
+  whiteSampleBox.add(wBoxBody);
+  const wBoxInner = new THREE.Mesh(
+    new THREE.BoxGeometry(0.35, 0.32, 0.29),
+    new THREE.MeshLambertMaterial({ color: 0xb48352 })
+  );
+  wBoxInner.position.y = 0.02;
+  whiteSampleBox.add(wBoxInner);
+  outfeedGroup.add(whiteSampleBox);
+
+  // 5F. Front Edge Push-Button Switch Strip & Red Emergency Stop (Photo 4 bottom-left)
+  const switchPanel = new THREE.Mesh(new THREE.BoxGeometry(0.46, 0.08, 0.06), darkSteel);
+  switchPanel.position.set(2.88, convH - 0.09, tableW / 2 - 0.02);
+  outfeedGroup.add(switchPanel);
+
   [
-    [convCenterX - convLen / 2 + 0.15, -convWidth / 2 + 0.08],
-    [convCenterX - convLen / 2 + 0.15, convWidth / 2 - 0.08],
-    [convCenterX + convLen / 2 - 0.15, -convWidth / 2 + 0.08],
-    [convCenterX + convLen / 2 - 0.15, convWidth / 2 - 0.08]
-  ].forEach(function ([lx, lz]) {
-    const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, convHeight - 0.12, 14), chromeMat);
-    leg.position.set(lx, (convHeight - 0.12) / 2, lz);
-    conveyorGroup.add(leg);
-
-    const pad = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 0.03, 14), darkSteel);
-    pad.position.set(lx, 0.015, lz);
-    conveyorGroup.add(pad);
+    { dx: -0.15, c: 0xdc2626, r: 0.026 }, // Red E-Stop
+    { dx: -0.05, c: 0xef4444, r: 0.018 }, // Red Stop
+    { dx:  0.04, c: 0x16a34a, r: 0.018 }, // Green Start
+    { dx:  0.13, c: 0xeab308, r: 0.018 }  // Yellow Reset
+  ].forEach(function (sw) {
+    const swMesh = new THREE.Mesh(
+      new THREE.CylinderGeometry(sw.r, sw.r, 0.03, 12),
+      new THREE.MeshLambertMaterial({ color: sw.c })
+    );
+    swMesh.rotation.x = Math.PI / 2;
+    swMesh.position.set(2.88 + sw.dx, convH - 0.09, tableW / 2 + 0.02);
+    outfeedGroup.add(swMesh);
   });
 
-  // Flat Vibrant Green Conveyor Belt (Authentic green from Photos 4 & 5)
-  const beltMesh = new THREE.Mesh(new THREE.BoxGeometry(convLen - 0.06, 0.02, convWidth - 0.08), conveyorGreen);
-  beltMesh.position.set(convCenterX, convHeight + 0.01, 0);
-  conveyorGroup.add(beltMesh);
-
-  // Side Guide Rails along the conveyor
-  [-convWidth / 2 + 0.02, convWidth / 2 - 0.02].forEach(function (rz) {
-    const rail = new THREE.Mesh(new THREE.BoxGeometry(convLen, 0.06, 0.025), stainlessSteel);
-    rail.position.set(convCenterX, convHeight + 0.05, rz);
-    conveyorGroup.add(rail);
-  });
-
-  // Blue Acrylic "Tent" Stacking Dividers on Conveyor Belt (Photos 4 & 5)
-  // Two angled royal blue guide tents sitting on the belt to neatly align the stream of pouches
-  [convCenterX - 0.55, convCenterX + 0.15].forEach(function (tx) {
-    const tentGroup = new THREE.Group();
-    tentGroup.position.set(tx, convHeight + 0.10, 0);
-
-    // Front flap
-    const flap1 = new THREE.Mesh(new THREE.BoxGeometry(0.015, 0.18, 0.44), blueAcrylic);
-    flap1.rotation.z = -0.55;
-    flap1.position.set(-0.06, 0, 0);
-    tentGroup.add(flap1);
-
-    // Back flap
-    const flap2 = new THREE.Mesh(new THREE.BoxGeometry(0.015, 0.18, 0.44), blueAcrylic);
-    flap2.rotation.z = 0.55;
-    flap2.position.set(0.06, 0, 0);
-    tentGroup.add(flap2);
-
-    conveyorGroup.add(tentGroup);
-  });
-
-  // Stream of Shingled Finished Hygiene Pouches moving along the green belt
-  const pouchStreamX = [2.35, 2.75, 3.15, 3.55, 3.95];
-  pouchStreamX.forEach(function (px, idx) {
+  // 5G. Stream of Shingled Finished Pouches emerging along the Green Belt (Photos 4 & 5)
+  [2.55, 2.88, 3.22, 3.56, 3.90, 4.24].forEach(function (px, idx) {
     const pouch = createPouchMesh({
       hasSpout: false,
-      width: 0.42,
-      height: 0.58,
-      depth: 0.065
+      width: 0.38,
+      height: 0.50,
+      depth: 0.055
     });
-    // Laying flat/shingled on the green conveyor
     pouch.rotation.x = Math.PI / 2;
-    pouch.rotation.z = -Math.PI / 2 + (idx % 2 === 0 ? 0.03 : -0.03);
-    pouch.position.set(px, convHeight + 0.05 + idx * 0.008, 0);
-    conveyorGroup.add(pouch);
+    pouch.rotation.z = -Math.PI / 2 + (idx % 2 === 0 ? 0.04 : -0.04);
+    pouch.position.set(px, convH + 0.045 + idx * 0.005, -0.05);
+    outfeedGroup.add(pouch);
   });
 
-  // Stainless Packing Extension Shelf Table at exit (Photos 4 & 5)
-  const packTable = new THREE.Mesh(new THREE.BoxGeometry(0.85, 0.76, 1.25), stainlessSteel);
-  packTable.position.set(4.55, 0.38, 0);
-  conveyorGroup.add(packTable);
+  // Open Corrugated Carton Box at the End of the Conveyor collecting Pouches
+  const endCartonStand = new THREE.Mesh(new THREE.BoxGeometry(0.75, 0.45, 0.85), darkSteel);
+  endCartonStand.position.set(4.98, 0.225, -0.05);
+  outfeedGroup.add(endCartonStand);
 
-  // Open Corrugated Carton Box collecting finished pouches from conveyor
   const openCarton = createKraftCartonBox({
-    width: 0.90,
-    height: 0.65,
-    depth: 1.05,
+    width: 0.78,
+    height: 0.54,
+    depth: 0.88,
     openTop: true
   });
-  openCarton.position.set(4.55, 0.76, 0);
-  conveyorGroup.add(openCarton);
+  openCarton.position.set(4.98, 0.45, -0.05);
+  outfeedGroup.add(openCarton);
 
-  // Finished Hygiene pouches stacked inside the carton box ready for sealing
-  for (let row = 0; row < 4; row++) {
-    const boxPouch = createPouchMesh({
-      hasSpout: false,
-      width: 0.38,
-      height: 0.52,
-      depth: 0.065
-    });
-    boxPouch.position.set(4.38 + row * 0.11, 1.05, 0);
-    boxPouch.rotation.z = -0.18;
-    conveyorGroup.add(boxPouch);
-  }
-
-  // Factory Operator / Packaging Worker (Photo 5: grey polo uniform with white hygienic hair net cap)
-  const packerWorker = createWorkerMesh(0x475569, 0xf8fafc);
-  packerWorker.position.set(4.55, 0.0, 0.95);
-  packerWorker.rotation.y = Math.PI; // Facing North towards the packing table and conveyor exit
-  conveyorGroup.add(packerWorker);
-  extraWorkersOut.push(packerWorker);
-
-  mGroup.add(conveyorGroup);
+  mGroup.add(outfeedGroup);
 
   /* =========================================================================
-     7. FINISHED GOODS WOODEN PALLET BESIDE OUTFEED (media_1792732066355)
+     STAGE 6: FINISHED GOODS SHRINK-WRAPPED BOX PALLET BESIDE OUTFEED
      ========================================================================= */
   const bagPalletGroup = createStandardBoxPallet({
     width: 1.85,

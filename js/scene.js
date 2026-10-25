@@ -736,20 +736,26 @@
         const beaconMat = new THREE.MeshBasicMaterial({ color: 0x94a3b8 });
         // Floating grey sphere mesh removed per user request: status is clearly shown on Floor Plate
 
-        // Primary Station Worker placed at machine control console (so they never stand on the floor plate)
+        // Primary Station Worker placed at machine control console or end-of-line conveyor (never on floor plate)
         let workerColor = 0xfacc15;
+        let hatColor = 0xfacc15;
         let workerX = 0;
         let workerZ = isRow1 ? 1.8 : -1.8;
+        let workerYaw = isRow1 ? Math.PI : 0;
         if (st.id === 'ST_SLIT') {
           workerColor = 0x10b981; // Green shirt worker matching Slit reference image
           workerX = -0.4;
         } else if (st.id === 'ST_BAG') {
-          workerColor = 0x2563eb; // Blue shirt worker next to kiosk
-          workerX = 0.8;
+          // Photo 5: Operator in grey polo & cap standing at the end of the green outfeed conveyor belt
+          workerColor = 0x475569;
+          hatColor = 0xcbd5e1;
+          workerX = 4.15;
+          workerZ = 0.92;
+          workerYaw = Math.PI;
         }
-        const worker = createWorkerMesh(workerColor, 0xfacc15);
+        const worker = createWorkerMesh(workerColor, hatColor);
         worker.position.set(workerX, 0.0, workerZ);
-        worker.rotation.y = isRow1 ? Math.PI : 0;
+        worker.rotation.y = workerYaw;
         stGroup.add(worker);
 
         scene.add(stGroup);
