@@ -1,20 +1,18 @@
 /* =========================================================================
    StarFlexERP 3D - Machine: Automatic Ultrasonic Spout Inserter & Welder (ST_SPOUT)
    Modeled directly from authentic factory photos (1:1 High-Fidelity Twin):
-   1. Cleanroom-grade extruded aluminum safety enclosure with transparent glass panels
-   2. Front double glass doors with vertical handles, taped SOP procedure sheet & yellow hazard sign
-   3. Dual-tier base cabinet in industrial pale sage-grey with flush handles & dark kickplate
-   4. Vibratory bowl feeder: white cylindrical drive base, stainless spiral bowl filled
-      with white plastic spouts, overhead bulk hopper, and linear vibrating track
-   5. Triple digital temperature/pressure controllers with bright red LED 7-segment readouts
-   6. Bundles of flexible red & blue polyurethane pneumatic tubes, solenoid manifold, and blue plug
-   7. Ultrasonic welding press head with vertical slide guide, dual foreground cylinders & reciprocating horn
-   8. Outfeed green flat belt conveyor oriented parallel to production line (West to East)
-   9. 3-ring hold-down roller assembly riding on exiting pouches, angled operator console with red E-Stop
-   10. Finished Hygiene pouches with white corner spouts spaced on the green belt
-   11. Articulated PC monitor workstation showing green NCA machine UI & keyboard tray
-   12. Authentic factory details: insulated overhead chiller pipe with red valve,
-       industrial pedestal oscillating fan, and corrugated packaging carton boxes
+   1. Open industrial design without glass enclosure (per user request)
+   2. Dual-tier base cabinet in industrial pale sage-grey with flush handles & dark kickplate
+   3. Vibratory bowl feeder: white cylindrical drive base, stainless spiral bowl filled
+      with white plastic spouts, overhead bulk hopper with support post, and linear vibrating track
+   4. Triple digital temperature/pressure controllers with bright red LED 7-segment readouts
+   5. Bundles of flexible red & blue polyurethane pneumatic tubes, solenoid manifold, and blue plug
+   6. Ultrasonic welding press head with vertical slide guide, dual foreground cylinders & reciprocating horn
+   7. Outfeed green flat belt conveyor oriented parallel to production line (West to East)
+   8. 3-ring hold-down roller assembly riding on exiting pouches, angled operator console with red E-Stop
+   9. Finished Hygiene pouches with white corner spouts spaced on the green belt
+   10. Articulated PC monitor workstation showing green NCA machine UI & keyboard tray
+   11. Authentic factory details: corrugated packaging carton boxes, pallets, and worker
    ========================================================================= */
 
 function buildSpoutMachine(st, rollersOut, reciprocatorsOut, extraWorkersOut) {
@@ -44,16 +42,6 @@ function buildSpoutMachine(st, rollersOut, reciprocatorsOut, extraWorkersOut) {
   // Base cabinet pale sage-grey / olive-cream sheet metal (matching factory photo)
   const baseCabinetMat = new THREE.MeshLambertMaterial({ color: 0xc8d1c7 });
   const baseKickMat = new THREE.MeshLambertMaterial({ color: 0x475569 });
-
-  // Safety glass panels (clean transparent acrylic / tempered glass)
-  const safetyGlassMat = new THREE.MeshStandardMaterial({
-    color: 0x93c5fd,
-    transparent: true,
-    opacity: 0.35,
-    roughness: 0.08,
-    metalness: 0.15,
-    depthWrite: false
-  });
 
   // Green flat conveyor belt (forest green PVC belt as in factory photo)
   const greenBeltMat = new THREE.MeshLambertMaterial({ color: 0x15803d });
@@ -120,175 +108,7 @@ function buildSpoutMachine(st, rollersOut, reciprocatorsOut, extraWorkersOut) {
   mGroup.add(bluePlug);
 
   // =========================================================================
-  // 2. TRANSPARENT SAFETY GLASS & EXTRUDED ALUMINUM MODULAR ENCLOSURE
-  // =========================================================================
-  const encH = 2.45;
-  const encTopY = baseH + encH;
-  const encHalfW = baseW / 2;
-  const encHalfD = baseD / 2;
-  const postThick = 0.07;
-
-  // Aluminum Vertical Corner Posts (4 corners)
-  [
-    [-encHalfW, -encHalfD],
-    [ encHalfW, -encHalfD],
-    [-encHalfW,  encHalfD],
-    [ encHalfW,  encHalfD]
-  ].forEach(function (pt) {
-    const post = new THREE.Mesh(new THREE.BoxGeometry(postThick, encH, postThick), aluminumFrameMat);
-    post.position.set(pt[0], baseH + encH / 2, pt[1]);
-    mGroup.add(post);
-  });
-
-  // Intermediate vertical mullions (dividing into Left Bay and Right Double-Door Bay)
-  [0].forEach(function (mx) {
-    const frontMullion = new THREE.Mesh(new THREE.BoxGeometry(postThick, encH, postThick), aluminumFrameMat);
-    frontMullion.position.set(mx, baseH + encH / 2, encHalfD);
-    mGroup.add(frontMullion);
-
-    const backMullion = new THREE.Mesh(new THREE.BoxGeometry(postThick, encH, postThick), aluminumFrameMat);
-    backMullion.position.set(mx, baseH + encH / 2, -encHalfD);
-    mGroup.add(backMullion);
-  });
-
-  // Horizontal Aluminum Perimeter Rails (Top header & Bottom sill)
-  [-encHalfD, encHalfD].forEach(function (rz) {
-    const topRail = new THREE.Mesh(new THREE.BoxGeometry(baseW, postThick, postThick), aluminumFrameMat);
-    topRail.position.set(0, encTopY - postThick / 2, rz);
-    mGroup.add(topRail);
-
-    const botRail = new THREE.Mesh(new THREE.BoxGeometry(baseW, postThick, postThick), aluminumFrameMat);
-    botRail.position.set(0, baseH + postThick / 2, rz);
-    mGroup.add(botRail);
-  });
-
-  [-encHalfW, encHalfW].forEach(function (rx) {
-    const topSideRail = new THREE.Mesh(new THREE.BoxGeometry(postThick, postThick, baseD), aluminumFrameMat);
-    topSideRail.position.set(rx, encTopY - postThick / 2, 0);
-    mGroup.add(topSideRail);
-
-    const botSideRail = new THREE.Mesh(new THREE.BoxGeometry(postThick, postThick, baseD), aluminumFrameMat);
-    botSideRail.position.set(rx, baseH + postThick / 2, 0);
-    mGroup.add(botSideRail);
-  });
-
-  // Front Enclosure:
-  // Left Bay (x: -baseW/4): Sealed glass panel
-  const leftGlass = new THREE.Mesh(new THREE.BoxGeometry(baseW / 2 - 0.08, encH - 0.14, 0.015), safetyGlassMat);
-  leftGlass.position.set(-baseW / 4, baseH + encH / 2, encHalfD);
-  mGroup.add(leftGlass);
-
-  // Right Bay (x: +baseW/4): Double Glass Doors (Image 3 signature)
-  const doorW = (baseW / 2 - 0.12) / 2;
-  [-doorW / 2 + baseW / 4, doorW / 2 + baseW / 4].forEach(function (dx, dIdx) {
-    // Glass door panel
-    const doorGlass = new THREE.Mesh(new THREE.BoxGeometry(doorW - 0.04, encH - 0.18, 0.015), safetyGlassMat);
-    doorGlass.position.set(dx, baseH + encH / 2, encHalfD);
-    mGroup.add(doorGlass);
-
-    // Aluminum door frame outline
-    const frameTop = new THREE.Mesh(new THREE.BoxGeometry(doorW - 0.02, 0.04, 0.03), aluminumFrameMat);
-    frameTop.position.set(dx, encTopY - 0.10, encHalfD + 0.01);
-    mGroup.add(frameTop);
-    const frameBtm = new THREE.Mesh(new THREE.BoxGeometry(doorW - 0.02, 0.04, 0.03), aluminumFrameMat);
-    frameBtm.position.set(dx, baseH + 0.10, encHalfD + 0.01);
-    mGroup.add(frameBtm);
-
-    // Vertical stainless door handle (meeting in the center)
-    const handleX = (dIdx === 0) ? (dx + doorW / 2 - 0.06) : (dx - doorW / 2 + 0.06);
-    const vHandle = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.45, 0.04), chromeMat);
-    vHandle.position.set(handleX, baseH + encH * 0.48, encHalfD + 0.03);
-    mGroup.add(vHandle);
-
-    // Door hinges
-    const hgX = (dIdx === 0) ? (dx - doorW / 2 + 0.03) : (dx + doorW / 2 - 0.03);
-    [baseH + 0.45, encTopY - 0.45].forEach(function (hy) {
-      const hg = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.10, 0.04), chromeMat);
-      hg.position.set(hgX, hy, encHalfD + 0.02);
-      mGroup.add(hg);
-    });
-  });
-
-  // Back Glass Panels
-  const glassBack = new THREE.Mesh(new THREE.BoxGeometry(baseW - 0.15, encH - 0.14, 0.015), safetyGlassMat);
-  glassBack.position.set(0, baseH + encH / 2, -encHalfD);
-  mGroup.add(glassBack);
-
-  // Left Side Glass Panel (with opening for infeed if needed)
-  const glassLeft = new THREE.Mesh(new THREE.BoxGeometry(0.015, encH - 0.14, baseD - 0.15), safetyGlassMat);
-  glassLeft.position.set(-encHalfW, baseH + encH / 2, 0);
-  mGroup.add(glassLeft);
-
-  // Right Side Glass Panel (with lower slot opening for Outfeed Conveyor)
-  const glassRightTop = new THREE.Mesh(new THREE.BoxGeometry(0.015, encH - 0.95, baseD - 0.15), safetyGlassMat);
-  glassRightTop.position.set(encHalfW, baseH + 0.95 + (encH - 0.95) / 2, 0);
-  mGroup.add(glassRightTop);
-
-  // Top Glass Roof
-  const glassRoof = new THREE.Mesh(new THREE.BoxGeometry(baseW - 0.15, 0.015, baseD - 0.15), safetyGlassMat);
-  glassRoof.position.set(0, encTopY, 0);
-  mGroup.add(glassRoof);
-
-  // Internal Ceiling White LED Strip Lights
-  [-0.45, 0.45].forEach(function (lz) {
-    const ledFixture = new THREE.Mesh(new THREE.BoxGeometry(baseW - 0.8, 0.06, 0.12), chromeMat);
-    ledFixture.position.set(0, encTopY - 0.06, lz);
-    mGroup.add(ledFixture);
-    const ledTube = new THREE.Mesh(new THREE.BoxGeometry(baseW - 1.0, 0.02, 0.08), new THREE.MeshBasicMaterial({ color: 0xffffff }));
-    ledTube.position.set(0, encTopY - 0.09, lz);
-    mGroup.add(ledTube);
-  });
-
-  // =========================================================================
-  // 3. FACTORY GLASS SIGNAGE: SOP PROCEDURE DOCUMENT & YELLOW SAFETY PLACARDS
-  // (Visible directly in factory photo Image 1 & 3 on front glass doors)
-  // =========================================================================
-  // (a) Taped Standard Operating Procedure (SOP) Sheet on Left Glass Door
-  const sopPaper = new THREE.Mesh(
-    new THREE.BoxGeometry(0.68, 0.50, 0.008),
-    new THREE.MeshLambertMaterial({ color: 0xf8fafc })
-  );
-  sopPaper.position.set(baseW / 4 - doorW / 2 + 0.05, baseH + encH * 0.70, encHalfD + 0.018);
-  mGroup.add(sopPaper);
-
-  // Header banner on SOP paper
-  const sopHeader = new THREE.Mesh(new THREE.BoxGeometry(0.62, 0.07, 0.002), new THREE.MeshLambertMaterial({ color: 0x3b82f6 }));
-  sopHeader.position.set(baseW / 4 - doorW / 2 + 0.05, baseH + encH * 0.70 + 0.19, encHalfD + 0.023);
-  mGroup.add(sopHeader);
-
-  // Simulated process photos on SOP (seen in Image 3)
-  [-0.20, 0, 0.20].forEach(function (px) {
-    const idPhoto = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.12, 0.002), new THREE.MeshLambertMaterial({ color: 0x0284c7 }));
-    idPhoto.position.set(baseW / 4 - doorW / 2 + 0.05 + px, baseH + encH * 0.70 + 0.05, encHalfD + 0.023);
-    mGroup.add(idPhoto);
-  });
-
-  // Simulated SOP table lines
-  for (let row = 0; row < 4; row++) {
-    const tableLine = new THREE.Mesh(new THREE.BoxGeometry(0.60, 0.018, 0.002), new THREE.MeshLambertMaterial({ color: 0x94a3b8 }));
-    tableLine.position.set(baseW / 4 - doorW / 2 + 0.05, baseH + encH * 0.70 - 0.07 - row * 0.05, encHalfD + 0.023);
-    mGroup.add(tableLine);
-  }
-
-  // (b) Yellow Triangular Safety Warning Placard ("Pinch Point / Moving Parts" Triangle from Image 1)
-  const warnSign = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.16, 0.16, 0.008, 3),
-    new THREE.MeshLambertMaterial({ color: 0xfacc15 })
-  );
-  warnSign.rotation.z = Math.PI; // point facing up
-  warnSign.position.set(baseW / 4, baseH + encH * 0.40, encHalfD + 0.018);
-  mGroup.add(warnSign);
-
-  const warnInner = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.10, 0.10, 0.002, 3),
-    new THREE.MeshLambertMaterial({ color: 0x0f172a })
-  );
-  warnInner.rotation.z = Math.PI;
-  warnInner.position.set(baseW / 4, baseH + encH * 0.40, encHalfD + 0.023);
-  mGroup.add(warnInner);
-
-  // =========================================================================
-  // 4. VIBRATORY BOWL FEEDER ASSEMBLY (Inside Right Enclosure - Matching Image 2 & 3)
+  // 2. VIBRATORY BOWL FEEDER ASSEMBLY (Matching Factory Photo)
   // =========================================================================
   const feederCenterX = 1.35;
   const feederCenterZ = -0.15;
@@ -357,13 +177,18 @@ function buildSpoutMachine(st, rollersOut, reciprocatorsOut, extraWorkersOut) {
     new THREE.CylinderGeometry(0.46, 0.18, 0.65, 18),
     chromeMat
   );
-  hopper.position.set(feederCenterX + 0.48, encTopY - 0.45, feederCenterZ - 0.40);
+  hopper.position.set(feederCenterX + 0.48, baseH + 1.95, feederCenterZ - 0.40);
   mGroup.add(hopper);
 
   const hopperChute = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.35, 0.18), chromeMat);
-  hopperChute.position.set(feederCenterX + 0.36, encTopY - 0.78, feederCenterZ - 0.28);
+  hopperChute.position.set(feederCenterX + 0.36, baseH + 1.62, feederCenterZ - 0.28);
   hopperChute.rotation.z = -0.35;
   mGroup.add(hopperChute);
+
+  // Vertical stainless support post for bulk hopper mounted on deck
+  const hopperPost = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 1.95, 12), chromeMat);
+  hopperPost.position.set(feederCenterX + 0.48, baseH + 0.04 + 1.95 / 2, feederCenterZ - 0.40);
+  mGroup.add(hopperPost);
 
   // Linear Vibrating Feeder Track exiting bowl towards the left welding station
   const linearTrack = new THREE.Mesh(new THREE.BoxGeometry(1.55, 0.05, 0.16), chromeMat);
@@ -474,12 +299,12 @@ function buildSpoutMachine(st, rollersOut, reciprocatorsOut, extraWorkersOut) {
   // Twin Horizontal Foreground Pneumatic Cylinders with Chrome Rods (Foreground of Image 3)
   [-0.32, 0.32].forEach(function (cyOff) {
     const fgCyl = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.16, 0.42), aluminumFrameMat);
-    fgCyl.position.set(weldX + cyOff, baseH + 0.24, encHalfD - 0.12);
+    fgCyl.position.set(weldX + cyOff, baseH + 0.24, baseD / 2 - 0.12);
     mGroup.add(fgCyl);
 
     const fgRod = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 0.38, 12), chromeMat);
     fgRod.rotation.x = Math.PI / 2;
-    fgRod.position.set(weldX + cyOff, baseH + 0.24, encHalfD + 0.16);
+    fgRod.position.set(weldX + cyOff, baseH + 0.24, baseD / 2 + 0.16);
     mGroup.add(fgRod);
   });
 
@@ -618,11 +443,16 @@ function buildSpoutMachine(st, rollersOut, reciprocatorsOut, extraWorkersOut) {
   mGroup.add(bluBtn);
 
   // =========================================================================
-  // 8. PC WORKSTATION WITH MACHINE HMI MONITOR (Image 3 signature)
-  // Mounted on articulated arm on right side of enclosure
+  // 6. PC WORKSTATION WITH MACHINE HMI MONITOR (Image 3 signature)
+  // Mounted on articulated arm on right side of machine base
   // =========================================================================
   const pcArmGroup = new THREE.Group();
-  pcArmGroup.position.set(baseW / 2 + 0.15, baseH + 0.95, encHalfD - 0.25);
+  pcArmGroup.position.set(baseW / 2 + 0.15, baseH + 0.95, baseD / 2 - 0.25);
+
+  // Vertical mounting post from base deck
+  const pcPost = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 0.95, 12), darkSteel);
+  pcPost.position.set(baseW / 2 + 0.15, baseH + 0.95 / 2, baseD / 2 - 0.25);
+  mGroup.add(pcPost);
 
   // Articulated mounting pipe bracket
   const pcArm1 = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 0.45, 12), darkSteel);
