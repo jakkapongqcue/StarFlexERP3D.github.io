@@ -371,28 +371,37 @@ function buildSpoutMachine(st, rollersOut, reciprocatorsOut, extraWorkersOut) {
   });
 
   // -------------------------------------------------------------------------
-  // SPOUT POUCHES LYING FLAT ON GREEN BELT (Image 1 signature & User Answer A3)
-  // Hygiene Refill pouches with white corner spouts, spaced along the belt
+  // SPOUT POUCHES ON GREEN BELT
+  // Pouch 1: Exiting under hold-down roller, lying flat
+  // Pouch 2: Finished Spouted Stand-Up Pouch sample standing upright on belt!
+  //          Shifted downstream away from the machine body (per user request)
   // -------------------------------------------------------------------------
-  [
-    rollerStationX - 0.55, // just exiting under hold-down roller
-    rollerStationX + 0.35, // traveling along belt
-    rollerStationX + 1.25  // approaching packaging end
-  ].forEach(function (pxOff, pIdx) {
-    const convPouch = createPouchMesh({
-      hasSpout: true,
-      spoutColor: 0xffffff, // White screw cap matching factory photos
-      width: 0.44,
-      height: 0.58,
-      depth: 0.085,
-      isCornerSpout: true
-    });
-    // Lying flat on the green belt
-    convPouch.position.set(pxOff, convH + 0.045, convCenterZ + (pIdx % 2 === 0 ? 0.03 : -0.03));
-    convPouch.rotation.x = -Math.PI / 2;
-    convPouch.rotation.z = (pIdx % 2 === 0 ? -0.06 : 0.06);
-    mGroup.add(convPouch);
+  // 1. Pouch exiting under roller (lying flat)
+  const flatSpoutPouch = createPouchMesh({
+    hasSpout: true,
+    spoutColor: 0xffffff, // White screw cap matching factory photos
+    width: 0.44,
+    height: 0.58,
+    depth: 0.085,
+    isCornerSpout: true
   });
+  flatSpoutPouch.position.set(rollerStationX + 0.25, convH + 0.045, convCenterZ + 0.02);
+  flatSpoutPouch.rotation.x = -Math.PI / 2;
+  flatSpoutPouch.rotation.z = -0.06;
+  mGroup.add(flatSpoutPouch);
+
+  // 2. Sample Spouted Stand-Up Pouch (standing upright, spaced away from machine)
+  const sampleSpoutPouch = createPouchMesh({
+    hasSpout: true,
+    spoutColor: 0xffffff,
+    width: 0.44,
+    height: 0.58,
+    depth: 0.085,
+    isCornerSpout: true
+  });
+  sampleSpoutPouch.position.set(rollerStationX + 1.25, convH + 0.045, convCenterZ);
+  sampleSpoutPouch.rotation.set(0, 0.18, 0); // Upright stand-up pouch sample facing viewer
+  mGroup.add(sampleSpoutPouch);
 
   // -------------------------------------------------------------------------
   // ANGLED OPERATOR CONTROL PUSH-BUTTON CONSOLE (Image 1 signature)

@@ -602,11 +602,10 @@ function buildBagMachine(st, rollersOut, reciprocatorsOut, extraWorkersOut) {
     outfeedGroup.add(swMesh);
   });
 
-  // 5G. 3 Finished Pouches Centered on the Green Belt (Belt Center z = -0.05)
-  // In createPouchMesh: local Y spans 0..height, which with rotation.x = -Math.PI/2 maps to world Z = pz - y.
-  // Setting pz = -0.05 + pouchH / 2 perfectly centers the pouch span (-0.27 to +0.17) right at z = -0.05!
+  // 5G. Finished Pouches on the Green Belt (Belt Center z = -0.05)
+  // Pouches 1 & 2: Lying flat on the conveyor as they travel from the cutter
   const pouchH = 0.44;
-  [2.98, 3.62, 4.26].forEach(function (px) {
+  [2.98, 3.62].forEach(function (px) {
     const pouch = createPouchMesh({
       hasSpout: false,
       width: 0.32,
@@ -617,6 +616,17 @@ function buildBagMachine(st, rollersOut, reciprocatorsOut, extraWorkersOut) {
     pouch.position.set(px, convH + 0.048, -0.05 + pouchH / 2);
     outfeedGroup.add(pouch);
   });
+
+  // Pouch 3 (Sample Stand-Up Pouch circled by user): Standing upright on the belt
+  const samplePouchBag = createPouchMesh({
+    hasSpout: false,
+    width: 0.32,
+    height: pouchH,
+    depth: 0.05
+  });
+  samplePouchBag.position.set(4.26, convH + 0.048, -0.05);
+  samplePouchBag.rotation.set(0, 0.15, 0); // Upright sample facing viewer
+  outfeedGroup.add(samplePouchBag);
 
   // Open Corrugated Carton Box at the End of the Conveyor collecting Pouches
   const endCartonStand = new THREE.Mesh(new THREE.BoxGeometry(0.75, 0.45, 0.85), darkSteel);
