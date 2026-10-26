@@ -6,8 +6,7 @@
    3. Vibratory bowl feeder: white cylindrical drive base, stainless spiral bowl filled
       with white plastic spouts, overhead bulk hopper with support post, and linear vibrating track
    4. Triple digital temperature/pressure controllers with bright red LED 7-segment readouts
-   5. Bundles of flexible red & blue polyurethane pneumatic tubes, solenoid manifold, and blue plug
-   6. Ultrasonic welding press head with vertical slide guide, dual foreground cylinders & reciprocating horn
+   5. Ultrasonic welding press head with vertical slide guide, dual foreground cylinders & reciprocating horn
    7. Outfeed green flat belt conveyor oriented parallel to production line (West to East)
    8. 3-ring hold-down roller assembly riding on exiting pouches, angled operator console with red E-Stop
    9. Finished Hygiene pouches with white corner spouts spaced on the green belt
@@ -48,10 +47,6 @@ function buildSpoutMachine(st, rollersOut, reciprocatorsOut, extraWorkersOut) {
 
   // White plastic spout fitment material
   const whiteSpoutMat = new THREE.MeshLambertMaterial({ color: 0xf8fafc });
-
-  // Pneumatic polyurethane lines (flexible tubes)
-  const blueTubeMat = new THREE.MeshLambertMaterial({ color: 0x2563eb });
-  const redTubeMat  = new THREE.MeshLambertMaterial({ color: 0xdc2626 });
 
   // Corrugated cardboard box material
   const kraftBoxMat = new THREE.MeshLambertMaterial({ color: 0xd97706 });
@@ -241,20 +236,8 @@ function buildSpoutMachine(st, rollersOut, reciprocatorsOut, extraWorkersOut) {
   glove.rotation.y = 0.42;
   mGroup.add(glove);
 
-  // Bundles of Red & Blue Flexible Pneumatic Polyurethane Tubing (Matching factory photo Image 2)
-  const tubeClusterX = 0.15;
-  const tubeClusterZ = -0.30;
-  [-0.08, -0.03, 0.03, 0.08].forEach(function (tx, idx) {
-    const mat = (idx % 2 === 0) ? blueTubeMat : redTubeMat;
-    const tubeGeo = new THREE.CylinderGeometry(0.014, 0.014, 0.95, 8);
-    const tube = new THREE.Mesh(tubeGeo, mat);
-    tube.position.set(tubeClusterX + tx, baseH + 0.55, tubeClusterZ);
-    tube.rotation.z = (idx - 1.5) * 0.08;
-    mGroup.add(tube);
-  });
-
   // =========================================================================
-  // 6. ULTRASONIC WELDING COLUMN & RECIPROCATING HORN (Left Enclosure)
+  // 5. ULTRASONIC WELDING COLUMN & RECIPROCATING HORN (Left Workstation)
   // =========================================================================
   const weldX = -0.95;
   const weldZ = 0.15;
