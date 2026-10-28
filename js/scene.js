@@ -742,9 +742,16 @@
         let workerX = 0;
         let workerZ = isRow1 ? 1.8 : -1.8;
         let workerYaw = isRow1 ? Math.PI : 0;
-        if (st.id === 'ST_SLIT') {
+        if (st.id === 'ST_LAM') {
+          // Move worker forward outside machine base and vertical pillars
+          workerX = 0;
+          workerZ = -2.85;
+          workerYaw = 0;
+        } else if (st.id === 'ST_SLIT') {
           workerColor = 0x10b981; // Green shirt worker matching Slit reference image
-          workerX = -0.4;
+          workerX = -0.8;
+          workerZ = -2.85; // Move worker forward outside master unwind roll and base bed
+          workerYaw = 0;
         } else if (st.id === 'ST_BAG') {
           // Photo 5: Operator in grey polo & cap standing at the far/North side of the green outfeed conveyor belt
           workerColor = 0x475569;

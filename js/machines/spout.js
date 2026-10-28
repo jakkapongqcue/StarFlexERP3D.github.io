@@ -580,19 +580,12 @@ function buildSpoutMachine(st, rollersOut, reciprocatorsOut, extraWorkersOut) {
 
   mGroup.userData.updateAnimation = updateSpoutPouchAnimation;
 
-    // Industrial Wooden Pallet loaded with Finished Spout Pouch Cartons beside the machine (media_1792732066355)
-  const palX = 3.6;
-  const palZ = 2.15;
-  // 3 Kraft Corrugated Carton Boxes with white tape along front-left edge resting on floor (matching Bag workstation style)
-  [-3.0, -1.9, -0.8].forEach(function (bx) {
-    const fBox = createKraftCartonBox(1.05, 0.82, 1.05, 'z');
-    fBox.position.set(bx, 0.0, 2.2);
-    mGroup.add(fBox);
-  });
-
+  // Industrial Wooden Pallet loaded with Finished Spout Pouch Cartons relocated to North/Back side behind conveyor
+  const palX = 3.85;
+  const palZ = -1.65;
   const spoutPalletGroup = createStandardBoxPallet({ width: 1.9, depth: 1.45, tiers: 2, hasWrap: true });
   spoutPalletGroup.position.set(palX, 0.0, palZ);
-  spoutPalletGroup.rotation.y = 0.08;
+  spoutPalletGroup.rotation.y = -0.05;
   mGroup.add(spoutPalletGroup);
 
   return mGroup;

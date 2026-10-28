@@ -730,7 +730,7 @@ function buildBagMachine(st, rollersOut, reciprocatorsOut, extraWorkersOut) {
 
   /* =========================================================================
      STAGE 6: FINISHED GOODS SHRINK-WRAPPED BOX PALLET BESIDE OUTFEED
-     (Relocated to South/Near Foreground per user red-line layout request)
+     (Relocated to North/Back side behind conveyor per user layout request)
      ========================================================================= */
   const bagPalletGroup = createStandardBoxPallet({
     width: 1.85,
@@ -738,7 +738,7 @@ function buildBagMachine(st, rollersOut, reciprocatorsOut, extraWorkersOut) {
     tiers: 2,
     hasWrap: true
   });
-  bagPalletGroup.position.set(4.85, 0.0, 1.45);
+  bagPalletGroup.position.set(4.85, 0.0, -1.85);
   bagPalletGroup.rotation.y = -0.05;
   mGroup.add(bagPalletGroup);
 
