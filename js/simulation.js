@@ -1236,6 +1236,9 @@
           const stObj = sceneObjects.stationObjs[st.id];
           if (!stObj) return;
           const inputReady = (appState.simStatus === 'RUNNING') && isStationInputReady(st.id);
+          if (stObj.machineModel && stObj.machineModel.userData && typeof stObj.machineModel.userData.updateAnimation === 'function') {
+            stObj.machineModel.userData.updateAnimation(dt, scaledDt, inputReady, nowSec);
+          }
           if (inputReady) {
             const fastSpin = scaledDt * 7.2;
             stObj.rollers.forEach(function (r) { r.rotation.y -= fastSpin; });

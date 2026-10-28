@@ -602,50 +602,135 @@ function buildBagMachine(st, rollersOut, reciprocatorsOut, extraWorkersOut) {
     outfeedGroup.add(swMesh);
   });
 
-  // 5G. Finished Pouches on the Green Belt (Belt Center z = -0.05)
-  // Pouches 1 & 2: Lying flat on the conveyor as they travel from the cutter
+  // 5G. Finished Pouches & Animated Outfeed Stream
   const pouchH = 0.44;
-  [2.98, 3.62].forEach(function (px) {
-    const pouch = createPouchMesh({
+
+  // Upright Sample Stand-Up Pouch displayed prominently on the front table ledge (cleanly separated from moving belt)
+  const sampleTablePouch = createPouchMesh({
+    hasSpout: false,
+    width: 0.30,
+    height: pouchH,
+    depth: 0.05
+  });
+  sampleTablePouch.position.set(3.85, convH + 0.048, 0.44);
+  sampleTablePouch.rotation.set(0, 0.15, 0); // Upright sample facing viewer
+  outfeedGroup.add(sampleTablePouch);
+
+  // Open Corrugated Carton Box at the End of the Conveyor collecting Pouches
+  const endCartonStand = new THREE.Mesh(new THREE.BoxGeometry(0.75, 0.24, 0.85), darkSteel);
+  endCartonStand.position.set(5.02, 0.12, -0.05);
+  outfeedGroup.add(endCartonStand);
+
+  const openCarton = createKraftCartonBox({
+    width: 0.78,
+    height: 0.52,
+    depth: 0.88,
+    openTop: true
+  });
+  openCarton.position.set(5.02, 0.24, -0.05);
+  outfeedGroup.add(openCarton);
+
+  // Static accumulated finished pouches resting inside the open carton
+  const inCartonPouch1 = createPouchMesh({ hasSpout: false, width: 0.30, height: pouchH, depth: 0.05 });
+  inCartonPouch1.rotation.set(-Math.PI / 2 + 0.22, 0.1, -0.15);
+  inCartonPouch1.position.set(4.95, 0.31, 0.10);
+  outfeedGroup.add(inCartonPouch1);
+
+  const inCartonPouch2 = createPouchMesh({ hasSpout: false, width: 0.30, height: pouchH, depth: 0.05 });
+  inCartonPouch2.rotation.set(-Math.PI / 2 + 0.10, -0.25, 0.20);
+  inCartonPouch2.position.set(5.08, 0.34, 0.22);
+  outfeedGroup.add(inCartonPouch2);
+
+  const inCartonPouch3 = createPouchMesh({ hasSpout: false, width: 0.30, height: pouchH, depth: 0.05 });
+  inCartonPouch3.rotation.set(-Math.PI / 2 - 0.10, 0.15, -0.05);
+  inCartonPouch3.position.set(4.98, 0.37, 0.17);
+  outfeedGroup.add(inCartonPouch3);
+
+  // Dynamic Animated Pouches emerging from cutter, travelling down belt & dropping into box
+  // baseZ = -0.05 + pouchH / 2 = +0.17 shifts the pouch so its center is exactly at -0.05 (centered on green belt)
+  const bagBeltCenterZ = -0.05 + pouchH / 2;
+  const animatedPouches = [];
+  const pouchCount = 4;
+  for (let i = 0; i < pouchCount; i++) {
+    const pMesh = createPouchMesh({
       hasSpout: false,
       width: 0.32,
       height: pouchH,
       depth: 0.05
     });
-    pouch.rotation.x = -Math.PI / 2;
-    pouch.position.set(px, convH + 0.048, -0.05 + pouchH / 2);
-    outfeedGroup.add(pouch);
-  });
+    pMesh.rotation.x = -Math.PI / 2;
+    pMesh.position.set(2.40, convH + 0.048, bagBeltCenterZ);
+    outfeedGroup.add(pMesh);
+    animatedPouches.push(pMesh);
+  }
 
-  // Pouch 3 (Sample Stand-Up Pouch circled by user): Standing upright on the belt
-  const samplePouchBag = createPouchMesh({
-    hasSpout: false,
-    width: 0.32,
-    height: pouchH,
-    depth: 0.05
-  });
-  samplePouchBag.position.set(4.26, convH + 0.048, -0.05);
-  samplePouchBag.rotation.set(0, 0.15, 0); // Upright sample facing viewer
-  outfeedGroup.add(samplePouchBag);
+  let pouchProgress = 0;
+  function updateBagPouchAnimation(dt, scaledDt, isRunning, nowSec) {
+    // Continuous smooth animation: fast when running/inputReady, gentle when idle
+    const speed = isRunning ? (scaledDt * 0.28) : (dt * 0.08);
+    pouchProgress = (pouchProgress + speed) % 1.0;
 
-  // Open Corrugated Carton Box at the End of the Conveyor collecting Pouches
-  const endCartonStand = new THREE.Mesh(new THREE.BoxGeometry(0.75, 0.45, 0.85), darkSteel);
-  endCartonStand.position.set(5.02, 0.225, -0.05);
-  outfeedGroup.add(endCartonStand);
+    const startX = 2.40;
+    const endBeltX = 4.60;
+    const cartonX = 5.02;
+    const beltY = convH + 0.048; // 0.848
+    const cartonDropY = 0.36;
+    const baseZ = bagBeltCenterZ; // Centered exactly along belt center (-0.05)
 
-  const openCarton = createKraftCartonBox({
-    width: 0.78,
-    height: 0.54,
-    depth: 0.88,
-    openTop: true
-  });
-  openCarton.position.set(5.02, 0.45, -0.05);
-  outfeedGroup.add(openCarton);
+    for (let i = 0; i < pouchCount; i++) {
+      const p = animatedPouches[i];
+      const u = (pouchProgress + i * (1.0 / pouchCount)) % 1.0;
+
+      if (u < 0.74) {
+        // Phase 1: Conveyor belt transit (flat on belt)
+        const t = u / 0.74;
+        p.position.x = startX + (endBeltX - startX) * t;
+        p.position.y = beltY;
+        p.position.z = baseZ;
+        p.rotation.set(-Math.PI / 2, 0, 0);
+
+        // Smooth emergence under cutter
+        if (t < 0.08) {
+          const s = 0.2 + 0.8 * (t / 0.08);
+          p.scale.set(s, s, s);
+        } else {
+          p.scale.set(1, 1, 1);
+        }
+        p.visible = true;
+      } else if (u < 0.94) {
+        // Phase 2: Parabolic tumble & drop into open carton box
+        const t = (u - 0.74) / 0.20;
+        p.position.x = endBeltX + (cartonX - endBeltX) * t;
+        p.position.y = beltY - (beltY - cartonDropY) * (t * t);
+        p.position.z = baseZ + 0.02 * Math.sin(t * Math.PI);
+
+        // Tilt forward & downward into the box
+        p.rotation.set(-Math.PI / 2 + 0.85 * t, 0.15 * t, -0.22 * t);
+        p.scale.set(1, 1, 1);
+        p.visible = true;
+      } else {
+        // Phase 3: Settle inside carton box and blend into accumulated pack
+        const t = (u - 0.94) / 0.06;
+        p.position.x = cartonX;
+        p.position.y = cartonDropY;
+        p.position.z = baseZ;
+        p.rotation.set(-Math.PI / 2 + 0.85, 0.15, -0.22);
+
+        const s = Math.max(0.01, 1.0 - t * 0.95);
+        p.scale.set(s, s, s);
+        p.visible = (t < 0.9);
+      }
+    }
+  }
+
+  // Register animation hook on machineModel
+  mGroup.userData.updateAnimation = updateBagPouchAnimation;
 
   mGroup.add(outfeedGroup);
 
   /* =========================================================================
      STAGE 6: FINISHED GOODS SHRINK-WRAPPED BOX PALLET BESIDE OUTFEED
+     (Relocated to South/Near Foreground per user red-line layout request)
      ========================================================================= */
   const bagPalletGroup = createStandardBoxPallet({
     width: 1.85,
@@ -653,7 +738,7 @@ function buildBagMachine(st, rollersOut, reciprocatorsOut, extraWorkersOut) {
     tiers: 2,
     hasWrap: true
   });
-  bagPalletGroup.position.set(4.75, 0.0, -1.85);
+  bagPalletGroup.position.set(4.85, 0.0, 1.45);
   bagPalletGroup.rotation.y = -0.05;
   mGroup.add(bagPalletGroup);
 

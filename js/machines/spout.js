@@ -371,35 +371,22 @@ function buildSpoutMachine(st, rollersOut, reciprocatorsOut, extraWorkersOut) {
   });
 
   // -------------------------------------------------------------------------
-  // SPOUT POUCHES ON GREEN BELT
-  // Pouch 1: Exiting under hold-down roller, lying flat
-  // Pouch 2: Finished Spouted Stand-Up Pouch sample standing upright on belt!
-  //          Shifted downstream away from the machine body (per user request)
+  // SAMPLE SPOUTED STAND-UP POUCH DISPLAY
+  // Mounted on side display perch along outer conveyor rail (cleanly separated from moving belt)
   // -------------------------------------------------------------------------
-  // 1. Pouch exiting under roller (lying flat)
-  const flatSpoutPouch = createPouchMesh({
-    hasSpout: true,
-    spoutColor: 0xffffff, // White screw cap matching factory photos
-    width: 0.44,
-    height: 0.58,
-    depth: 0.085,
-    isCornerSpout: true
-  });
-  flatSpoutPouch.position.set(rollerStationX + 0.25, convH + 0.045, convCenterZ + 0.02);
-  flatSpoutPouch.rotation.x = -Math.PI / 2;
-  flatSpoutPouch.rotation.z = -0.06;
-  mGroup.add(flatSpoutPouch);
+  const samplePerch = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.03, 0.22), chromeMat);
+  samplePerch.position.set(3.40, convH + 0.02, convCenterZ + convW / 2 + 0.10);
+  mGroup.add(samplePerch);
 
-  // 2. Sample Spouted Stand-Up Pouch (standing upright, spaced away from machine)
   const sampleSpoutPouch = createPouchMesh({
     hasSpout: true,
     spoutColor: 0xffffff,
-    width: 0.44,
-    height: 0.58,
-    depth: 0.085,
+    width: 0.38,
+    height: 0.52,
+    depth: 0.075,
     isCornerSpout: true
   });
-  sampleSpoutPouch.position.set(rollerStationX + 1.25, convH + 0.045, convCenterZ);
+  sampleSpoutPouch.position.set(3.40, convH + 0.035, convCenterZ + convW / 2 + 0.10);
   sampleSpoutPouch.rotation.set(0, 0.18, 0); // Upright stand-up pouch sample facing viewer
   mGroup.add(sampleSpoutPouch);
 
@@ -498,9 +485,28 @@ function buildSpoutMachine(st, rollersOut, reciprocatorsOut, extraWorkersOut) {
   packBox1.position.set(convCenterX + convL / 2 + 0.35, 0.0, convCenterZ);
   mGroup.add(packBox1);
 
-  // Finished spouted pouches standing packed inside box
-  for (let pb = 0; pb < 3; pb++) {
-    const packedPouch = createPouchMesh({
+  // Finished spouted pouches resting packed inside box (centered inside packing box)
+  const spoutBeltCenterZ = convCenterZ + 0.28; // Centers pouch (width & cap) symmetrically on green belt (0.28)
+  const inCartonSpout1 = createPouchMesh({ hasSpout: true, spoutColor: 0xffffff, width: 0.36, height: 0.50, depth: 0.07, isCornerSpout: true });
+  inCartonSpout1.rotation.set(-Math.PI / 2 + 0.20, 0.10, -0.15);
+  inCartonSpout1.position.set(convCenterX + convL / 2 + 0.25, 0.20, spoutBeltCenterZ - 0.08);
+  mGroup.add(inCartonSpout1);
+
+  const inCartonSpout2 = createPouchMesh({ hasSpout: true, spoutColor: 0xffffff, width: 0.36, height: 0.50, depth: 0.07, isCornerSpout: true });
+  inCartonSpout2.rotation.set(-Math.PI / 2 + 0.08, -0.22, 0.18);
+  inCartonSpout2.position.set(convCenterX + convL / 2 + 0.42, 0.24, spoutBeltCenterZ + 0.06);
+  mGroup.add(inCartonSpout2);
+
+  const inCartonSpout3 = createPouchMesh({ hasSpout: true, spoutColor: 0xffffff, width: 0.36, height: 0.50, depth: 0.07, isCornerSpout: true });
+  inCartonSpout3.rotation.set(-Math.PI / 2 - 0.10, 0.12, -0.05);
+  inCartonSpout3.position.set(convCenterX + convL / 2 + 0.32, 0.28, spoutBeltCenterZ);
+  mGroup.add(inCartonSpout3);
+
+  // Dynamic Animated Spouted Pouches emerging from machine, travelling down conveyor & dropping into carton
+  const animatedSpoutPouches = [];
+  const spoutPouchCount = 4;
+  for (let i = 0; i < spoutPouchCount; i++) {
+    const pMesh = createPouchMesh({
       hasSpout: true,
       spoutColor: 0xffffff,
       width: 0.38,
@@ -508,10 +514,71 @@ function buildSpoutMachine(st, rollersOut, reciprocatorsOut, extraWorkersOut) {
       depth: 0.075,
       isCornerSpout: true
     });
-    packedPouch.position.set(convCenterX + convL / 2 + 0.20 + pb * 0.15, 0.62, convCenterZ);
-    packedPouch.rotation.z = -0.15;
-    mGroup.add(packedPouch);
+    pMesh.rotation.x = -Math.PI / 2;
+    pMesh.position.set(2.30, convH + 0.045, spoutBeltCenterZ);
+    mGroup.add(pMesh);
+    animatedSpoutPouches.push(pMesh);
   }
+
+  let spoutPouchProgress = 0;
+  function updateSpoutPouchAnimation(dt, scaledDt, isRunning, nowSec) {
+    const speed = isRunning ? (scaledDt * 0.26) : (dt * 0.08);
+    spoutPouchProgress = (spoutPouchProgress + speed) % 1.0;
+
+    const startX = 2.30;
+    const endBeltX = convCenterX + convL / 2; // 4.20
+    const cartonX = convCenterX + convL / 2 + 0.35; // 4.55
+    const beltY = convH + 0.045; // 0.825
+    const cartonDropY = 0.32;
+    const baseZ = spoutBeltCenterZ; // Shifted left to dead-center of conveyor track
+
+    for (let i = 0; i < spoutPouchCount; i++) {
+      const p = animatedSpoutPouches[i];
+      const u = (spoutPouchProgress + i * (1.0 / spoutPouchCount)) % 1.0;
+
+      if (u < 0.74) {
+        // Phase 1: Conveyor belt transit (flat on belt)
+        const t = u / 0.74;
+        p.position.x = startX + (endBeltX - startX) * t;
+        p.position.y = beltY;
+        p.position.z = baseZ;
+        p.rotation.set(-Math.PI / 2, 0, -0.06);
+
+        // Smooth emergence under hold-down rollers
+        if (t < 0.08) {
+          const s = 0.2 + 0.8 * (t / 0.08);
+          p.scale.set(s, s, s);
+        } else {
+          p.scale.set(1, 1, 1);
+        }
+        p.visible = true;
+      } else if (u < 0.94) {
+        // Phase 2: Parabolic tumble & drop into open carton box
+        const t = (u - 0.74) / 0.20;
+        p.position.x = endBeltX + (cartonX - endBeltX) * t;
+        p.position.y = beltY - (beltY - cartonDropY) * (t * t);
+        p.position.z = baseZ + 0.02 * Math.sin(t * Math.PI);
+
+        // Tilt forward & downward into the box
+        p.rotation.set(-Math.PI / 2 + 0.80 * t, 0.12 * t, -0.20 * t);
+        p.scale.set(1, 1, 1);
+        p.visible = true;
+      } else {
+        // Phase 3: Settle inside carton box and blend into accumulated pack
+        const t = (u - 0.94) / 0.06;
+        p.position.x = cartonX;
+        p.position.y = cartonDropY;
+        p.position.z = baseZ;
+        p.rotation.set(-Math.PI / 2 + 0.80, 0.12, -0.20);
+
+        const s = Math.max(0.01, 1.0 - t * 0.95);
+        p.scale.set(s, s, s);
+        p.visible = (t < 0.9);
+      }
+    }
+  }
+
+  mGroup.userData.updateAnimation = updateSpoutPouchAnimation;
 
     // Industrial Wooden Pallet loaded with Finished Spout Pouch Cartons beside the machine (media_1792732066355)
   const palX = 3.6;

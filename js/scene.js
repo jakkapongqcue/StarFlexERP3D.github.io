@@ -746,12 +746,12 @@
           workerColor = 0x10b981; // Green shirt worker matching Slit reference image
           workerX = -0.4;
         } else if (st.id === 'ST_BAG') {
-          // Photo 5: Operator in grey polo & cap standing at the end of the green outfeed conveyor belt
+          // Photo 5: Operator in grey polo & cap standing at the far/North side of the green outfeed conveyor belt
           workerColor = 0x475569;
           hatColor = 0xcbd5e1;
           workerX = 4.15;
-          workerZ = 0.92;
-          workerYaw = Math.PI;
+          workerZ = -0.92;
+          workerYaw = 0;
         }
         const worker = createWorkerMesh(workerColor, hatColor);
         worker.position.set(workerX, 0.0, workerZ);
@@ -787,6 +787,7 @@
 
         sceneObjects.stationObjs[st.id] = {
           group: stGroup,
+          machineModel: machineModel,
           baseMesh: null,
           infeedBay: infeedBay,
           outfeedBay: outfeedBay,
