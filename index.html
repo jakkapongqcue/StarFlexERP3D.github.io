@@ -245,11 +245,11 @@
             <span
               id="routePreviewText"
               style="font-size: 10.5px; color: var(--accent)"
-              >5 steps</span
+              >7 active processes</span
             >
           </div>
           <div class="seg-group" id="productTypeGroup">
-            <button type="button" class="seg-btn active" data-product="FG_ROLL">
+            <button type="button" class="seg-btn" data-product="FG_ROLL">
               <svg
                 viewBox="0 0 36 36"
                 stroke-width="2"
@@ -281,7 +281,7 @@
               </svg>
               <span>FG Bag</span>
             </button>
-            <button type="button" class="seg-btn" data-product="FG_SPOUT">
+            <button type="button" class="seg-btn active" data-product="FG_SPOUT">
               <svg
                 viewBox="0 0 36 36"
                 stroke-width="2"
@@ -369,7 +369,7 @@
                 type="number"
                 id="orderQtyInput"
                 class="form-input"
-                value="20"
+                value="3000"
                 min="1"
                 step="1"
               />
@@ -378,9 +378,7 @@
                 class="form-select"
                 style="max-width: 120px"
               >
-                <option value="roll">roll</option>
-                <option value="meter">meter</option>
-                <option value="kilogram">kilogram</option>
+                <option value="pieces" selected>pieces</option>
               </select>
             </div>
             <div class="preset-row" id="qtyPresetRow"></div>
@@ -543,10 +541,6 @@
               <span class="material-symbols-outlined">center_focus_strong</span>
               <span>Reset View</span>
             </button>
-          </div>
-          <div class="toggle-row">
-            <label for="showLabelsToggle">Show 3D material name labels</label>
-            <input type="checkbox" id="showLabelsToggle" />
           </div>
           <div class="toggle-row">
             <label for="simSpeedSelect">Simulation Speed</label>

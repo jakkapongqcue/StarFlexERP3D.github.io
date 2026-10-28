@@ -263,9 +263,9 @@
         }
       })(),                      // 'light' | 'dark' | 'system'
       inputMode: 'MINIMAL',      // 'MINIMAL' | 'DETAILED'
-      productType: 'FG_ROLL',    // 'FG_ROLL' | 'FG_BAG' | 'FG_SPOUT'
-      quantity: 20,
-      unit: 'roll',              // 'roll' | 'meter' | 'kilogram' | 'pieces'
+      productType: 'FG_SPOUT',   // 'FG_ROLL' | 'FG_BAG' | 'FG_SPOUT'
+      quantity: 3000,
+      unit: 'pieces',            // 'roll' | 'meter' | 'kilogram' | 'pieces'
       filmSource: 'INHOUSE',     // 'INHOUSE' | 'PURCHASED'
       piecesPerBox: 300,
       metersPerRoll: 1000,
@@ -273,7 +273,6 @@
       skipSlit: false,
       wasteByStep: Object.assign({}, DEFAULT_WASTE_MAP),
       stationTiming: JSON.parse(JSON.stringify(DEFAULT_TIMING_MAP)),
-      showMaterialLabels: false,
       followFlow: false,
       loopRun: false,
       loopCycleCount: 0,

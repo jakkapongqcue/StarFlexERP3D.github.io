@@ -162,7 +162,7 @@
           lbl.el.style.display = 'none';
           return;
         }
-        if (lbl.isMaterialTag && (!appState.showMaterialLabels || hideSmallTags)) {
+        if (lbl.isMaterialTag) {
           lbl.el.style.display = 'none';
           return;
         }

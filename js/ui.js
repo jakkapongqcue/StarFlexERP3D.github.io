@@ -858,10 +858,6 @@
         });
       }
 
-      document.getElementById('showLabelsToggle').addEventListener('change', function (ev) {
-        appState.showMaterialLabels = ev.target.checked;
-      });
-
       document.getElementById('simSpeedSelect').addEventListener('change', function (ev) {
         appState.simSpeed = Number(ev.target.value) || 1;
       });
