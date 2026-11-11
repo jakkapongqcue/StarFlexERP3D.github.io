@@ -24,9 +24,9 @@
     <link rel="stylesheet" href="css/style.css" />
   </head>
   <body>
-    <!-- 3D Scene & Model Loading Screen Overlay -->
+    <!-- Loading Screen Overlay (Matches Factory Layout 3D Design) -->
     <div
-      id="loadingScreen"
+      id="loading-screen"
       class="loading-screen"
       role="progressbar"
       aria-label="Loading 3D Factory Models"
@@ -34,43 +34,23 @@
       aria-valuemax="100"
       aria-valuenow="0"
     >
-      <div class="loading-backdrop"></div>
       <div class="loading-content">
-        <div class="loading-logo-card">
+        <div class="loading-logo-wrapper">
           <img
-            src="img/Starflex_logo.png"
+            src="img/favicon.png"
             alt="Starflex Logo"
-            class="loading-logo"
+            class="loading-logo-img"
           />
+          <div class="loading-spinner-ring"></div>
         </div>
-
-        <div class="loading-title-group">
-          <h1 class="loading-title">Starflex ERP 3D</h1>
-          <p class="loading-subtitle">
-            Linear Flexible Packaging Factory Simulator
-          </p>
+        <h2 class="loading-title">Starflex Factory 3D</h2>
+        <p id="loading-status-text" class="loading-desc">
+          กำลังเตรียมโมเดลจำลองโรงงาน 3D...
+        </p>
+        <div class="loading-bar-container">
+          <div id="loading-bar-fill" class="loading-bar-fill"></div>
         </div>
-
-        <div class="loading-progress-container">
-          <div class="loading-bar-track">
-            <div id="loadingBarFill" class="loading-bar-fill" style="width: 0%">
-              <div class="loading-bar-shimmer"></div>
-            </div>
-          </div>
-          <div class="loading-info-row">
-            <span id="loadingStatusText" class="loading-status-text"
-              >กำลังเริ่มต้นระบบ 3D Simulator...</span
-            >
-            <span id="loadingPercentText" class="loading-percent-text">0%</span>
-          </div>
-        </div>
-
-        <div class="loading-footer">
-          <div class="loading-spinner"></div>
-          <span class="loading-tip"
-            >กำลังโหลดและประกอบโมเดล 3 มิติ...</span
-          >
-        </div>
+        <span id="loading-pct-text" class="loading-pct">0%</span>
       </div>
     </div>
 

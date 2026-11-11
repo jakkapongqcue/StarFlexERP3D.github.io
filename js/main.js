@@ -2,10 +2,10 @@
    7. INITIALIZATION & MAIN ANIMATION LOOP
    ========================================================================= */
 async function initApplication() {
-  const loadingEl = document.getElementById('loadingScreen');
-  const barFillEl = document.getElementById('loadingBarFill');
-  const percentEl = document.getElementById('loadingPercentText');
-  const statusEl = document.getElementById('loadingStatusText');
+  const loadingEl = document.getElementById('loading-screen') || document.getElementById('loadingScreen');
+  const barFillEl = document.getElementById('loading-bar-fill') || document.getElementById('loadingBarFill');
+  const percentEl = document.getElementById('loading-pct-text') || document.getElementById('loadingPercentText');
+  const statusEl = document.getElementById('loading-status-text') || document.getElementById('loadingStatusText');
 
   function updateLoadingUI(pct, text) {
     const rounded = Math.min(100, Math.max(0, Math.round(pct)));
@@ -42,7 +42,7 @@ async function initApplication() {
     recalculateAndRenderUI();
     updateTopHeaderOffsetVar();
 
-    updateLoadingUI(100, 'โหลดโมเดล 3D สำเร็จ พร้อมเปิดใช้งาน!');
+    updateLoadingUI(100, 'พร้อมเข้าสู่แบบจำลอง 3D');
     appendEventLog('Starflex ERP 3D initialized with linear PRD line.');
 
     // Start 60 FPS animation loop
@@ -62,12 +62,13 @@ async function initApplication() {
     // Smooth fade out of the loading screen
     setTimeout(function () {
       if (loadingEl) {
+        loadingEl.classList.add('fade-out');
         loadingEl.classList.add('loading-hidden');
         setTimeout(function () {
           loadingEl.style.display = 'none';
-        }, 650);
+        }, 500);
       }
-    }, 450);
+    }, 350);
 
   } catch (err) {
     console.error('Fatal initialization error:', err);
