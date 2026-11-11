@@ -326,12 +326,7 @@
     }
 
 
-    function buildFactoryScene() {
-      scene.background = new THREE.Color(getCssVar('--scene-sky', '#e8eff7'));
-
-      // Build unified concrete industrial floor, flush zone slabs, safety demarcations & highway
-      buildFactoryFloorSystem(scene, ZONES_CONFIG, sceneObjects, getCssVar, registerLabel3D);
-
+    function buildZone1RMInternal() {
       /* =========================================================================
          BUILD ZONE 1: RM WH (4 SUB-WAREHOUSES MATCHING REFERENCE IMAGE)
          - Top-Left (NW): Cylinder WH (Selective rack + 8 vertical black cylinders)
@@ -703,11 +698,12 @@
       sceneObjects.rmVisualGroups.PURCHASED_FILM = { group: rfGroup, pallets: purMeshes };
       sceneObjects.rmVisualGroups.BLOWN_FILM = { group: rfGroup, pallets: blownMeshes };
       sceneObjects.rmVisualGroups.LAMINATE_FILM = { group: rfGroup, pallets: lamMeshes };
+    }
 
-      // Build Zone 2: 7 PRD Process Stations in 2 Rows with dedicated Infeed & Outfeed bays (User Request)
-      STATIONS_CONFIG.forEach(function (st) {
-        const stGroup = new THREE.Group();
-        stGroup.position.set(st.pos[0], 0.0, st.pos[2]);
+    // Build Zone 2: Single PRD Process Station Model
+    function buildSingleStationMachineInternal(st) {
+      const stGroup = new THREE.Group();
+      stGroup.position.set(st.pos[0], 0.0, st.pos[2]);
 
         const isRow1 = (st.pos[2] < 0);
 
@@ -808,9 +804,10 @@
           inTag: inTag,
           outTag: outTag
         };
-      });
+    }
 
-      // Build PRD WH (Production Warehouse & Curing Area) in Row 2, Column 2 at x = -10, z = +12 (Reference Image Layout)
+    // Build PRD WH (Production Warehouse & Curing Area) in Row 2, Column 2 at x = -10, z = +12 (Reference Image Layout)
+    function buildZonePRD_WHInternal() {
       const prdWhGroup = new THREE.Group();
       prdWhGroup.position.set(-10, 0.0, 12);
 
@@ -993,10 +990,11 @@
       });
       curingRackRow1.position.set(0, 0.0, 3.8);
       prdWhGroup.add(curingRackRow1);
-
       scene.add(prdWhGroup);
+    }
 
-      // Build Zone 3 (Warehouse FG) Multi-Tier Industrial Storage Racks & Delivery Dock (4 Rows matching Reference Image media_1792688947829)
+    // Build Zone 3/4: Warehouse FG Multi-Tier Industrial Storage Racks & Logistics Vehicles
+    function buildZoneFG_WH_AndVehiclesInternal() {
       for (let row = 0; row < 4; row++) {
         const zPos = -13 + row * 9;
         const fgRackGroup = new THREE.Group();
@@ -1254,9 +1252,66 @@
         tag.visible = false;
         vItem.veh.userData.palletTag = tag;
       });
+    }
 
-      // Apply realistic contact shadow flags across all factory scene objects
+    function buildFactoryScene() {
+      scene.background = new THREE.Color(getCssVar('--scene-sky', '#e8eff7'));
+      buildFactoryFloorSystem(scene, ZONES_CONFIG, sceneObjects, getCssVar, registerLabel3D);
+      buildZone1RMInternal();
+      STATIONS_CONFIG.forEach(function (st) {
+        buildSingleStationMachineInternal(st);
+      });
+      buildZonePRD_WHInternal();
+      buildZoneFG_WH_AndVehiclesInternal();
       applyShadowFlags(scene);
+    }
+
+    async function buildFactorySceneAsync(onProgress) {
+      const yieldTick = function () {
+        return new Promise(function (resolve) {
+          requestAnimationFrame(function () {
+            setTimeout(resolve, 20);
+          });
+        });
+      };
+      const notify = function (pct, msg) {
+        if (typeof onProgress === 'function') onProgress(pct, msg);
+      };
+
+      notify(12, 'กำลังสร้างโครงสร้างพื้นโรงงาน & แถบทางเดินความปลอดภัย...');
+      scene.background = new THREE.Color(getCssVar('--scene-sky', '#e8eff7'));
+      buildFactoryFloorSystem(scene, ZONES_CONFIG, sceneObjects, getCssVar, registerLabel3D);
+      await yieldTick();
+
+      notify(26, 'กำลังจัดวางคลังวัตถุดิบ Zone 1 RM (Cylinder, Chemical, Resin)...');
+      buildZone1RMInternal();
+      await yieldTick();
+
+      const totalStations = STATIONS_CONFIG.length;
+      for (let i = 0; i < totalStations; i++) {
+        const st = STATIONS_CONFIG[i];
+        const pct = 30 + Math.round(((i + 1) / totalStations) * 46);
+        notify(pct, 'กำลังประกอบโมเดลเครื่องจักร ' + (i + 1) + '/' + totalStations + ': ' + st.name + '...');
+        buildSingleStationMachineInternal(st);
+        await yieldTick();
+      }
+
+      notify(82, 'กำลังประกอบโมเดลพื้นที่พักและบ่มม้วน (PRD WH & Curing Area)...');
+      buildZonePRD_WHInternal();
+      await yieldTick();
+
+      notify(90, 'กำลังจัดวางคลังสินค้า FG High-Bay Racks & ฝูงรถ Forklift...');
+      buildZoneFG_WH_AndVehiclesInternal();
+      await yieldTick();
+
+      notify(96, 'กำลัง Optimize แสงเงา 3 มิติ และ Shaders...');
+      applyShadowFlags(scene);
+      if (renderer && renderer.compile) {
+        renderer.compile(scene, camera);
+      }
+      await yieldTick();
+
+      notify(100, 'โหลดโมเดลโรงงาน 3 มิติเสร็จสมบูรณ์!');
     }
 
     function setupCameraAndPointerControls() {
