@@ -33,11 +33,11 @@ async function initApplication() {
     renderStationTimingGrid();
     bindAllUIEvents();
 
-    let initTheme = 'light';
     try {
-      initTheme = localStorage.getItem('sf_theme_mode') || 'light';
+      localStorage.removeItem('sf_theme_mode');
     } catch (e) {}
-    applyThemeMode(initTheme);
+    document.documentElement.setAttribute('data-theme', 'light');
+    applyThemeMode();
     syncFollowAndLoopButtonsUI();
     recalculateAndRenderUI();
     updateTopHeaderOffsetVar();

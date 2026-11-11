@@ -255,13 +255,7 @@
        2. APPLICATION STATE
        ========================================================================= */
     const appState = {
-      themeMode: (function () {
-        try {
-          return localStorage.getItem('sf_theme_mode') || 'light';
-        } catch (e) {
-          return 'light';
-        }
-      })(),                      // 'light' | 'dark' | 'system'
+      themeMode: 'light',
       inputMode: 'MINIMAL',      // 'MINIMAL' | 'DETAILED'
       productType: 'FG_SPOUT',   // 'FG_ROLL' | 'FG_BAG' | 'FG_SPOUT'
       quantity: 3000,

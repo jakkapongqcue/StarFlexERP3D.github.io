@@ -29,34 +29,12 @@
       document.documentElement.style.setProperty('--top-header-offset', (h + 10) + 'px');
     }
 
-    function applyThemeMode(mode) {
-      appState.themeMode = mode; // 'light' | 'dark' | 'system'
+    function applyThemeMode() {
+      appState.themeMode = 'light';
       try {
-        localStorage.setItem('sf_theme_mode', mode);
+        localStorage.removeItem('sf_theme_mode');
       } catch (e) {}
-
-      const root = document.documentElement;
-      if (mode === 'system') {
-        root.removeAttribute('data-theme');
-      } else {
-        root.setAttribute('data-theme', mode);
-      }
-
-      const themeMeta = {
-        light: { icon: 'light_mode', label: 'Light' },
-        dark: { icon: 'dark_mode', label: 'Dark' },
-        system: { icon: 'desktop_windows', label: 'System' }
-      }[mode] || { icon: 'light_mode', label: 'Light' };
-
-      const iconEl = document.getElementById('themeDropdownIcon');
-      const labelEl = document.getElementById('themeDropdownLabel');
-      if (iconEl) iconEl.textContent = themeMeta.icon;
-      if (labelEl) labelEl.textContent = themeMeta.label;
-
-      document.querySelectorAll('#themeDropdownMenu .theme-dropdown-item').forEach(function (btn) {
-        btn.classList.toggle('active', btn.getAttribute('data-theme-mode') === mode);
-      });
-
+      document.documentElement.setAttribute('data-theme', 'light');
       refresh3DSceneThemeColors();
     }
 
@@ -951,35 +929,6 @@
         });
       }
 
-      /* Theme Dropdown with Google Material Symbols Icons: Light / Dark / System */
-      const themeDropdownBtn = document.getElementById('themeDropdownBtn');
-      const themeDropdownMenu = document.getElementById('themeDropdownMenu');
-      const themeDropdownWrap = document.getElementById('themeDropdownWrap');
-
-      if (themeDropdownBtn && themeDropdownMenu) {
-        themeDropdownBtn.addEventListener('click', function (ev) {
-          ev.stopPropagation();
-          const isHidden = themeDropdownMenu.classList.toggle('hidden');
-          themeDropdownBtn.setAttribute('aria-expanded', String(!isHidden));
-        });
-
-        document.querySelectorAll('#themeDropdownMenu .theme-dropdown-item').forEach(function (btn) {
-          btn.addEventListener('click', function () {
-            const mode = btn.getAttribute('data-theme-mode');
-            applyThemeMode(mode);
-            themeDropdownMenu.classList.add('hidden');
-            themeDropdownBtn.setAttribute('aria-expanded', 'false');
-          });
-        });
-
-        document.addEventListener('click', function (ev) {
-          if (themeDropdownWrap && !themeDropdownWrap.contains(ev.target)) {
-            themeDropdownMenu.classList.add('hidden');
-            themeDropdownBtn.setAttribute('aria-expanded', 'false');
-          }
-        });
-      }
-
       /* Dynamically track #topHeader height so #orderPanel / #detailPanel never overlap KPI cards */
       window.addEventListener('resize', updateTopHeaderOffsetVar);
       if (window.ResizeObserver) {
@@ -989,20 +938,6 @@
             updateTopHeaderOffsetVar();
           });
           ro.observe(headerEl);
-        }
-      }
-
-      if (window.matchMedia) {
-        const darkQuery = window.matchMedia('(prefers-color-scheme: dark)');
-        const onSystemChange = function () {
-          if (appState.themeMode === 'system') {
-            refresh3DSceneThemeColors();
-          }
-        };
-        if (darkQuery.addEventListener) {
-          darkQuery.addEventListener('change', onSystemChange);
-        } else if (darkQuery.addListener) {
-          darkQuery.addListener(onSystemChange);
         }
       }
     }
